@@ -27,25 +27,25 @@ object ModelValidator {
         when (field) {
             is PositiveOrZeroInt -> {
                 if (!field.validate()) {
-                    result.addError(PositiveOrZeroInt::class.java.simpleName, "${PositiveOrZeroInt.INVALID_MESSAGE}: ${field.value}")
+                    result.addError(fieldName, "${PositiveOrZeroInt.INVALID_MESSAGE}: ${field.value}")
                 }
             }
 
             is UserEmail -> {
                 if (!field.validate()) {
-                    result.addError(UserEmail::class.java.simpleName, "${UserEmail.INVALID_MESSAGE}: ${field.value}")
+                    result.addError(fieldName, "${UserEmail.INVALID_MESSAGE}: ${field.value}")
                 }
             }
 
             is UserName -> {
                 if (!field.validate()) {
-                    result.addError(UserName::class.java.simpleName, "${UserName.INVALID_MESSAGE}: ${field.value}")
+                    result.addError(fieldName, "${UserName.INVALID_MESSAGE}: ${field.value}")
                 }
             }
 
             is UserId -> {
                 if (!field.validate()) {
-                    result.addError(UserId::class.java.simpleName, "${UserId.INVALID_MESSAGE}: ${field.value}")
+                    result.addError(fieldName, "${UserId.INVALID_MESSAGE}: ${field.value}")
                 }
             }
         }
