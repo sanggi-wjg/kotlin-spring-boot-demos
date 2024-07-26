@@ -8,7 +8,7 @@ data class UserName(val value: String) {
     }
 
     companion object {
-        private val USER_NAME_REGEX = "^[A-Za-z0-9+_.-]$".toRegex()
+        private val USER_NAME_REGEX = "^[A-Za-z]{2,}$".toRegex()
         const val INVALID_MESSAGE = "UserName must has valid format"
 
         fun innerValidate(value: String): Boolean {

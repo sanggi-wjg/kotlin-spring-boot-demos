@@ -3,40 +3,63 @@ package com.raynor.demo.app.validator
 import com.raynor.demo.app.model.ValidationResult
 import com.raynor.demo.app.types.PositiveOrZeroInt
 import com.raynor.demo.app.types.UserEmail
+import com.raynor.demo.app.types.UserId
 import com.raynor.demo.app.types.UserName
-import kotlin.reflect.full.createType
 import kotlin.reflect.full.declaredMemberProperties
 
 object ModelValidator {
 
-    fun validate(model: Any): ValidationResult {
+    fun validateModel(model: Any): ValidationResult {
         val result = ValidationResult()
-
         model::class.declaredMemberProperties.forEach { property ->
-            val fieldName = property.name
-            val fieldValue = property.getter.call(model)
+            validateFieldOfCustomTyped(property.name, property.getter.call(model), result)
+        }
+        return result
+    }
 
-            when (property.returnType) {
-                PositiveOrZeroInt::class.createType() -> {
-                    if (!(fieldValue as PositiveOrZeroInt).validate()) {
-                        result.addError(fieldName, "${PositiveOrZeroInt.INVALID_MESSAGE}: $fieldValue")
-                    }
+    fun validateTyped(type: Any): ValidationResult {
+        val result = ValidationResult()
+        validateFieldOfCustomTyped(type::class.java.simpleName, type, result)
+        return result
+    }
+
+    private fun validateFieldOfCustomTyped(fieldName: String, field: Any?, result: ValidationResult) {
+        when (field) {
+            is PositiveOrZeroInt -> {
+                if (!field.validate()) {
+                    result.addError(PositiveOrZeroInt::class.java.simpleName, "${PositiveOrZeroInt.INVALID_MESSAGE}: ${field.value}")
                 }
+            }
 
-                UserEmail::class.createType() -> {
-                    if (!(fieldValue as UserEmail).validate()) {
-                        result.addError(fieldName, "${UserEmail.INVALID_MESSAGE}: $fieldValue")
-                    }
+            is UserEmail -> {
+                if (!field.validate()) {
+                    result.addError(UserEmail::class.java.simpleName, "${UserEmail.INVALID_MESSAGE}: ${field.value}")
                 }
+            }
 
-                UserName::class.createType() -> {
-                    if (!(fieldValue as UserName).validate()) {
-                        result.addError(fieldName, "${UserName.INVALID_MESSAGE}: $fieldValue")
-                    }
+            is UserName -> {
+                if (!field.validate()) {
+                    result.addError(UserName::class.java.simpleName, "${UserName.INVALID_MESSAGE}: ${field.value}")
+                }
+            }
+
+            is UserId -> {
+                if (!field.validate()) {
+                    result.addError(UserId::class.java.simpleName, "${UserId.INVALID_MESSAGE}: ${field.value}")
                 }
             }
         }
+    }
+}
 
-        return result
+fun <T> validateModelOf(function: () -> T): T {
+    return function.invoke().also {
+        ModelValidator.validateModel(it as Any).throwIfError()
+    }
+}
+
+fun <T> validateTypedOf(function: () -> T): T {
+    return function.invoke().also {
+        ModelValidator.validateTyped(it as Any).throwIfError()
     }
 }

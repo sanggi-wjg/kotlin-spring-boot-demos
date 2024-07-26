@@ -7,3 +7,9 @@ Content-Type: Application/json
   "name": "def",
   "age": -1
 }
+
+### Get User 0
+GET localhost:8080/users/0
+
+### Get User 1
+GET localhost:8080/users/1
