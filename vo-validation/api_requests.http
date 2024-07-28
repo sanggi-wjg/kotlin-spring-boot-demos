@@ -13,3 +13,6 @@ GET localhost:8080/users/0
 
 ### Get User 1
 GET localhost:8080/users/1
+
+### Get User 10
+GET localhost:8080/users/10

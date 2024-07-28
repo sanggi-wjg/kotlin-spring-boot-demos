@@ -6,24 +6,9 @@ import com.raynor.demo.app.types.UserName
 import org.springframework.stereotype.Service
 
 @Service
-class UserService {
-
-    private val usersOnMemory by lazy {
-        listOf(
-            UserEntity(
-                id = 1,
-                email = "abc@dev.com",
-                name = "abc",
-                age = 10
-            ),
-            UserEntity(
-                id = 2,
-                email = "bbb@dev.com",
-                name = "bbb",
-                age = 20
-            )
-        )
-    }
+class UserService(
+    private val userRepository: UserRepository,
+) {
 
     fun createUser(request: UserCreationRequest): UserEntity {
         return UserEntity(
@@ -35,12 +20,12 @@ class UserService {
     }
 
     fun getUser(userId: UserId): UserEntity? {
-        return usersOnMemory.find { it.id == userId.value }
+        return userRepository.findById(userId.value)
             ?: throw IllegalArgumentException("User not found")
     }
 
     fun getUserByUserName(userName: UserName): UserEntity? {
-        return usersOnMemory.find { it.name == userName.value }
+        return userRepository.findByUserName(userName.value)
             ?: throw IllegalArgumentException("User not found")
     }
 }

@@ -2,7 +2,6 @@ package com.raynor.demo.app.types
 
 data class UserName(val value: String) {
 
-
     fun validate(): Boolean {
         return innerValidate(this.value)
     }
