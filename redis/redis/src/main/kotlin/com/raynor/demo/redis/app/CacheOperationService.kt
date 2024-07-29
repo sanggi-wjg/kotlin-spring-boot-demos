@@ -12,17 +12,18 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Service
-class CacheService(
+class CacheOperationService(
     private val objectMapper: ObjectMapper,
     private val listOps: ListOperations<String, String>,
     private val setOps: SetOperations<String, String>,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    private val listKey = "key-list"
-    private val listKey2 = "key-list-2"
-    private val setKey = "key-set"
-    private val setKey2 = "key-set-2"
+    private val listKey by lazy { "key-list" }
+    private val listKey2 by lazy { "key-list-2" }
+
+    private val setKey by lazy { "key-set" }
+    private val setKey2 by lazy { "key-set-2" }
 
     /*
     * https://docs.spring.io/spring-data/redis/reference/redis/template.html
@@ -57,9 +58,9 @@ class CacheService(
 
         // [ {"id":1,"name":"hello","amount":1,"status":"ACTIVE","createdAt":"2024-07-28T15:02:20.282320Z"},
         //   {"id":1,"name":"hello","amount":1,"status":"ACTIVE","createdAt":"2024-07-28T15:02:14.528917Z"}]
-        // 2024-07-29T00:05:14.051+09:00  INFO 64339 --- [redis] [nio-8080-exec-1] com.raynor.demo.redis.app.CacheService   : Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:05:13.779234Z)
-        // 2024-07-29T00:05:14.051+09:00  INFO 64339 --- [redis] [nio-8080-exec-1] com.raynor.demo.redis.app.CacheService   : Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:02:20.282320Z)
-        // 2024-07-29T00:05:14.051+09:00  INFO 64339 --- [redis] [nio-8080-exec-1] com.raynor.demo.redis.app.CacheService   : Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:02:14.528917Z)
+        // Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:05:13.779234Z)
+        // Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:02:20.282320Z)
+        // Something(id=1, name=hello, amount=1, status=ACTIVE, createdAt=2024-07-28T15:02:14.528917Z)
         val res = setOps.members(setKey)
         res?.forEach {
             logger.info(objectMapper.readValue(it, Something::class.java).toString())
@@ -67,13 +68,14 @@ class CacheService(
     }
 
     fun setTest2() {
-        //
+        // "SADD" "key-set-2" "{\"uniqueId\":1,\"name\":\"hello\"}"
         val data = objectMapper.writeValueAsString(
             UniqueData(1, "hello")
         )
         setOps.add(setKey2, data)
 
-        //
+        // "SMEMBERS" "key-set-2"
+        // UniqueData(uniqueId=1, name=hello)
         val res = setOps.members(setKey2)
         res?.forEach {
             logger.info(objectMapper.readValue(it, UniqueData::class.java).toString())

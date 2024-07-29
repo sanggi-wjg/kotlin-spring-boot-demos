@@ -2,6 +2,7 @@ package com.raynor.demo.redis.app.config
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
@@ -48,5 +49,12 @@ class RedisConfig {
         redisTemplate: RedisTemplate<String, String>,
     ): SetOperations<String, String> {
         return redisTemplate.opsForSet()
+    }
+
+    @Bean
+    fun cacheManager(
+        connectionFactory: RedisConnectionFactory,
+    ): RedisCacheManager {
+        return RedisCacheManager.create(connectionFactory)
     }
 }

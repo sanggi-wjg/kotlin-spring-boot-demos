@@ -8,24 +8,24 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("")
 class SomethingController(
-    private val cacheService: CacheService,
+    private val cacheOperationService: CacheOperationService,
 ) {
 
     @GetMapping("/list")
     fun list(): ResponseEntity<String> {
-        cacheService.listTest()
+        cacheOperationService.listTest()
         return ResponseEntity.ok("hello")
     }
 
     @GetMapping("/set")
     fun set(): ResponseEntity<String> {
-        cacheService.setTest()
+        cacheOperationService.setTest()
         return ResponseEntity.ok("world")
     }
 
     @GetMapping("/set2")
     fun set2(): ResponseEntity<String> {
-        cacheService.setTest2()
+        cacheOperationService.setTest2()
         return ResponseEntity.ok("world")
     }
 }
