@@ -12,7 +12,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Service
-class CacheOperationService(
+class RedisOperationService(
     private val objectMapper: ObjectMapper,
     private val listOps: ListOperations<String, String>,
     private val setOps: SetOperations<String, String>,
