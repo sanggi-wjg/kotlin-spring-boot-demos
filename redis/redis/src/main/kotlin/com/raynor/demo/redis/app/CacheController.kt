@@ -1,5 +1,6 @@
 package com.raynor.demo.redis.app
 
+import com.raynor.demo.redis.app.model.Person
 import com.raynor.demo.redis.app.model.Something
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
@@ -13,6 +14,7 @@ import kotlin.random.Random
 class CacheController(
     private val redisOperationService: RedisOperationService,
     private val redisCacheService: RedisCacheService,
+    private val redisRepoService: RedisRepoService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -59,6 +61,36 @@ class CacheController(
 
     @GetMapping("/ca-2")
     fun cache2(): ResponseEntity<List<Something>> {
-        return ResponseEntity.ok(redisCacheService.cacheList())
+        return redisCacheService.cacheList().let {
+            ResponseEntity.ok(it)
+        }
+    }
+
+    @GetMapping("/cr-1")
+    fun cr1(): ResponseEntity<Person> {
+        return redisRepoService.create().let {
+            ResponseEntity.ok(it)
+        }
+    }
+
+    @GetMapping("/cr-2")
+    fun cr2(): ResponseEntity<List<Person>> {
+        return redisRepoService.createList().let {
+            ResponseEntity.ok(it)
+        }
+    }
+
+    @GetMapping("/cr-3")
+    fun cr3(): ResponseEntity<Person> {
+        return redisRepoService.update().let {
+            ResponseEntity.ok(it)
+        }
+    }
+
+    @GetMapping("/cr-4")
+    fun cr4(): ResponseEntity<Boolean> {
+        return redisRepoService.delete().let {
+            ResponseEntity.ok(it)
+        }
     }
 }
