@@ -1,18 +1,17 @@
 package com.raynor.demo.redis.app
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.raynor.demo.redis.app.model.IdempotenceStatus
+import com.raynor.demo.redis.app.idempotency.IdempotencyService
+import com.raynor.demo.redis.app.model.IdempotencyStatus
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.SomethingStatus
 import com.raynor.demo.redis.app.model.UniqueData
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.ListOperations
 import org.springframework.data.redis.core.SetOperations
-import org.springframework.data.redis.core.ValueOperations
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
-import java.time.Duration
 import java.time.Instant
 
 @Service
@@ -20,7 +19,7 @@ class RedisOperationService(
     private val objectMapper: ObjectMapper,
     private val listOps: ListOperations<String, String>,
     private val setOps: SetOperations<String, String>,
-    private val valueOps: ValueOperations<String, String>,
+    private val idempotencyService: IdempotencyService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -32,41 +31,16 @@ class RedisOperationService(
 
     // RedisTemplate this.setEnableTransactionSupport(true)
     @Transactional
-    fun idempotency(idempotencyKey: String): Pair<UniqueData?, IdempotenceStatus> {
+    fun idempotency(idempotencyKey: String): Pair<UniqueData?, IdempotencyStatus> {
         /*
         * 멱등성
         * https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/
         * https://docs.stripe.com/api/idempotent_requests
         * https://baekjungho.github.io/wiki/troubleshooting/troubleshooting-idempotency/
-        *
-        * todo lambda 로 구현할 수 있을까?
         * */
-        val requestedKey = "idempotence-requested:$idempotencyKey"
-        val doneKey = "idempotence-done:$idempotencyKey"
-        val defaultPolicyOfTTL = Duration.ofSeconds(60)
-
-        if (valueOps.get(doneKey) == "1") {
-            logger.info("$idempotencyKey is done")
-            return Pair(null, IdempotenceStatus.ALREADY_DONE)
-        }
-
-        if (valueOps.get(requestedKey) == "1") {
-            logger.info("$idempotencyKey is requested")
-            return Pair(null, IdempotenceStatus.ALREADY_REQUESTED)
-        }
-
-        logger.info("$idempotencyKey processing")
-        valueOps.set(requestedKey, "1", defaultPolicyOfTTL)
-        Thread.sleep(20_000)
-        logger.info("$idempotencyKey do return")
-
-        return Pair(
-            UniqueData(1, "hello"),
-            IdempotenceStatus.SUCCESS
-        ).let {
-            valueOps.getAndDelete(requestedKey)
-            valueOps.set(doneKey, "1", defaultPolicyOfTTL)
-            it
+        return idempotencyService.validateIdempotency(idempotencyKey) {
+            Thread.sleep(10_000)
+            UniqueData(1, "hello")
         }
     }
 

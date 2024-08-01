@@ -1,6 +1,6 @@
 package com.raynor.demo.redis.app
 
-import com.raynor.demo.redis.app.model.IdempotenceStatus
+import com.raynor.demo.redis.app.model.IdempotencyStatus
 import com.raynor.demo.redis.app.model.Person
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.UniqueData
@@ -25,10 +25,10 @@ class CacheController(
     ): ResponseEntity<UniqueData> {
         val (dataOrNull, idempotenceStatus) = redisOperationService.idempotency(idempotencyKey)
 
-        if (idempotenceStatus == IdempotenceStatus.ALREADY_REQUESTED) {
+        if (idempotenceStatus == IdempotencyStatus.ALREADY_REQUESTED) {
             return ResponseEntity(HttpStatus.CONFLICT)
         }
-        if (idempotenceStatus == IdempotenceStatus.ALREADY_DONE) {
+        if (idempotenceStatus == IdempotencyStatus.ALREADY_DONE) {
             return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
         }
         return ResponseEntity.ok(dataOrNull!!)
