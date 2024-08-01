@@ -1,7 +1,6 @@
-package com.raynor.demo.redis.app
+package com.raynor.demo.redis.app.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.raynor.demo.redis.app.idempotency.IdempotencyService
 import com.raynor.demo.redis.app.model.IdempotencyStatus
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.SomethingStatus

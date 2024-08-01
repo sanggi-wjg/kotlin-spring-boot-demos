@@ -1,4 +1,4 @@
-package com.raynor.demo.redis.app.idempotency
+package com.raynor.demo.redis.app.service
 
 import com.raynor.demo.redis.app.model.IdempotencyStatus
 import org.slf4j.LoggerFactory
