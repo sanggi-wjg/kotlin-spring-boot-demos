@@ -7,5 +7,4 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories(
     basePackages = ["com.raynor.demo.redis.app.repository"],
 )
-class RedisRepositoryConfig {
-}
+class RedisRepositoryConfig

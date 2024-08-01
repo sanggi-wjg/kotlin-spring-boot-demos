@@ -1,0 +1,6 @@
+### Post idempotent
+POST localhost:8080/idem-1
+Idempotency-Key: 1234
+
+# curl -v --header "Idempotency-Key: 1234" -X POST localhost:8080/idem-1
+
