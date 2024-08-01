@@ -1,4 +1,4 @@
-package com.raynor.demo.redis.app
+package com.raynor.demo.redis.app.service
 
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.SomethingStatus

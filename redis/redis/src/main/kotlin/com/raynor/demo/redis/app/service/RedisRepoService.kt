@@ -1,4 +1,4 @@
-package com.raynor.demo.redis.app
+package com.raynor.demo.redis.app.service
 
 import com.raynor.demo.redis.app.model.Address
 import com.raynor.demo.redis.app.model.Person
@@ -65,7 +65,7 @@ class RedisRepoService(
             personRedisRepository.save(it)
         }
     }
-    
+
     fun delete(): Boolean {
         /*
         * "HGETALL" "person:1"
