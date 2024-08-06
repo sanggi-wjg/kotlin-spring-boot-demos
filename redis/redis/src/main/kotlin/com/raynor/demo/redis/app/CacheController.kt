@@ -1,14 +1,13 @@
 package com.raynor.demo.redis.app
 
-import com.raynor.demo.redis.app.model.IdempotencyStatus
 import com.raynor.demo.redis.app.model.Person
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.UniqueData
+import com.raynor.demo.redis.app.service.IdempotencyService
 import com.raynor.demo.redis.app.service.RedisCacheService
 import com.raynor.demo.redis.app.service.RedisOperationService
 import com.raynor.demo.redis.app.service.RedisRepoService
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import kotlin.random.Random
@@ -19,6 +18,7 @@ class CacheController(
     private val redisOperationService: RedisOperationService,
     private val redisCacheService: RedisCacheService,
     private val redisRepoService: RedisRepoService,
+    private val idempotencyService: IdempotencyService,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -26,15 +26,10 @@ class CacheController(
     fun idempotency(
         @RequestHeader(value = "Idempotency-Key", required = false) idempotencyKey: String
     ): ResponseEntity<UniqueData> {
-        val (dataOrNull, idempotenceStatus) = redisOperationService.idempotency(idempotencyKey)
-
-        if (idempotenceStatus == IdempotencyStatus.ALREADY_REQUESTED) {
-            return ResponseEntity(HttpStatus.CONFLICT)
+        return idempotencyService.validateIdempotency(idempotencyKey) {
+            Thread.sleep(10_000)
+            UniqueData(1, "hello")
         }
-        if (idempotenceStatus == IdempotencyStatus.ALREADY_DONE) {
-            return ResponseEntity(HttpStatus.UNPROCESSABLE_ENTITY)
-        }
-        return ResponseEntity.ok(dataOrNull!!)
     }
 
     @GetMapping("/list")

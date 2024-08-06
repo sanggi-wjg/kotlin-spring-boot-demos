@@ -1,7 +1,6 @@
 package com.raynor.demo.redis.app.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.raynor.demo.redis.app.model.IdempotencyStatus
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.SomethingStatus
 import com.raynor.demo.redis.app.model.UniqueData
@@ -9,7 +8,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.ListOperations
 import org.springframework.data.redis.core.SetOperations
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Instant
 
@@ -27,21 +25,6 @@ class RedisOperationService(
 
     private val setKey by lazy { "key-set" }
     private val setKey2 by lazy { "key-set-2" }
-
-    // RedisTemplate this.setEnableTransactionSupport(true)
-    @Transactional
-    fun idempotency(idempotencyKey: String): Pair<UniqueData?, IdempotencyStatus> {
-        /*
-        * 멱등성
-        * https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/
-        * https://docs.stripe.com/api/idempotent_requests
-        * https://baekjungho.github.io/wiki/troubleshooting/troubleshooting-idempotency/
-        * */
-        return idempotencyService.validateIdempotency(idempotencyKey) {
-            Thread.sleep(10_000)
-            UniqueData(1, "hello")
-        }
-    }
 
     /*
     * https://docs.spring.io/spring-data/redis/reference/redis/template.html
