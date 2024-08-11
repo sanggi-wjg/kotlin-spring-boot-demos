@@ -13,7 +13,7 @@ class SeekController(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @RequestMapping("/1")
-    fun getUsers(): ResponseEntity<String> {
+    fun get(): ResponseEntity<String> {
         seekService.getUsers().let {
             logger.info("111 $it")
         }
@@ -29,6 +29,24 @@ class SeekController(
             logger.info("333 $it")
         }
 
-        return ResponseEntity.ok("hello world")
+        return ResponseEntity.ok("hello world - GET")
+    }
+
+    @RequestMapping("/2")
+    fun post(): ResponseEntity<String> {
+        seekService.createUser()
+        return ResponseEntity.ok("hello world - POST")
+    }
+
+    @RequestMapping("/3")
+    fun put(): ResponseEntity<String> {
+        seekService.updateUser()
+        return ResponseEntity.ok("hello world - PATCH")
+    }
+
+    @RequestMapping("/4")
+    fun delete(): ResponseEntity<String> {
+        seekService.deleteUser()
+        return ResponseEntity.ok("hello world - DELETE")
     }
 }

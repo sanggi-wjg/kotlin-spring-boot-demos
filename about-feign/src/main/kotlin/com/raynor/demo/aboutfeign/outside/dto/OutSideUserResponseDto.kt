@@ -1,7 +1,7 @@
-package com.raynor.demo.aboutfeign.outside
+package com.raynor.demo.aboutfeign.outside.dto
 
 data class OutSideUserResponseDto(
-    val id: Long,
+    val id: Int,
     val name: String,
     val status: OutSideUserStatus,
 )

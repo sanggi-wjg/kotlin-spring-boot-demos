@@ -29,7 +29,6 @@ enum class UserStatus {
     UNKNOWN;
 
     companion object {
-        @JvmStatic
         fun from(value: String): UserStatus {
             return try {
                 UserStatus.valueOf(value)
