@@ -1,27 +1,30 @@
 package com.raynor.demo.aboutfeign.app
 
+import com.raynor.demo.aboutfeign.app.http.DynamicUrlAPI
 import com.raynor.demo.aboutfeign.app.http.OutSideAPI
 import com.raynor.demo.aboutfeign.app.http.OutSideAPIClient
 import com.raynor.demo.aboutfeign.app.model.User
 import com.raynor.demo.aboutfeign.app.model.UserStatus
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.net.URI
 
 @Service
 class SeekService(
-    private val aAPIClient: OutSideAPIClient,
+    private val outSideAPIClient: OutSideAPIClient,
+    private val dynamicUrlAPI: DynamicUrlAPI,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun getUsers(): List<User> {
-        return aAPIClient.requestGetUsers()
+        return outSideAPIClient.requestGetUsers()
             .onSuccess { logger.info("Success to getUsers: $it") }
             .onFailure { logger.error("Failed to getUsers", it) }
             .getOrDefault(emptyList())
     }
 
     fun getUsersUnHandledEnum(): List<User> {
-        return aAPIClient.requestGetUsersUnHandledEnum()
+        return outSideAPIClient.requestGetUsersUnHandledEnum()
             .onSuccess { logger.info("Success to getUsersUnHandledEnum: $it") }
             .onFailure { logger.error("Failed to getUsersUnHandledEnum", it) }
             .getOrThrow() // 실패 했으니 에러 발생 시켜 버림
@@ -29,14 +32,14 @@ class SeekService(
     }
 
     fun getUsersUnHandledEnumButNoRaise(): List<User> {
-        return aAPIClient.requestGetUsersUnHandledEnumV2()
+        return outSideAPIClient.requestGetUsersUnHandledEnumV2()
             .onSuccess { logger.info("Success to getUsersUnHandledEnumButNoRaise: $it") }
             .onFailure { logger.error("Failed to getUsersUnHandledEnumButNoRaise", it) }
             .getOrThrow()
     }
 
     fun createUser(): OutSideAPI.UserResponseDto {
-        return aAPIClient.requestCreateUser(
+        return outSideAPIClient.requestCreateUser(
             idempotentKey = "12345",
             requestDto = OutSideAPI.UserCreationRequestDto(
                 name = "hello world"
@@ -48,7 +51,7 @@ class SeekService(
     }
 
     fun updateUser(): OutSideAPI.UserResponseDto {
-        return aAPIClient.requestUpdateUser(
+        return outSideAPIClient.requestUpdateUser(
             userId = 15,
             requestDto = OutSideAPI.UserUpdateRequestDto(
                 name = "hello world",
@@ -61,11 +64,20 @@ class SeekService(
     }
 
     fun deleteUser(): Unit {
-        return aAPIClient.requestDeleteUser(
+        return outSideAPIClient.requestDeleteUser(
             userId = 15
         )
             .onSuccess { logger.info("Success to deleteUser: $it") }
             .onFailure { logger.error("Failed to deleteUser", it) }
             .getOrThrow()
+    }
+
+    fun requestWithDynamicURL() {
+        runCatching {
+            dynamicUrlAPI.getSomething(
+                uri = URI.create("https://jsonplaceholder.typicode.com/posts/2")
+            )
+        }.onSuccess { logger.info("Success to requestWithDynamicURL: $it") }
+            .onFailure { logger.error("Failed to requestWithDynamicURL", it) }
     }
 }

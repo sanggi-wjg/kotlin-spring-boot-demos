@@ -49,4 +49,10 @@ class SeekController(
         seekService.deleteUser()
         return ResponseEntity.ok("hello world - DELETE")
     }
+
+    @RequestMapping("/5")
+    fun dynamicUrl(): ResponseEntity<String> {
+        seekService.requestWithDynamicURL()
+        return ResponseEntity.ok("hello dynamic url")
+    }
 }
