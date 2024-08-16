@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: sat
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:33061/tob
+    username: root
+    password: rootroot
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    dbcp2:
+      validation-query: SELECT 1
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        use_sql_comments: false
+        default_batch_fetch_size: 50
+        show_sql: true
+        format_sql: false
+        globally_quoted_identifiers: true
