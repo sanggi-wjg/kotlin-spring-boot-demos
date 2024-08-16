@@ -55,4 +55,10 @@ class SeekController(
         seekService.requestWithDynamicURL()
         return ResponseEntity.ok("hello dynamic url")
     }
+
+    @RequestMapping("/10")
+    fun delayed(): ResponseEntity<String> {
+        seekService.requestDelayed()
+        return ResponseEntity.ok("hello seek")
+    }
 }

@@ -4,26 +4,26 @@ import com.raynor.demo.aboutfeign.app.model.UserStatus
 import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.*
 
-@FeignClient(name = "outSideClient", url = "http://localhost:8080/ext")
+@FeignClient(name = "outSideClient", url = "http://localhost:8080")
 interface OutSideAPI {
 
     @RequestMapping(
         method = [RequestMethod.GET],
-        value = ["/users"],
+        value = ["/ext/users"],
         consumes = ["application/json"]
     )
     fun getUsers(): List<UserResponseDto>
 
     @RequestMapping(
         method = [RequestMethod.GET],
-        value = ["/users/enum"],
+        value = ["/ext/users/enum"],
         consumes = ["application/json"]
     )
     fun getUsersUnHandledEnum(): List<UserResponseDto>
 
     @RequestMapping(
         method = [RequestMethod.POST],
-        value = ["/users"],
+        value = ["/ext/users"],
         consumes = ["application/json"]
     )
     fun createUser(
@@ -33,7 +33,7 @@ interface OutSideAPI {
 
     @RequestMapping(
         method = [RequestMethod.PATCH],
-        value = ["/users/{userId}"],
+        value = ["/ext/users/{userId}"],
         consumes = ["application/json"]
     )
     fun updateUser(
@@ -43,11 +43,17 @@ interface OutSideAPI {
 
     @RequestMapping(
         method = [RequestMethod.DELETE],
-        value = ["/users/{userId}"],
+        value = ["/ext/users/{userId}"],
     )
     fun deleteUser(
         @PathVariable userId: Int,
     )
+
+    @RequestMapping(
+        method = [RequestMethod.GET],
+        value = ["/ext/delay"],
+    )
+    fun delayed(): String
 
     data class UserResponseDto(
         val id: Int,

@@ -80,4 +80,11 @@ class SeekService(
         }.onSuccess { logger.info("Success to requestWithDynamicURL: $it") }
             .onFailure { logger.error("Failed to requestWithDynamicURL", it) }
     }
+
+    fun requestDelayed() {
+        runCatching {
+            outSideAPIClient.requestDelayed()
+        }.onSuccess { logger.info("Success to request delayed: $it") }
+            .onFailure { logger.error("Failed to request delayed", it) }
+    }
 }

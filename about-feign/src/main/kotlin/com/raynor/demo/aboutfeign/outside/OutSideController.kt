@@ -68,8 +68,14 @@ class OutSideController {
         @PathVariable userId: Int
     ): ResponseEntity<Unit> {
         if (userId == 10) {
-            throw RuntimeException("wtd, do not request with 10")
+            throw RuntimeException("wtf, do not request with 10")
         }
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/delay")
+    fun delayed(): ResponseEntity<String> {
+        Thread.sleep(90000)
+        return ResponseEntity.accepted().body("hello world - DELAYED")
     }
 }

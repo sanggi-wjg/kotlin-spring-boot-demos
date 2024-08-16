@@ -1,6 +1,7 @@
 package com.raynor.demo.aboutfeign.app.model
 
 import com.raynor.demo.aboutfeign.app.http.OutSideAPI
+import org.slf4j.LoggerFactory
 
 data class User(
     val id: Int,
@@ -33,6 +34,8 @@ enum class UserStatus {
             return try {
                 UserStatus.valueOf(value)
             } catch (e: IllegalArgumentException) {
+                val logger = LoggerFactory.getLogger(this::class.java)
+                logger.error("Unknown user status: $value", e)
                 UNKNOWN
             }
         }

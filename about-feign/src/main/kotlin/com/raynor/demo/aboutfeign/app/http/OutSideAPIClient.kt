@@ -58,4 +58,10 @@ class OutSideAPIClient(
             )
         }
     }
+
+    fun requestDelayed(): Result<String> {
+        return runCatching {
+            outSideAPI.delayed()
+        }
+    }
 }
