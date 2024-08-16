@@ -1,13 +1,11 @@
-package com.raynor.demo.abouttransaction
+package com.raynor.demo.abouttransaction.service
 
 import com.raynor.demo.abouttransaction.entity.ProductEntity
 import com.raynor.demo.abouttransaction.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.util.*
-import kotlin.random.Random
 
 @Service
 class PropagationTransactionService(
@@ -23,11 +21,11 @@ class PropagationTransactionService(
         return listOf(
             productRepository.save(
                 ProductEntity(
-                    id = null,
+//                    id = null,
                     name = "상품 1 ${UUID.randomUUID()}",
-                    price = Random.nextInt(1, 100).toBigDecimal(),
-                    stockQuantity = Random.nextInt(1, 100),
-                    createdAt = Instant.now(),
+//                    price = Random.nextInt(1, 100).toBigDecimal(),
+//                    stockQuantity = Random.nextInt(1, 100),
+//                    createdAt = Instant.now(),
                 )
             ),
             product2,
@@ -39,11 +37,11 @@ class PropagationTransactionService(
     fun insertWithNewTransactionAndSubMethodException(): List<ProductEntity> {
         val product1 = productRepository.save(
             ProductEntity(
-                id = null,
+//                id = null,
                 name = "상품 1 ${UUID.randomUUID()}",
-                price = Random.nextInt(1, 100).toBigDecimal(),
-                stockQuantity = Random.nextInt(1, 100),
-                createdAt = Instant.now(),
+//                price = Random.nextInt(1, 100).toBigDecimal(),
+//                stockQuantity = Random.nextInt(1, 100),
+//                createdAt = Instant.now(),
             )
         )
         val product2 = insert2()
@@ -60,11 +58,11 @@ class PropagationTransactionService(
     fun insert2(): ProductEntity {
         return productRepository.save(
             ProductEntity(
-                id = null,
+//                id = null,
                 name = "상품 2 ${UUID.randomUUID()}",
-                price = Random.nextInt(1, 100).toBigDecimal(),
-                stockQuantity = Random.nextInt(1, 100),
-                createdAt = Instant.now(),
+//                price = Random.nextInt(1, 100).toBigDecimal(),
+//                stockQuantity = Random.nextInt(1, 100),
+//                createdAt = Instant.now(),
             )
         )
     }
@@ -73,11 +71,11 @@ class PropagationTransactionService(
     fun insert3(raiseException: Boolean = false): ProductEntity {
         return productRepository.save(
             ProductEntity(
-                id = null,
+//                id = null,
                 name = "상품 3 ${UUID.randomUUID()}",
-                price = Random.nextInt(1, 100).toBigDecimal(),
-                stockQuantity = Random.nextInt(1, 100),
-                createdAt = Instant.now(),
+//                price = Random.nextInt(1, 100).toBigDecimal(),
+//                stockQuantity = Random.nextInt(1, 100),
+//                createdAt = Instant.now(),
             )
         ).also {
             if (raiseException) {

@@ -1,7 +1,5 @@
 package com.raynor.demo.abouttransaction.service
 
-import com.raynor.demo.abouttransaction.BasicTransactionService
-import com.raynor.demo.abouttransaction.PropagationTransactionService
 import com.raynor.demo.abouttransaction.repository.ProductRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec

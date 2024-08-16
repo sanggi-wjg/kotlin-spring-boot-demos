@@ -1,12 +1,10 @@
-package com.raynor.demo.abouttransaction
+package com.raynor.demo.abouttransaction.service
 
 import com.raynor.demo.abouttransaction.entity.ProductEntity
 import com.raynor.demo.abouttransaction.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 import java.util.*
-import kotlin.random.Random
 
 @Service
 class BasicTransactionService(
@@ -17,11 +15,10 @@ class BasicTransactionService(
     @Transactional
     fun insertWithBasicTransaction(): ProductEntity {
         return ProductEntity(
-            id = null,
             name = "상품 - ${UUID.randomUUID()}",
-            price = Random.nextInt(1, 100).toBigDecimal(),
-            stockQuantity = Random.nextInt(1, 100),
-            createdAt = Instant.now(),
+//            price = Random.nextInt(1, 100).toBigDecimal(),
+//            stockQuantity = Random.nextInt(1, 100),
+//            createdAt = Instant.now(),
         ).let {
             productRepository.save(it)
         }
