@@ -13,7 +13,13 @@ class EventController(
 
     @RequestMapping("/user")
     fun createUser(): ResponseEntity<String> {
-        createTaskService.createTaskOnUserSigned()
+        createTaskService.publishOnUserSigned()
         return ResponseEntity.ok("user created")
+    }
+
+    @RequestMapping("/product/u")
+    fun updateProduct(): ResponseEntity<String> {
+        createTaskService.publishOnProductUpdated()
+        return ResponseEntity.ok("product updated")
     }
 }

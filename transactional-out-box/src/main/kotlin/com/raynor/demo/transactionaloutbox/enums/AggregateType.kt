@@ -1,4 +1,4 @@
-package com.raynor.demo.transactionaloutbox.entity
+package com.raynor.demo.transactionaloutbox.enums
 
 enum class AggregateType {
     USER,

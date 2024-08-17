@@ -3,16 +3,14 @@ package com.raynor.demo.transactionaloutbox.service.model
 import com.raynor.demo.transactionaloutbox.entity.OutboxEntity
 import java.time.Instant
 
-object UserTask {
-    fun userSigned(userId: Int, name: String, email: String): OutboxEntity {
+object ProductTask {
+    fun productUpdated(productId: Int): OutboxEntity {
         return OutboxEntity(
-            aggregateId = userId,
-            aggregateType = "USER",
-            eventType = "USER_SIGNED",
+            aggregateId = productId,
+            aggregateType = "PRODUCT",
+            eventType = "PRODUCT_UPDATED",
             payload = mapOf(
-                "id" to userId,
-                "name" to name,
-                "email" to email
+                "id" to productId,
             ),
             isPublished = false,
             createdAt = Instant.now()
