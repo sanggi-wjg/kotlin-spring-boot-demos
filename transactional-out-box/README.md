@@ -21,15 +21,21 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "tombstones.on.delete" : "false",
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "transforms" : "outbox",
-    "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter"
+    "transforms.outbox.type" : "io.debezium.transforms.outbox.EventRouter",
+    "transforms.outbox.table.field.event.key": "aggregate_id",
+    "transforms.outbox.table.field.event.timestamp": "created_at",
+    "transforms.outbox.table.field.event.payload": "payload",
+    "transforms.outbox.table.json.payload.null.behavior": "ignore",
+    "transforms.outbox.table.fields.additional.error.on.missing": "false",
+    "transforms.outbox.route.by.field": "aggregate_type",
+    "schema.history.internal.kafka.bootstrap.servers": "tob-kafka:29092",
+    "schema.history.internal.kafka.topic": "schema-changes.demo"
   }
 }'
 
 # "transforms.outbox.table.expand.json.payload": "true",
 #"transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
-#"transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
-#"schema.history.internal.kafka.bootstrap.servers": "tob-kafka:29092",
-#"schema.history.internal.kafka.topic": "schema-changes.demo",
+#"transforms.outbox.table.fields.additional.placement": "aggregate_type:header:aggregateType,event_type:header:eventType",
 #"include.schema.changes": "false"
 
 
@@ -46,6 +52,7 @@ Server: Jetty(9.4.52.v20230823)
 
 ## Ref
 
+* https://medium.com/yotpoengineering/outbox-with-debezium-and-kafka-the-hidden-challenges-998c00487ae4
 * https://debezium.io/documentation/reference/stable/transformations/outbox-event-router.html
 * https://github.com/debezium/debezium-examples/tree/main/outbox
 * https://www.youtube.com/watch?v=uk5fRLUsBfk&list=WL&index=3&t=1986s
