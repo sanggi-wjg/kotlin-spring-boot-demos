@@ -1,11 +1,11 @@
-package com.raynor.demo.transactionaloutbox.event
+package com.raynor.demo.transactionaloutbox.service.model
 
 import com.raynor.demo.transactionaloutbox.entity.OutboxEntity
 import java.time.Instant
 
-class UserSignedEvent {
+class UserTask {
     companion object {
-        fun of(name: String, email: String): OutboxEntity {
+        fun userSigned(name: String, email: String): OutboxEntity {
             return OutboxEntity(
                 aggregateId = 1,
 //                aggregateType = AggregateType.USER,

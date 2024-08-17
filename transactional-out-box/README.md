@@ -28,15 +28,12 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "transforms.outbox.table.json.payload.null.behavior": "ignore",
     "transforms.outbox.table.fields.additional.error.on.missing": "false",
     "transforms.outbox.route.by.field": "aggregate_type",
+    "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
+    "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType",
     "schema.history.internal.kafka.bootstrap.servers": "tob-kafka:29092",
     "schema.history.internal.kafka.topic": "schema-changes.demo"
   }
 }'
-
-# "transforms.outbox.table.expand.json.payload": "true",
-#"transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
-#"transforms.outbox.table.fields.additional.placement": "aggregate_type:header:aggregateType,event_type:header:eventType",
-#"include.schema.changes": "false"
 
 
 > After Request
