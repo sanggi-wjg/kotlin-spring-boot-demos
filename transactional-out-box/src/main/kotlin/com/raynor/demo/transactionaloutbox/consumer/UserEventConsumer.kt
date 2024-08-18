@@ -91,6 +91,7 @@ class UserEventConsumer(
     private fun fire(outboxId: Long, function: () -> Unit) {
         val outbox = outboxRepository.findByIdOrNull(outboxId)
             ?: throw EntityNotFoundException("Outbox not found: $outboxId")
+
         function.invoke()
         outbox.done()
         outboxRepository.save(outbox)
