@@ -6,7 +6,10 @@ import com.raynor.demo.transactionaloutbox.consumer.model.UserSignedEvent
 import com.raynor.demo.transactionaloutbox.enums.EventType
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaGroup
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaTopic
+import com.raynor.demo.transactionaloutbox.repository.OutboxRepository
+import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.messaging.handler.annotation.Header
 import org.springframework.messaging.handler.annotation.Payload
@@ -17,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional
 class UserEventConsumer(
     private val objectMapper: ObjectMapper,
+    private val outboxRepository: OutboxRepository,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
@@ -42,10 +46,12 @@ class UserEventConsumer(
         val payload = getPayload(event)
         logger.info("payload: $payload")
 
-        when (eventType) {
-            EventType.USER_SIGNED.name -> {
-                val userSignedEvent = objectMapper.readValue(payload, UserSignedEvent::class.java)
-                logger.info("userSignedEvent: $userSignedEvent")
+        fire(outboxId.toLong()) {
+            when (eventType) {
+                EventType.USER_SIGNED.name -> {
+                    val userSignedEvent = objectMapper.readValue(payload, UserSignedEvent::class.java)
+                    logger.info("userSignedEvent: $userSignedEvent")
+                }
             }
         }
     }
@@ -72,12 +78,22 @@ class UserEventConsumer(
         val payload = getPayload(event)
         logger.info("payload: $payload")
 
-        when (eventType) {
-            EventType.PRODUCT_UPDATED.name -> {
-                val productUpdatedEvent = objectMapper.readValue(payload, ProductUpdatedEvent::class.java)
-                logger.info("productUpdatedEvent: $productUpdatedEvent")
+        fire(outboxId.toLong()) {
+            when (eventType) {
+                EventType.PRODUCT_UPDATED.name -> {
+                    val productUpdatedEvent = objectMapper.readValue(payload, ProductUpdatedEvent::class.java)
+                    logger.info("productUpdatedEvent: $productUpdatedEvent")
+                }
             }
         }
+    }
+
+    private fun fire(outboxId: Long, function: () -> Unit) {
+        val outbox = outboxRepository.findByIdOrNull(outboxId)
+            ?: throw EntityNotFoundException("Outbox not found: $outboxId")
+        function.invoke()
+        outbox.done()
+        outboxRepository.save(outbox)
     }
 
     private fun getPayload(event: String): String {

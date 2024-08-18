@@ -12,7 +12,7 @@ object ProductTask {
             payload = mapOf(
                 "id" to productId,
             ),
-            isPublished = false,
+            status = false,
             createdAt = Instant.now()
         )
     }

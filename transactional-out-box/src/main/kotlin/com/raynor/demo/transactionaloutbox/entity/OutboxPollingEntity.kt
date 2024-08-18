@@ -6,9 +6,9 @@ import org.hibernate.type.SqlTypes
 import org.jetbrains.annotations.NotNull
 import java.time.Instant
 
-@Table(name = "outbox")
+@Table(name = "outbox_polling")
 @Entity
-class OutboxEntity(
+class OutboxPollingEntity(
     aggregateId: Int,
     aggregateType: String,
     eventType: String,

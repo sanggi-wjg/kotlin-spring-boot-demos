@@ -14,7 +14,7 @@ object UserTask {
                 "name" to name,
                 "email" to email
             ),
-            isPublished = false,
+            status = false,
             createdAt = Instant.now()
         )
     }
