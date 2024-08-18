@@ -1,0 +1,115 @@
+version: "3.8"
+name: tob-docker-work-space
+services:
+  tob-mysql:
+    image: mysql:8.0
+    container_name: tob-mysql
+    networks:
+      - tob_network
+    ports:
+      - "10001:3306"
+    environment:
+      - MYSQL_DATABASE=demo
+      - MYSQL_ROOT_PASSWORD=rootroot
+    volumes:
+      - ./config/my.cnf:/etc/mysql/my.cnf
+
+  tob-zookeeper:
+    image: debezium/zookeeper:2.5.1.Final # https://hub.docker.com/r/debezium/zookeeper
+    platform: linux/arm64/v8
+    hostname: tob-zookeeper
+    container_name: tob-zookeeper
+    networks:
+      - tob_network
+    depends_on:
+      - tob-mysql
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+
+  tob-kafka:
+    image: debezium/kafka:2.5.1.Final # https://hub.docker.com/r/debezium/kafka
+    platform: linux/arm64/v8
+    container_name: tob-kafka
+    networks:
+      - tob_network
+    depends_on:
+      - tob-zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      ZOOKEEPER_CONNECT: tob-zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://tob-kafka:29092,EXTERNAL://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+  tob-kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: tob-kafka-ui
+    networks:
+      - tob_network
+    depends_on:
+      - tob-zookeeper
+      - tob-kafka
+    ports:
+      - "9001:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=Local-Cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=tob-kafka:29092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=tob-zookeeper:2181
+  
+  tob-connector:
+    image: debezium/connect:2.5.1.Final # https://hub.docker.com/r/debezium/connect
+    platform: linux/arm64/v8
+    container_name: tob-connector
+    networks:
+      - tob_network
+    ports:
+      - "8083:8083"
+    depends_on:
+      - tob-zookeeper
+      - tob-kafka
+    environment:
+      - BOOTSTRAP_SERVERS=tob-kafka:29092
+      - GROUP_ID=debezium-connector-1
+      - CONFIG_STORAGE_TOPIC=tob_connect_config_storage
+      - CONFIG_STORAGE_REPLICATION_FACTOR=1
+      - OFFSET_STORAGE_TOPIC=tob_connect_offset_storage
+      - OFFSET_STORAGE_REPLICATION_FACTOR=1
+      - STATUS_STORAGE_TOPIC=tob_connect_status_storage
+      - STATUS_STORAGE_REPLICATION_FACTOR=1
+      - ENABLE_DEBEZIUM_KC_REST_EXTENSION=true
+      - ENABLE_DEBEZIUM_SCRIPTING=true
+      - LOG_LEVEL=INFO
+      - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+#      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+#      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+#      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
+
+  tob-debezium-ui:
+    image: debezium/debezium-ui:2.1.2.Final # https://hub.docker.com/r/debezium/debezium-ui
+    platform: linux/arm64/v8
+    container_name: tob-debezium-ui
+    networks:
+      - tob_network
+    ports:
+      - "9002:8080"
+    depends_on:
+      - tob-connector
+    environment:
+      - DEPLOYMENT_MODE=default
+      - KAFKA_CONNECT_URIS=http://tob-connector:8083
+
+networks:
+  tob_network:
+    name: tob_docker_network
+    driver: bridge
