@@ -3,7 +3,6 @@ package com.raynor.demo.transactionaloutbox.consumer
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.raynor.demo.transactionaloutbox.consumer.model.ProductUpdatedEvent
 import com.raynor.demo.transactionaloutbox.consumer.model.UserSignedEvent
-import com.raynor.demo.transactionaloutbox.enums.EventType
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaGroup
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaTopic
 import com.raynor.demo.transactionaloutbox.repository.OutboxRepository
@@ -25,12 +24,12 @@ class UserEventConsumer(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @KafkaListener(
-        topics = [KafkaTopic.USER_EVENTS],
+        topics = [KafkaTopic.USER_SIGNED],
         groupId = KafkaGroup.SPRING_TOB,
     )
     fun consumerUserEvents(
         @Header(value = "id") outboxId: String,
-        @Header(value = "eventType") eventType: String,
+//        @Header(value = "eventType") eventType: String,
         @Payload event: String,
     ) {
         /*
@@ -41,28 +40,24 @@ class UserEventConsumer(
         2024-08-17T21:03:52.441+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : userSignedEvent: UserSignedEvent(name=2b316917-98be-4062-b394-6f2cbc8c8c45, email=2b316917-98be-4062-b394-6f2cbc8c8c45@dev.com)
         * */
         logger.info("outboxId: $outboxId")
-        logger.info("eventType: $eventType")
         logger.info("event: $event")
+
         val payload = getPayload(event)
         logger.info("payload: $payload")
 
         fire(outboxId.toLong()) {
-            when (eventType) {
-                EventType.USER_SIGNED.name -> {
-                    val userSignedEvent = objectMapper.readValue(payload, UserSignedEvent::class.java)
-                    logger.info("userSignedEvent: $userSignedEvent")
-                }
-            }
+            val userSignedEvent = objectMapper.readValue(payload, UserSignedEvent::class.java)
+            logger.info("userSignedEvent: $userSignedEvent")
         }
     }
 
     @KafkaListener(
-        topics = [KafkaTopic.PRODUCT_EVENTS],
+        topics = [KafkaTopic.PRODUCT_CREATED],
         groupId = KafkaGroup.SPRING_TOB,
     )
     fun consumerProductEvents(
         @Header(value = "id") outboxId: String,
-        @Header(value = "eventType") eventType: String,
+//        @Header(value = "eventType") eventType: String,
         @Payload event: String,
     ) {
         /*
@@ -73,18 +68,14 @@ class UserEventConsumer(
         2024-08-17T21:03:56.411+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : productUpdatedEvent: ProductUpdatedEvent(id=2013)
         * */
         logger.info("outboxId: $outboxId")
-        logger.info("eventType: $eventType")
         logger.info("event: $event")
+
         val payload = getPayload(event)
         logger.info("payload: $payload")
 
         fire(outboxId.toLong()) {
-            when (eventType) {
-                EventType.PRODUCT_UPDATED.name -> {
-                    val productUpdatedEvent = objectMapper.readValue(payload, ProductUpdatedEvent::class.java)
-                    logger.info("productUpdatedEvent: $productUpdatedEvent")
-                }
-            }
+            val productUpdatedEvent = objectMapper.readValue(payload, ProductUpdatedEvent::class.java)
+            logger.info("productUpdatedEvent: $productUpdatedEvent")
         }
     }
 

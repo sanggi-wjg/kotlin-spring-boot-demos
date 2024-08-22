@@ -1,5 +1,6 @@
 package com.raynor.demo.transactionaloutbox.entity
 
+import com.raynor.demo.transactionaloutbox.enums.AggregateType
 import jakarta.persistence.*
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
@@ -10,8 +11,7 @@ import java.time.Instant
 @Entity
 class OutboxPollingEntity(
     aggregateId: Int,
-    aggregateType: String,
-    eventType: String,
+    aggregateType: AggregateType,
     payload: Map<String, Any>,
     status: Boolean,
     createdAt: Instant,
@@ -29,15 +29,15 @@ class OutboxPollingEntity(
 
     @NotNull
 //    @Enumerated(EnumType.STRING)
-    @Column(name = "aggregate_type", nullable = false)
-    var aggregateType: String = aggregateType
+    @Column(name = "aggregate_type", nullable = false, length = 64)
+    var aggregateType: AggregateType = aggregateType
         private set
 
-    @NotNull
-//    @Enumerated(EnumType.STRING)
-    @Column(name = "event_type", nullable = false)
-    var eventType: String = eventType
-        private set
+//    @NotNull
+////    @Enumerated(EnumType.STRING)
+//    @Column(name = "event_type", nullable = false)
+//    var eventType: String = eventType
+//        private set
 
     @NotNull
     @JdbcTypeCode(SqlTypes.JSON)
