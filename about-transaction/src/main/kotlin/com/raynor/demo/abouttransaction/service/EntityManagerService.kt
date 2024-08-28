@@ -15,7 +15,6 @@ class EntityManagerService(
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
 ) {
-
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     fun permanenceTest1() {

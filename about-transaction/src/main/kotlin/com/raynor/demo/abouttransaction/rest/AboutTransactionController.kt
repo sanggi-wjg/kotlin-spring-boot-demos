@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/at")
-class ATController(
+class AboutTransactionController(
     private val entityManagerService: EntityManagerService,
 ) {
 
-    @GetMapping("/1")
+    @GetMapping("/p-1")
     fun permanenceTest1() {
         entityManagerService.permanenceTest1()
     }
