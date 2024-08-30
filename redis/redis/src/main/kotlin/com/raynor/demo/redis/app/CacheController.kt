@@ -60,21 +60,27 @@ class CacheController(
             * "SET" "test-cache-key::0" "\xac\xed\x00\x05sr\x00\x11java.lang.Integer\x12\xe2\xa0\xa4\xf7\x81\x878\x02\x00\x01I\x00\x05valuexr\x00\x10java.lang.Number\x86\xac\x95\x1d\x0b\x94\xe0\x8b\x02\x00\x00xp\x00\x00\x00\x00" "PX" "60000"
             * "DEL" "test-cache-key::0"
             * */
-
-            val r1 = redisCacheService.cacheable1(it)
-            val r2 = redisCacheService.cacheable2(it)
-            val r3 = redisCacheService.cacheable3(it)
-
-            logger.info(r1.toString())
-            logger.info(r2.toString())
-            logger.info(r3.toString())
-
+            val r1 = redisCacheService.cacheable(it)
+            val r2 = redisCacheService.cachePut(it)
+            val r3 = redisCacheService.cacheEvict(it)
             ResponseEntity.ok(it)
         }
     }
 
     @GetMapping("/ca-2")
-    fun cache2(): ResponseEntity<List<Something>> {
+    fun cache2(): ResponseEntity<Int> {
+        val a = 1001
+        redisCacheService.cacheable(1)
+        redisCacheService.cacheable(2)
+        redisCacheService.cacheable(3)
+
+        redisCacheService.cacheEvict(10)
+        redisCacheService.cacheEvictWithAllEntries(10)
+        return ResponseEntity.ok(a)
+    }
+
+    @GetMapping("/ca-3")
+    fun cache3(): ResponseEntity<List<Something>> {
         return redisCacheService.cacheList().let {
             ResponseEntity.ok(it)
         }

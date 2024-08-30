@@ -22,17 +22,22 @@ class RedisCacheService(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Cacheable(key = "{#randInt}", value = ["test-cache-key"])
-    fun cacheable1(randInt: Int): Int {
+    fun cacheable(randInt: Int): Int {
         return randInt * 10
     }
 
     @CachePut(key = "{#randInt}", value = ["test-cache-key"])
-    fun cacheable2(randInt: Int): Int {
+    fun cachePut(randInt: Int): Int {
         return randInt * 100
     }
 
     @CacheEvict(key = "{#randInt}", value = ["test-cache-key"])
-    fun cacheable3(randInt: Int): Int {
+    fun cacheEvict(randInt: Int): Int {
+        return randInt * 1000
+    }
+
+    @CacheEvict(key = "{#randInt}", value = ["test-cache-key"], allEntries = true)
+    fun cacheEvictWithAllEntries(randInt: Int): Int {
         return randInt * 1000
     }
 
