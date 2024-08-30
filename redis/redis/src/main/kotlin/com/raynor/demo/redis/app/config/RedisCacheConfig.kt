@@ -17,14 +17,18 @@ class RedisCacheConfig {
         connectionFactory: RedisConnectionFactory,
     ): RedisCacheManager {
         // https://docs.spring.io/spring-data/redis/reference/redis/redis-cache.html
-        val cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+        val defaultCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
             .entryTtl(Duration.ofSeconds(60))
             .disableCachingNullValues()
 
         return RedisCacheManager.builder(connectionFactory)
             .transactionAware()
-            .cacheDefaults(cacheConfig)
-            .withInitialCacheConfigurations(mapOf("predefined" to cacheConfig))
+            .cacheDefaults(defaultCacheConfig)
+            .withInitialCacheConfigurations(
+                mapOf(
+                    CacheConfigKey.DAYS_TTL to defaultCacheConfig.entryTtl(Duration.ofDays(1))
+                )
+            )
             .build()
     }
 }

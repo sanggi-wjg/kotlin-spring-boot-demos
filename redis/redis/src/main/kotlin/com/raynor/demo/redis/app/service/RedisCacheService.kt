@@ -1,5 +1,6 @@
 package com.raynor.demo.redis.app.service
 
+import com.raynor.demo.redis.app.config.CacheConfigKey
 import com.raynor.demo.redis.app.model.Something
 import com.raynor.demo.redis.app.model.SomethingStatus
 import org.slf4j.LoggerFactory
@@ -39,6 +40,19 @@ class RedisCacheService(
     @CacheEvict(key = "{#randInt}", value = ["test-cache-key"], allEntries = true)
     fun cacheEvictWithAllEntries(randInt: Int): Int {
         return randInt * 1000
+    }
+
+    fun cachePut() {
+        /*
+1725007805.548149 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+1725007819.132032 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+1725007822.148074 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+1725007823.496237 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+1725007824.229601 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+1725007825.688183 [9 127.0.0.1:60667] "SET" "DAYS_TTL::custom-random-key" "\xac\xed\x00\x05t\x00\x1ahello world with cache put" "PX" "86400000"
+        * */
+        val cache = cacheManager.getCache(CacheConfigKey.DAYS_TTL)!!
+        cache.put("custom-random-key", "hello world with cache put")
     }
 
     @Cacheable("test-cache-list-key")

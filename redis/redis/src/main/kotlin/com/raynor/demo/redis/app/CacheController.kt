@@ -80,7 +80,13 @@ class CacheController(
     }
 
     @GetMapping("/ca-3")
-    fun cache3(): ResponseEntity<List<Something>> {
+    fun cache3(): ResponseEntity<Int> {
+        redisCacheService.cachePut()
+        return ResponseEntity.ok(0)
+    }
+
+    @GetMapping("/ca-4")
+    fun cache4(): ResponseEntity<List<Something>> {
         return redisCacheService.cacheList().let {
             ResponseEntity.ok(it)
         }
