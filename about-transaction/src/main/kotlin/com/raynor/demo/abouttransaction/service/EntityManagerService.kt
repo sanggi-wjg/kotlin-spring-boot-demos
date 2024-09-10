@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-@Transactional
 class EntityManagerService(
     private val entityManager: EntityManager,
     private val productRepository: ProductRepository,
@@ -17,7 +16,8 @@ class EntityManagerService(
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    fun permanenceTest1() {
+    @Transactional
+    fun permanenceSimple() {
         /*
         2024-08-16T16:55:41.921+09:00  INFO 82869 --- [sat] [nio-8080-exec-1] c.r.d.a.service.EntityManagerService     : Product: 2, true
 
@@ -57,6 +57,42 @@ class EntityManagerService(
         val categories = categoryRepository.findAllById(categoryIds)
         categories.forEach {
             logger.info("Category: ${it.id}, ${it.name}, ${entityManager.contains(it)}")
+        }
+    }
+
+    @Transactional
+    fun permanenceWitSimpleQueryDsl() {
+        /*
+SET autocommit=0
+select pe1_0.`id`,pe1_0.`name` from `product` pe1_0 join `product_option` poe1_0 on poe1_0.`product_id`=pe1_0.`id` join `product_category_mapping` pcme1_0 on pcme1_0.`product_id`=pe1_0.`id` join `category` ce1_0 on ce1_0.`id`=pcme1_0.`category_id`
+select mpo1_0.`product_id`,mpo1_0.`id`,mpo1_0.`name`,mpo1_0.`price` from `product_option` mpo1_0 where mpo1_0.`product_id` in (1,2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+select mpcm1_0.`product_id`,mpcm1_0.`id`,mpcm1_0.`category_id` from `product_category_mapping` mpcm1_0 where mpcm1_0.`product_id` in (1,2,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+select ce1_0.`id`,ce1_0.`name` from `category` ce1_0 where ce1_0.`id` in (2,1,3,4,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null)
+commit
+SET autocommit=1
+        * */
+        val products = productRepository.findAllWithRelated()
+
+        products.forEach { product ->
+            product.productOptions.forEach {
+                logger.info("ProductOption: ${it.id}, ${it.name}, ${it.price}")
+            }
+
+            product.productCategoryMappings.forEach { categoryMapping ->
+                logger.info("ProductCategoryMapping: ${categoryMapping.id}, ${categoryMapping.category.name}")
+                logger.info("Category: ${categoryMapping.category.id}, ${categoryMapping.category.name}")
+            }
+        }
+
+        products.forEach { product ->
+            product.productOptions.forEach {
+                logger.info("ProductOption: ${it.id}, ${it.name}, ${it.price}, ${entityManager.contains(it)}")
+            }
+
+            product.productCategoryMappings.forEach { categoryMapping ->
+                logger.info("ProductCategoryMapping: ${categoryMapping.id}, ${categoryMapping.category.name}, ${entityManager.contains(categoryMapping)}")
+                logger.info("Category: ${categoryMapping.category.id}, ${categoryMapping.category.name}, ${entityManager.contains(categoryMapping.category)}")
+            }
         }
     }
 }

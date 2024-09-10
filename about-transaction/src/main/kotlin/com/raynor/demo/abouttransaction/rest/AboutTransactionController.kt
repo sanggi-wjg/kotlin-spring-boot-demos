@@ -12,7 +12,13 @@ class AboutTransactionController(
 ) {
 
     @GetMapping("/p-1")
-    fun permanenceTest1() {
-        entityManagerService.permanenceTest1()
+    fun permanenceSimple() {
+        entityManagerService.permanenceSimple()
+    }
+
+
+    @GetMapping("/p-2")
+    fun permanenceWithSimpleQueryDsl() {
+        entityManagerService.permanenceWitSimpleQueryDsl()
     }
 }
