@@ -21,12 +21,17 @@ class ProductQueryDSLRepositoryImpl(
     private val category = QCategoryEntity.categoryEntity
 
     override fun findAllWithRelated(): List<ProductEntity> {
+        // 아래는 이 에러 발생함, MultipleBagFetchException: cannot simultaneously fetch multiple bags
+//        .join(product.mutableProductOptions, productOption).fetchJoin()
+//        .join(product.mutableProductCategoryMappings, productCategoryMapping).fetchJoin()
+//        .join(productCategoryMapping.category, category).fetchJoin()
+
         return jpaQueryFactory
             .select(product)
             .from(product)
-            .innerJoin(productOption).on(productOption.product.id.eq(product.id))
-            .innerJoin(productCategoryMapping).on(productCategoryMapping.product.id.eq(product.id))
-            .innerJoin(category).on(category.id.eq(productCategoryMapping.category.id))
+            .join(productOption).on(productOption.product.id.eq(product.id))
+            .join(productCategoryMapping).on(productCategoryMapping.product.id.eq(product.id))
+            .join(category).on(category.id.eq(productCategoryMapping.category.id))
             .where()
             .fetch()
     }

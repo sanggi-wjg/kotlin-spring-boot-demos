@@ -18,4 +18,8 @@ class CategoryEntity(
     @Column(name = "name", nullable = false)
     var name: String = name
         protected set
+
+    fun updateId(id: Int) {
+        this.id = id
+    }
 }
