@@ -3,7 +3,7 @@ spring:
     name: sat
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:33061/sat
+    url: jdbc:mysql://localhost:33062/sat
     username: root
     password: rootroot
     driver-class-name: com.mysql.cj.jdbc.Driver

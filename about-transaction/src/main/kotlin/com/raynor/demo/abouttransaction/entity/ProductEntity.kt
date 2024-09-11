@@ -19,12 +19,12 @@ class ProductEntity(
     var name: String = name
         protected set
 
-    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     private var mutableProductOptions: MutableList<ProductOptionEntity> = mutableListOf()
     val productOptions: Set<ProductOptionEntity>
         get() = mutableProductOptions.toSet()
 
-    @OneToMany(mappedBy = "product", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     private var mutableProductCategoryMappings: MutableList<ProductCategoryMappingEntity> = mutableListOf()
     val productCategoryMappings: Set<ProductCategoryMappingEntity>
         get() = mutableProductCategoryMappings.toSet()
