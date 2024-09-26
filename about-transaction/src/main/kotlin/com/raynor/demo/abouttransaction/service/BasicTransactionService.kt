@@ -10,8 +10,6 @@ import java.util.*
 class BasicTransactionService(
     private val productRepository: ProductRepository,
 ) {
-    // todo lambda trailing 구현으로 transaction 분리
-
     @Transactional
     fun insertWithBasicTransaction(): ProductEntity {
         return ProductEntity(

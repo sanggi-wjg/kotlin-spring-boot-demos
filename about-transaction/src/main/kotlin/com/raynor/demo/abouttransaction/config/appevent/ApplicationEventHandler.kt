@@ -21,10 +21,10 @@ class ApplicationEventHandler(
 
     @EventListener(ApplicationStartedEvent::class)
     fun onApplicationStartedEvent(event: ApplicationStartedEvent) {
-        logger.info("[APP_STATED_EVENT_0]")
+        logger.info("[APP_STATED_EVENT_0] START")
         createProduct1()
         createProduct2()
-        logger.info("[APP_STATED_EVENT_99]")
+        logger.info("[APP_STATED_EVENT_99] END")
     }
 
     private fun createProduct1() {
