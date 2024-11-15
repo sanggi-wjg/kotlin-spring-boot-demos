@@ -4,25 +4,25 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 
 @Component
-class Tx(advice: TxAdvice) {
+class Transaction(advice: TransactionAdvice) {
     init {
-        txAdvice = advice
+        transactionAdvice = advice
     }
 
     companion object {
-        lateinit var txAdvice: TxAdvice
+        lateinit var transactionAdvice: TransactionAdvice
 
         fun <T> writeable(block: () -> T): T {
-            return txAdvice.writer(block)
+            return transactionAdvice.writer(block)
         }
 
         fun <T> readonly(block: () -> T): T {
-            return txAdvice.reader(block)
+            return transactionAdvice.reader(block)
         }
     }
 
     @Component
-    class TxAdvice {
+    class TransactionAdvice {
 
         @Transactional
         fun <T> writer(block: () -> T): T {

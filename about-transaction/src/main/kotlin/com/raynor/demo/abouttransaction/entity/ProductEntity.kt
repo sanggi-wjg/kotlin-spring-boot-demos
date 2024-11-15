@@ -12,12 +12,12 @@ class ProductEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     var id: Int? = null
-        protected set
+        private set
 
     @NotNull
     @Column(name = "name", nullable = false)
     var name: String = name
-        protected set
+        private set
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     private var mutableProductOptions: MutableList<ProductOptionEntity> = mutableListOf()
