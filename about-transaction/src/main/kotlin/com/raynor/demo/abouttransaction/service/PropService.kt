@@ -17,24 +17,24 @@ class PropagationRequiresNewService(
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun createProductSeparately() {
-        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("createProductSeparately: $it") }
+        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("NewSeparately: $it") }
 
-        productRepository.save(ProductEntity(name = "상품 createProductSeparately: ${UUID.randomUUID()}"))
+        productRepository.save(ProductEntity(name = "NewSeparately: ${UUID.randomUUID()}"))
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun createProductIfThrowFirst(raise: Boolean = false) {
-        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("createProductIfThrowFirst: $it") }
-        if (raise) throw IllegalStateException("exception")
+    fun createProductIfThrowHead(raise: Boolean = false) {
+        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("NewThrowHead: $it") }
+        if (raise) throw IllegalStateException("NewThrowHead")
 
-        productRepository.save(ProductEntity(name = "상품 createProductIfThrowFirst: ${UUID.randomUUID()}"))
+        productRepository.save(ProductEntity(name = "NewThrowHead: ${UUID.randomUUID()}"))
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun createProductIfThrowLast(raise: Boolean = false) {
-        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("createProductIfThrowLast: $it") }
+    fun createProductIfThrowTail(raise: Boolean = false) {
+        TransactionAspectSupport.currentTransactionStatus().hashCode().also { logger.info("NewThrowTail: $it") }
 
-        productRepository.save(ProductEntity(name = "상품 createProductIfThrowLast: ${UUID.randomUUID()}"))
-        if (raise) throw IllegalStateException("exception")
+        productRepository.save(ProductEntity(name = "NewThrowTail: ${UUID.randomUUID()}"))
+        if (raise) throw IllegalStateException("NewThrowTail")
     }
 }
