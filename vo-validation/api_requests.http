@@ -4,7 +4,7 @@ Content-Type: Application/json
 
 {
   "email": "abc",
-  "name": "def",
+  "name": "123",
   "age": -1
 }
 

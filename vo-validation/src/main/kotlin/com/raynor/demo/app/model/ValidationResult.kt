@@ -1,5 +1,7 @@
 package com.raynor.demo.app.model
 
+import com.raynor.demo.core.exception.InvalidRequestException
+
 data class ValidationResult(
     private val _errors: MutableList<FieldValidation> = mutableListOf()
 ) {
@@ -24,7 +26,7 @@ data class ValidationResult(
 
     fun throwIfError() {
         if (hasError) {
-            throw IllegalArgumentException("Invalid request: $this")
+            throw InvalidRequestException(this.errors)
         }
     }
 }
