@@ -22,4 +22,10 @@ class CategoryEntity(
     fun updateId(id: Int) {
         this.id = id
     }
+
+    fun copy(): CategoryEntity {
+        return CategoryEntity(
+            name = this.name
+        )
+    }
 }

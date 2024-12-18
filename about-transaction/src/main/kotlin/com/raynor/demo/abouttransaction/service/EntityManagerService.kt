@@ -18,6 +18,14 @@ class EntityManagerService(
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @Transactional
+    fun copyEntity() {
+        val categories = categoryRepository.findAll()
+        categoryRepository.saveAll(
+            categories.map { it.copy() }
+        )
+    }
+
+    @Transactional
     fun permanenceSimple() {
         /*
         Product: 2, true

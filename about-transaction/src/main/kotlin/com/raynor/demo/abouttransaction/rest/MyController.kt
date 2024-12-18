@@ -27,6 +27,11 @@ class MyController(
         entityManagerService.permanenceWitSimpleQueryDsl()
     }
 
+    @GetMapping("/c-1")
+    fun copySimple() {
+        entityManagerService.copyEntity()
+    }
+
     @GetMapping("/t1")
     fun something() {
         transactionAdviceService.something()
