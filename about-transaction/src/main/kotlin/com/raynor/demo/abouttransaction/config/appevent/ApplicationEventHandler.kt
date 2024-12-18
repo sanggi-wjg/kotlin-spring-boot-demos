@@ -1,7 +1,7 @@
 package com.raynor.demo.abouttransaction.config.appevent
 
 import com.raynor.demo.abouttransaction.entity.CategoryEntity
-import com.raynor.demo.abouttransaction.entity.ProductCategoryMappingEntity
+import com.raynor.demo.abouttransaction.entity.ProductCategoryMapEntity
 import com.raynor.demo.abouttransaction.entity.ProductEntity
 import com.raynor.demo.abouttransaction.entity.ProductOptionEntity
 import com.raynor.demo.abouttransaction.repository.CategoryRepository
@@ -44,7 +44,7 @@ class ApplicationEventHandler(
                 )
                 this.addProductCategoryMappings(
                     listOf(
-                        ProductCategoryMappingEntity(category = category, product = this),
+                        ProductCategoryMapEntity(category = category, product = this),
                     )
                 )
             }
@@ -73,7 +73,7 @@ class ApplicationEventHandler(
                 )
                 this.addProductCategoryMappings(
                     categories.map {
-                        ProductCategoryMappingEntity(category = it, product = this)
+                        ProductCategoryMapEntity(category = it, product = this)
                     }
                 )
             }

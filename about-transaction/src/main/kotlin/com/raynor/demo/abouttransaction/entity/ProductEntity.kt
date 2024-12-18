@@ -25,15 +25,15 @@ class ProductEntity(
         get() = mutableProductOptions.toSet()
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    private var mutableProductCategoryMappings: MutableList<ProductCategoryMappingEntity> = mutableListOf()
-    val productCategoryMappings: Set<ProductCategoryMappingEntity>
+    private var mutableProductCategoryMappings: MutableList<ProductCategoryMapEntity> = mutableListOf()
+    val productCategoryMappings: Set<ProductCategoryMapEntity>
         get() = mutableProductCategoryMappings.toSet()
 
     fun addProductOptions(productOptions: List<ProductOptionEntity>) {
         mutableProductOptions.addAll(productOptions)
     }
 
-    fun addProductCategoryMappings(productCategoryMappings: List<ProductCategoryMappingEntity>) {
+    fun addProductCategoryMappings(productCategoryMappings: List<ProductCategoryMapEntity>) {
         mutableProductCategoryMappings.addAll(productCategoryMappings)
     }
 }

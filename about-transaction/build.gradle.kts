@@ -1,10 +1,10 @@
 plugins {
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
-    kotlin("jvm") version "1.9.24"
-    kotlin("plugin.spring") version "1.9.24"
-    kotlin("plugin.jpa") version "1.9.24"
-    kotlin("kapt") version "1.9.24"
+    kotlin("jvm") version "2.0.21"
+    kotlin("plugin.spring") version "2.0.21"
+    kotlin("plugin.jpa") version "2.0.21"
+    kotlin("kapt") version "2.0.21"
 }
 
 group = "com.raynor.demo"
@@ -96,4 +96,12 @@ allOpen {
     annotation("javax.persistence.Entity")
     annotation("javax.persistence.Embeddable")
     annotation("javax.persistence.MappedSuperclass")
+}
+
+noArg {
+//    annotation("javax.persistence.Entity")
+//    annotation("javax.persistence.MappedSuperclass")
+//    annotation("javax.persistence.Embeddable")
+//    annotation("com.raynor.demo.abouttransaction.annotation.NoArg")
+//    invokeInitializers = true
 }

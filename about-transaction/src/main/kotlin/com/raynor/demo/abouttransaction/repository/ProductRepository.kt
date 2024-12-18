@@ -1,7 +1,9 @@
 package com.raynor.demo.abouttransaction.repository
 
+import com.querydsl.core.types.ConstructorExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.raynor.demo.abouttransaction.entity.*
+import com.raynor.demo.abouttransaction.model.condition.ProductSearchCondition
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProductRepository : JpaRepository<ProductEntity, Int>, ProductQueryDSLRepository {
@@ -9,6 +11,11 @@ interface ProductRepository : JpaRepository<ProductEntity, Int>, ProductQueryDSL
 
 interface ProductQueryDSLRepository {
     fun findAllWithRelated(): List<ProductEntity>
+
+    fun <T> findAllByCondition(
+        searchCondition: ProductSearchCondition,
+        constructor: ConstructorExpression<T>,
+    ): List<T>
 }
 
 class ProductQueryDSLRepositoryImpl(
@@ -17,7 +24,7 @@ class ProductQueryDSLRepositoryImpl(
 
     private val product = QProductEntity.productEntity
     private val productOption = QProductOptionEntity.productOptionEntity
-    private val productCategoryMapping = QProductCategoryMappingEntity.productCategoryMappingEntity
+    private val productCategoryMap = QProductCategoryMapEntity.productCategoryMapEntity
     private val category = QCategoryEntity.categoryEntity
 
     override fun findAllWithRelated(): List<ProductEntity> {
@@ -30,9 +37,22 @@ class ProductQueryDSLRepositoryImpl(
             .select(product)
             .from(product)
             .join(productOption).on(productOption.product.id.eq(product.id))
-            .join(productCategoryMapping).on(productCategoryMapping.product.id.eq(product.id))
-            .join(category).on(category.id.eq(productCategoryMapping.category.id))
+            .join(productCategoryMap).on(productCategoryMap.product.id.eq(product.id))
+            .join(category).on(category.id.eq(productCategoryMap.category.id))
             .where()
+            .fetch()
+    }
+
+    override fun <T> findAllByCondition(
+        searchCondition: ProductSearchCondition,
+        constructor: ConstructorExpression<T>,
+    ): List<T> {
+        return jpaQueryFactory
+            .select(constructor)
+            .from(product)
+            .innerJoin(productOption).on(productOption.product.id.eq(product.id))
+            .innerJoin(productCategoryMap).on(productCategoryMap.product.id.eq(product.id))
+            .innerJoin(category).on(category.id.eq(productCategoryMap.category.id))
             .fetch()
     }
 }

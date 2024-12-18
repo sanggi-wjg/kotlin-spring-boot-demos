@@ -12,12 +12,12 @@ class CategoryEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     var id: Int? = null
-        protected set
+        private set
 
     @NotNull
     @Column(name = "name", nullable = false)
     var name: String = name
-        protected set
+        private set
 
     fun updateId(id: Int) {
         this.id = id
