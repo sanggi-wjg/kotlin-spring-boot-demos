@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     // aop 추가하지 않으면 작동 안함, 시발 병신같은 문서
+    // 코드 까보니 CircuitBreakerAspect 로 돌아감
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

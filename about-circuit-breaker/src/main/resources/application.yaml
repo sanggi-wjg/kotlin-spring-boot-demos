@@ -24,7 +24,7 @@ resilience4j:
       order:
         base-config: default
 
-      payment:
+      transaction:
         base-config: default
         sliding-window-size: 10
         permitted-number-of-calls-in-half-open-state: 5
