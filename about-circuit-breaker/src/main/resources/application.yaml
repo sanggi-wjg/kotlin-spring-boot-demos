@@ -1,0 +1,48 @@
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        register-health-indicator: true # Actuator?? Circuit Breaker ?? ?? ??
+        sliding-window-type: COUNT_BASED # ??? ?? ?? (COUNT_BASED ?? TIME_BASED)
+        sliding-window-size: 100 # ???? ??? ?? ? ?? ?? ??
+        minimum-number-of-calls: 10 # Circuit Breaker? ???? ?? ?? ?? ?
+        failure-rate-threshold: 50 # ??? ???, ???
+        permitted-number-of-calls-in-half-open-state: 10 # Half-Open ???? ??? ?? ?
+        wait-duration-in-open-state: 60s # Open ???? Half-Open ??? ???? ?? ??
+        automatic-transition-from-open-to-half-open-enabled: true # ???? Half-Open ??? ?? ??
+        slow-call-duration-threshold: 5s # ?? ??? ??? ?? ??
+        max-wait-duration-in-half-open-state: 0 # Half-Open ???? ?? ?? ?? (0? ????)
+        writable-stack-trace-enabled: true # Exception ?? ? ?? ????? ???? ??
+        allow-health-indicator-to-fail: true # Health Indicator? ??? ???? ??
+        ignore-exceptions:
+          - java.lang.IllegalArgumentException
+        record-exceptions:
+          - java.lang.Exception
+          - java.lang.RuntimeException
+
+    instances:
+      order:
+        base-config: default
+
+      payment:
+        base-config: default
+        sliding-window-size: 10
+        permitted-number-of-calls-in-half-open-state: 5
+        slow-call-duration-threshold: 3s
+
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 10s
+        cancel-running-future: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
