@@ -13,14 +13,14 @@ class IamService {
 
     @CircuitBreaker(name = "transaction", fallbackMethod = "fallback")
     fun whoAmI(): String {
-        Random.nextBoolean().takeIf { it }?.also {
+        if (Random.nextBoolean()) {
             logger.info("throw exception")
             throw RuntimeException("something wrong")
-        } ?: run {
-            Random.nextLong(1_000, 10_000).also {
-                logger.info("sleep $it ms")
-                Thread.sleep(it)
-            }
+        }
+
+        Random.nextLong(0, 10_000).also {
+            logger.info("sleep $it ms")
+            Thread.sleep(it)
         }
         return "Hello world"
     }

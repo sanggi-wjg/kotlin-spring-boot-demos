@@ -1,4 +1,4 @@
-resilience4j:
+﻿resilience4j:
   circuitbreaker:
     configs:
       default:
