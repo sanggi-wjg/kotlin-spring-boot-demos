@@ -1,1 +1,2 @@
-spring.application.name=application-order
+server:
+  port: 8081
