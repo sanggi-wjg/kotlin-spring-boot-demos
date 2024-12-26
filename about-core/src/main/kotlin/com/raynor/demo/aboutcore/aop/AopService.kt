@@ -34,4 +34,13 @@ class AopService(
             .where("id = 1")
             .build()
     }
+
+    @Callback("callbackAOP", callbackMethod = "onSuccess")
+    fun testCallbackAOP(): String {
+        return "something"
+    }
+
+    fun onSuccess(result: String) {
+        println("Callback Method 실행: Success!. result: $result")
+    }
 }

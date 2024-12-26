@@ -75,4 +75,10 @@ class SeniorController(
             ResponseEntity.ok(it)
         }
     }
+
+    @GetMapping("/aop-cb")
+    fun aopCallback(): ResponseEntity<Boolean> {
+        aopService.testCallbackAOP()
+        return ResponseEntity.ok(true)
+    }
 }
