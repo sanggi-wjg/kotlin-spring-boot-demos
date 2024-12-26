@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -16,12 +17,12 @@ class OrderController {
 
     @GetMapping("/{id}")
     fun getOrderById(
-        @RequestHeader("X-Gateway-Id", required = false, defaultValue = "") gatewayId: String,
-        @RequestHeader("X-Finger-Print", required = false, defaultValue = "") fingerPrint: String,
         @RequestHeader headers: Map<String, String>,
-        @PathVariable id: Long
+        @RequestHeader("X-Gateway-Id", required = false, defaultValue = "") gatewayId: String,
+        @PathVariable id: Long,
+        @RequestParam("redirect", required = false, defaultValue = "") redirect: String,
     ): ResponseEntity<String> {
-        logger.info("get order by id: $id, gatewayId: $gatewayId, fingerPrint: $fingerPrint\nheaders: $headers")
+        logger.info("order_id: $id, redirect: $redirect, gateway_id: $gatewayId\nheaders: $headers")
         return ResponseEntity.ok("order $id")
     }
 }

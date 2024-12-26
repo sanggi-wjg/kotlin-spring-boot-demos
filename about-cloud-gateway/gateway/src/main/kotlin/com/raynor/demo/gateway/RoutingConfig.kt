@@ -2,10 +2,9 @@ package com.raynor.demo.gateway
 
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
-import org.springframework.cloud.gateway.route.builder.routes
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.reactive.function.server.RequestPredicates.path
+import java.time.Instant
 import java.util.UUID
 
 @Configuration
@@ -19,7 +18,8 @@ class RoutingConfig {
         const val TASK_SERVICE_PATH = "/tasks/**"
 
         const val HEADER_X_GATEWAY_ID = "X-Gateway-Id"
-        const val HEADER_X_FINGER_PRINT = "X-Finger-Print"
+        const val HEADER_X_GATEWAY_FINGER_PRINT = "X-Gateway-Finger-Print"
+        const val HEADER_X_GATEWAY_REQUESTED_AT = "X-Gateway-Requested-At"
     }
 
     @Bean
@@ -27,9 +27,11 @@ class RoutingConfig {
         return builder.routes()
             .route(ORDER_SERVICE_ID) { r ->
                 r.path(ORDER_SERVICE_PATH)
-                    .filters {
-                        it.addRequestHeadersIfNotPresent("$HEADER_X_GATEWAY_ID:$ORDER_SERVICE_ID")
-                            .addRequestHeader(HEADER_X_FINGER_PRINT, UUID.randomUUID().toString())
+                    .filters { spec ->
+                        spec.addRequestHeader(HEADER_X_GATEWAY_FINGER_PRINT, UUID.randomUUID().toString())
+                            .addRequestHeader(HEADER_X_GATEWAY_REQUESTED_AT, Instant.now().toString())
+                            .addRequestHeadersIfNotPresent("$HEADER_X_GATEWAY_ID:$ORDER_SERVICE_ID")
+                            .addRequestParameter("redirect", "https://google.com")
                     }
                     .uri("http://localhost:8081")
             }

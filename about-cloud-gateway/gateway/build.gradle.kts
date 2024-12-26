@@ -7,7 +7,6 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-gateway") // Gateway
 //    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer") // LoadBalancer
 //    implementation("org.springframework.boot:spring-boot-starter-security") // Security
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
 }
 
 dependencyManagement {
