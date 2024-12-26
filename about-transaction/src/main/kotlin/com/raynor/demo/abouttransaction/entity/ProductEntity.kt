@@ -36,4 +36,8 @@ class ProductEntity(
     fun addProductCategoryMappings(productCategoryMappings: List<ProductCategoryMapEntity>) {
         mutableProductCategoryMappings.addAll(productCategoryMappings)
     }
+
+    fun updateName(name: String) {
+        this.name = name
+    }
 }

@@ -1,4 +1,4 @@
-package com.raynor.demo.abouttransaction.service
+package com.raynor.demo.abouttransaction.service.dsl
 
 import com.raynor.demo.abouttransaction.model.condition.ProductSearchCondition
 import com.raynor.demo.abouttransaction.model.projection.ProductWitRelatedProjection

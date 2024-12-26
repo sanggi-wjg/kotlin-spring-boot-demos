@@ -1,21 +1,33 @@
 package com.raynor.demo.abouttransaction.rest
 
-import com.raynor.demo.abouttransaction.service.EntityManagerService
-import com.raynor.demo.abouttransaction.service.PropagationService
-import com.raynor.demo.abouttransaction.service.QueryDSLService
-import com.raynor.demo.abouttransaction.service.TransactionAdviceService
+import com.raynor.demo.abouttransaction.service.dsl.QueryDSLService
+import com.raynor.demo.abouttransaction.service.persisit.EntityManagerService
+import com.raynor.demo.abouttransaction.service.transaction.BasicTransactionService
+import com.raynor.demo.abouttransaction.service.transaction.PropagationService
+import com.raynor.demo.abouttransaction.service.transaction.TransactionAdviceService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("")
-class MyController(
+class HelloController(
+    private val basicTransactionService: BasicTransactionService,
     private val entityManagerService: EntityManagerService,
     private val transactionAdviceService: TransactionAdviceService,
     private val propagationService: PropagationService,
     private val queryDSLService: QueryDSLService,
 ) {
+
+    @GetMapping("/basic-1")
+    fun basic1() {
+        basicTransactionService.getAndUpdateList()
+    }
+
+    @GetMapping("/basic-2")
+    fun basic2() {
+        basicTransactionService.insertWithBasicTransaction()
+    }
 
     @GetMapping("/e1")
     fun permanenceSimple() {

@@ -2,6 +2,7 @@ package com.raynor.demo.abouttransaction.service
 
 import com.raynor.demo.abouttransaction.repository.CategoryRepository
 import com.raynor.demo.abouttransaction.repository.ProductRepository
+import com.raynor.demo.abouttransaction.service.transaction.BasicTransactionService
 import io.kotest.core.spec.style.FunSpec
 import org.springframework.boot.test.context.SpringBootTest
 
