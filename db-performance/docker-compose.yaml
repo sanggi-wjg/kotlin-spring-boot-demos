@@ -34,6 +34,25 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
 
+  postgres17:
+    image: postgres:17.2
+    container_name: postgres17
+    ports:
+      - "10003:5432"
+    environment:
+      POSTGRES_DB: inspect
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: passw0rd
+
+  mongodb:
+    image: mongo:8.0
+    container_name: mongodb
+    ports:
+      - "10004:27017"
+    environment:
+      MONGO_INITDB_DATABASE: inspect
+      MONGO_INITDB_ROOT_USERNAME: user
+      MONGO_INITDB_ROOT_PASSWORD: passw0rd
 
 networks:
   default:
