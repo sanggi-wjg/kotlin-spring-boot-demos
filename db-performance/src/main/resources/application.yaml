@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    mysql5:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:10000/inspect
+      username: user
+      password: passw0rd
+    mysql8:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:10001/inspect
+      username: user
+      password: passw0rd
+    mysql9:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:10002/inspect
+      username: user
+      password: passw0rd
