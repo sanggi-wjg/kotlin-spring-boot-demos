@@ -1,11 +1,9 @@
 package com.raynor.demo.dbmysqlonly.service
 
-import com.raynor.demo.dbmysqlonly.service.model.Person
-
 interface PerformanceService {
-    fun simpleSelect(id: Int): Person?
+    fun simpleSelect()
 
-    fun listSelect(): List<Person>
+    fun listSelect()
 
     fun complexSelect()
 
@@ -17,5 +15,5 @@ interface PerformanceService {
 
     fun bulkUpdate()
 
-    fun individualDelete(id: Int)
+    fun individualDelete()
 }

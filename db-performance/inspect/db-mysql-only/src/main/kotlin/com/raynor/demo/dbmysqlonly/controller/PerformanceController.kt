@@ -5,7 +5,8 @@ import com.raynor.demo.dbmysqlonly.service.MySQL8Service
 import com.raynor.demo.dbmysqlonly.service.MySQL9Service
 import com.raynor.demo.dbmysqlonly.service.PerformanceService
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class PerformanceController(
@@ -14,96 +15,52 @@ class PerformanceController(
     @Qualifier(MySQL9Service.BEAN_NAME) private val mysql9Service: PerformanceService,
 ) {
 
-    /* MySQL 5 */
-    @GetMapping("/mysql5/persons/{id}")
-    fun mysql5SimpleSelect(@PathVariable id: Int) {
-        mysql5Service.simpleSelect(id)
+    @GetMapping("/simple-select")
+    fun simpleSelect() {
+        mysql5Service.simpleSelect()
+        mysql8Service.simpleSelect()
+        mysql9Service.simpleSelect()
     }
 
-    @GetMapping("/mysql5/persons")
-    fun mysql5ListSelect() {
+    @GetMapping("/list-select")
+    fun listSelect() {
         mysql5Service.listSelect()
-    }
-
-    @PostMapping("/mysql5/persons")
-    fun mysql5IndividualInsert() {
-        mysql5Service.individualInsert()
-    }
-
-    @PostMapping("/mysql5/persons/bulk-insert")
-    fun mysql5BulkInsert() {
-        mysql5Service.bulkInsert()
-    }
-
-    @PatchMapping("/mysql5/persons/bulk-update")
-    fun mysql5BulkUpdate() {
-        mysql5Service.bulkUpdate()
-    }
-
-    @DeleteMapping("/mysql5/persons/{id}")
-    fun mysql5IndividualDelete(@PathVariable id: Int) {
-        mysql5Service.individualDelete(id)
-    }
-
-    /* MySQL 8 */
-    @GetMapping("/mysql8/persons/{id}")
-    fun mysql8SimpleSelect(@PathVariable id: Int) {
-        mysql8Service.simpleSelect(id)
-    }
-
-    @GetMapping("/mysql8/persons")
-    fun mysql8ListSelect() {
         mysql8Service.listSelect()
-    }
-
-    @PostMapping("/mysql8/persons")
-    fun mysql8IndividualInsert() {
-        mysql8Service.individualInsert()
-    }
-
-    @PostMapping("/mysql8/persons/bulk-insert")
-    fun mysql8BulkInsert() {
-        mysql8Service.bulkInsert()
-    }
-
-    @PatchMapping("/mysql8/persons/bulk-update")
-    fun mysql8BulkUpdate() {
-        mysql8Service.bulkUpdate()
-    }
-
-    @DeleteMapping("/mysql8/persons/{id}")
-    fun mysql8IndividualDelete(@PathVariable id: Int) {
-        mysql8Service.individualDelete(id)
-    }
-
-    /* MySQL 9 */
-    @GetMapping("/mysql9/persons/{id}")
-    fun mysql9SimpleSelect(@PathVariable id: Int) {
-        mysql9Service.simpleSelect(id)
-    }
-
-    @GetMapping("/mysql9/persons")
-    fun mysql9ListSelect() {
         mysql9Service.listSelect()
     }
 
-    @PostMapping("/mysql9/persons")
-    fun mysql9IndividualInsert() {
+    @GetMapping("/ind-insert")
+    fun individualInsert() {
+        mysql5Service.individualInsert()
+        mysql8Service.individualInsert()
         mysql9Service.individualInsert()
     }
 
-    @PostMapping("/mysql9/persons/bulk-insert")
-    fun mysql9BulkInsert() {
+    @GetMapping("/bulk-insert")
+    fun bulkInsert() {
+        mysql5Service.bulkInsert()
+        mysql8Service.bulkInsert()
         mysql9Service.bulkInsert()
     }
 
-    @PatchMapping("/mysql9/persons/bulk-update")
-    fun mysql9BulkUpdate() {
+    @GetMapping("/ind-update")
+    fun individualUpdate() {
+        mysql5Service.individualUpdate()
+        mysql8Service.individualUpdate()
+        mysql9Service.individualUpdate()
+    }
+
+    @GetMapping("/bulk-update")
+    fun bulkUpdate() {
+        mysql5Service.bulkUpdate()
+        mysql8Service.bulkUpdate()
         mysql9Service.bulkUpdate()
     }
 
-    @DeleteMapping("/mysql9/persons/{id}")
-    fun mysql9IndividualDelete(@PathVariable id: Int) {
-        mysql9Service.individualDelete(id)
+    @GetMapping("/ind-delete")
+    fun individualDelete() {
+        mysql5Service.individualDelete()
+        mysql8Service.individualDelete()
+        mysql9Service.individualDelete()
     }
 }

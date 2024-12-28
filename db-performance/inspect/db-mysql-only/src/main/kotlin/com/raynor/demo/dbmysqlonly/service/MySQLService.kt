@@ -1,7 +1,8 @@
 package com.raynor.demo.dbmysqlonly.service
 
-import com.raynor.demo.dbmysqlonly.config.Constants
 import com.raynor.demo.dbmysqlonly.service.model.Person
+import com.raynor.demo.support.config.Constants.DB_BATCH_SIZE
+import com.raynor.demo.support.config.Constants.DB_REPEAT_COUNT
 import org.springframework.jdbc.core.JdbcTemplate
 import java.sql.Timestamp
 import java.time.Instant
@@ -10,14 +11,22 @@ abstract class MySQLService(
     private val jdbcTemplate: JdbcTemplate
 ) : PerformanceService {
 
-    override fun simpleSelect(id: Int): Person? {
-        val sql = "SELECT * FROM person WHERE id = $id"
-        return jdbcTemplate.queryForObject(sql, Person::class.java)
+    override fun simpleSelect() {
+        repeat(DB_REPEAT_COUNT) {
+            val sql = "SELECT * FROM person WHERE id = ?"
+            runCatching {
+                jdbcTemplate.queryForObject(sql, Person::class.java, it + 1)
+            }
+        }
     }
 
-    override fun listSelect(): List<Person> {
-        val sql = "SELECT * FROM person"
-        return jdbcTemplate.queryForList(sql, Person::class.java)
+    override fun listSelect() {
+        repeat(DB_REPEAT_COUNT) {
+            val limit = it * 10
+            val offset = it + 10
+            val sql = "SELECT * FROM person LIMIT ? OFFSET ?"
+            jdbcTemplate.queryForList(sql, limit, offset)
+        }
     }
 
     override fun complexSelect() {
@@ -28,7 +37,7 @@ abstract class MySQLService(
         val now = Instant.now()
         val sql = "INSERT INTO person (name, age, is_active, created_at) VALUES (?, ?, ?, ?)"
 
-        repeat(Constants.DB_REPEAT_COUNT) {
+        repeat(DB_REPEAT_COUNT) {
             jdbcTemplate.update(sql, "name", it, true, now)
         }
     }
@@ -38,7 +47,7 @@ abstract class MySQLService(
         val timestamp = Timestamp.from(now)
 
         val sql = "INSERT INTO person (name, age, is_active, created_at) VALUES (?, ?, ?, ?)"
-        val persons = List(Constants.DB_REPEAT_COUNT) {
+        val persons = List(DB_REPEAT_COUNT) {
             Person(
                 id = null,
                 name = "name",
@@ -50,7 +59,7 @@ abstract class MySQLService(
         }
 
         jdbcTemplate.batchUpdate(
-            sql, persons, Constants.DB_BATCH_SIZE
+            sql, persons, DB_BATCH_SIZE
         ) { ps, person ->
             ps.setString(1, person.name)
             ps.setInt(2, person.age)
@@ -60,7 +69,12 @@ abstract class MySQLService(
     }
 
     override fun individualUpdate() {
-        TODO("Not yet implemented")
+        val now = Instant.now()
+
+        repeat(DB_REPEAT_COUNT) {
+            val sql = "UPDATE person SET name = ?, age = ?, is_active = ?, created_at = ? WHERE id = ?"
+            jdbcTemplate.update(sql, "name changed", it, false, now, it)
+        }
     }
 
     override fun bulkUpdate() {
@@ -68,7 +82,7 @@ abstract class MySQLService(
         val timestamp = Timestamp.from(now)
 
         val sql = "UPDATE person SET name = ?, age = ?, is_active = ?, created_at = ? WHERE id = ?"
-        val persons = List(Constants.DB_REPEAT_COUNT) {
+        val persons = List(DB_REPEAT_COUNT) {
             Person(
                 id = it,
                 name = "name changed",
@@ -80,7 +94,7 @@ abstract class MySQLService(
         }
 
         jdbcTemplate.batchUpdate(
-            sql, persons, Constants.DB_BATCH_SIZE
+            sql, persons, DB_BATCH_SIZE
         ) { ps, person ->
             ps.setString(1, person.name)
             ps.setInt(2, person.age)
@@ -90,7 +104,10 @@ abstract class MySQLService(
         }
     }
 
-    override fun individualDelete(id: Int) {
-        jdbcTemplate.execute("DELETE FROM person WHERE id = $id")
+    override fun individualDelete() {
+        repeat(DB_REPEAT_COUNT) { id ->
+            val sql = "DELETE FROM person WHERE id = ?"
+            jdbcTemplate.update(sql, id + 1)
+        }
     }
 }

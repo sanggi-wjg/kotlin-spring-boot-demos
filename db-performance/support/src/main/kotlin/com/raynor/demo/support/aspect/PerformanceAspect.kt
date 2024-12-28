@@ -1,20 +1,19 @@
-package com.raynor.demo.dbmysqlonly.aspect
+package com.raynor.demo.support.aspect
 
-import com.raynor.demo.dbmysqlonly.config.Constants.TEST_CYCLE_COUNT
+import com.raynor.demo.support.config.Constants.TEST_CYCLE_COUNT
 import org.aspectj.lang.ProceedingJoinPoint
+import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
-import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
 import java.time.Instant
 
-@Lazy // 일단 사용 안해서
 @Aspect
 @Component
 class PerformanceAspect {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    //    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..))")
+    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..))")
     fun performanceAroundAdvice(joinPoint: ProceedingJoinPoint) {
         val times = mutableListOf<Long>()
 

@@ -1,4 +1,4 @@
-package com.raynor.demo.dbmysqlonly.config
+package com.raynor.demo.support.config
 
 object Constants {
     const val TEST_CYCLE_COUNT = 20
