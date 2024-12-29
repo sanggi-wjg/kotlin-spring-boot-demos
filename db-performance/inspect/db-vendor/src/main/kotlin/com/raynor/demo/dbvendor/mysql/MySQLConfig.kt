@@ -1,8 +1,8 @@
 package com.raynor.demo.dbvendor.mysql
 
+import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
@@ -45,8 +45,7 @@ class MySQLConfig(
     @Bean(DATA_SOURCE)
     @ConfigurationProperties(prefix = "spring.datasource.mysql")
     fun dataSource(): DataSource {
-//        return HikariDataSource(HikariConfig())
-        return DataSourceBuilder.create().build()
+        return HikariDataSource()
     }
 
     @Bean(ENTITY_MANAGER_FACTORY)

@@ -1,8 +1,8 @@
 package com.raynor.demo.dbvendor.postgresql
 
+import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.jdbc.DataSourceBuilder
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
@@ -47,8 +47,10 @@ class PostgreSQLConfig(
     @Bean(DATA_SOURCE)
     @ConfigurationProperties(prefix = "spring.datasource.postgresql")
     fun dataSource(): DataSource {
-//        return HikariDataSource(HikariConfig())
-        return DataSourceBuilder.create().build()
+//        val config = HikariConfig().apply {
+//            this.poolName = "HikariPool-postgresql"
+//        }
+        return HikariDataSource()
     }
 
     @Bean(ENTITY_MANAGER_FACTORY)

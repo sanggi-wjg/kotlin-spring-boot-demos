@@ -7,7 +7,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Entity
-@Table(name = "person", schema = "inspect")
+@Table(name = "order", schema = "inspect")
 class OrderMySQLEntity(
     orderNumber: String,
     amount: BigDecimal,

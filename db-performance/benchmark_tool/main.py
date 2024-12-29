@@ -1,7 +1,7 @@
 from locust import task, FastHttpUser
 
 
-class BenchmarkUser(FastHttpUser):
+class BenchmarkTask(TaskSet):
 
     @task
     def no_cache(self):
@@ -10,3 +10,8 @@ class BenchmarkUser(FastHttpUser):
     @task
     def yes_cache(self):
         self.client.get("/yes-cache")
+
+
+class BenchmarkUser(FastHttpUser):
+    tasks = [BenchmarkTask]
+    wait_time = between(1, 3)

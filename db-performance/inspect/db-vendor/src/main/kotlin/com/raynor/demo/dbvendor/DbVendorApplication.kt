@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
-@SpringBootApplication
-@ConfigurationPropertiesScan("com.raynor.demo.dbvendor")
+@SpringBootApplication(scanBasePackages = ["com.raynor.demo"])
+@ConfigurationPropertiesScan("com.raynor.demo")
 class DbVendorApplication
 
 fun main(args: Array<String>) {

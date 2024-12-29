@@ -7,7 +7,7 @@ import java.math.BigDecimal
 import java.time.Instant
 
 @Entity
-@Table(name = "person", schema = "public")
+@Table(name = "order", schema = "public")
 class OrderPostgreSQLEntity(
     orderNumber: String,
     amount: BigDecimal,

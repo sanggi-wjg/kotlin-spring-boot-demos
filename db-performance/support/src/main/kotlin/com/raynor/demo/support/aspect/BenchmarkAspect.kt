@@ -10,11 +10,12 @@ import java.time.Instant
 
 @Aspect
 @Component
-class PerformanceAspect {
+class BenchmarkAspect {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..))")
-    fun performanceAroundAdvice(joinPoint: ProceedingJoinPoint) {
+    //    @Around("@annotation(benchmark)")
+    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..)) || execution(* com.raynor.demo.dbvendor.service.*.*(..))")
+    fun benchmarkAroundAdvice(joinPoint: ProceedingJoinPoint) {
         val times = mutableListOf<Long>()
 
         repeat(TEST_CYCLE_COUNT) {

@@ -1,5 +1,8 @@
 package com.raynor.demo.dbvendor.service
 
 interface PerformanceService {
-    fun insert()
+    fun create()
+    fun update()
+    fun read()
+    fun delete()
 }
