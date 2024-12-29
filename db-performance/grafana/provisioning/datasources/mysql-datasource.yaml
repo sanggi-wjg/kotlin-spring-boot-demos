@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: MySQL8
+    type: mysql
+    url: localhost:10001
+    user: user
+    secureJsonData:
+      password: passw0rd
+    jsonData:
+      database: inspect
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400

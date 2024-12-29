@@ -14,7 +14,8 @@ class BenchmarkAspect {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     //    @Around("@annotation(benchmark)")
-    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..)) || execution(* com.raynor.demo.dbvendor.service.*.*(..))")
+//    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..)) || execution(* com.raynor.demo.dbvendor.service.*.*(..))")
+    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..))")
     fun benchmarkAroundAdvice(joinPoint: ProceedingJoinPoint) {
         val times = mutableListOf<Long>()
 

@@ -54,6 +54,46 @@ services:
       MONGO_INITDB_ROOT_USERNAME: user
       MONGO_INITDB_ROOT_PASSWORD: passw0rd
 
+  mysqld_exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysqld_exporter
+    ports:
+      - "9104:9104"
+    environment:
+      DATA_SOURCE_NAME: "exporter:passw0rd@(mysql8:3306)/"
+    command:
+      - "--mysqld.username=exporter:passw0rd"
+      - "--mysqld.address=mysql8:3306"
+    depends_on:
+      - mysql8
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./grafana/prometheus:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - mysql8
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - mysql8
+      - postgres17
+
 networks:
   default:
     name: db-performance-network

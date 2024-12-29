@@ -83,3 +83,5 @@ DB 성능 관련 측정 목적의 프로젝트.
     * MySQL 8: Average: 45.21 ms
     * PostgreSQL 17: Average: 41.76 ms
     * MongoDB 8: Average: 80.52 ms
+
+![](images/.README_images/31cfd001.png)

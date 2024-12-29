@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL 17
+    type: postgres
+    url: localhost:10003
+    user: user
+    secureJsonData:
+      password: 'passw0rd'
+    jsonData:
+      database: inspect
+      sslmode: 'disable'
+      maxOpenConns: 100
+      maxIdleConns: 100
+      maxIdleConnsAuto: true
+      connMaxLifetime: 14400
+      timescaledb: false
