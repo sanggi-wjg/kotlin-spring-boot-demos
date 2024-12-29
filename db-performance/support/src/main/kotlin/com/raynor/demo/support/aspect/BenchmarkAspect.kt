@@ -1,6 +1,6 @@
 package com.raynor.demo.support.aspect
 
-import com.raynor.demo.support.config.Constants.TEST_CYCLE_COUNT
+import com.raynor.demo.support.config.Constants.CYCLE_COUNT
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
@@ -18,11 +18,11 @@ class BenchmarkAspect {
     fun benchmarkAroundAdvice(joinPoint: ProceedingJoinPoint) {
         val times = mutableListOf<Long>()
 
-        repeat(TEST_CYCLE_COUNT) {
+        repeat(CYCLE_COUNT) {
             val startedAt = Instant.now()
             joinPoint.proceed()
             times.add(Instant.now().toEpochMilli() - startedAt.toEpochMilli())
         }
-        logger.info("== ${joinPoint.target::class.java.simpleName}::${joinPoint.signature.name}\nTimes: $times, Average: ${times.average()} ms")
+        logger.info("== ${joinPoint.target::class.java.simpleName}::${joinPoint.signature.name}\n$times, Average: ${times.average()} ms")
     }
 }

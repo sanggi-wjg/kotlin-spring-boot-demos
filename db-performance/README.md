@@ -6,6 +6,7 @@ DB 성능 관련 측정 목적의 프로젝트.
 
 - [ ] Hikari 관련
 - [ ] 멀티 디비일때 jpa 설정 편하게 할 수 없는지 (yaml 만 해서라든지)
+- [ ] Grafana 세팅해서 TPS, QPS, Latency, Throughput 등 비교?
 
 ## Database Setup
 
@@ -61,6 +62,24 @@ DB 성능 관련 측정 목적의 프로젝트.
 
 ![](images/.README_images/dbbeb896.png)
 
-# DB Vendor
+# MySQL 8 vs PostgreSQL 17 vs MongoDB 8
 
-# JDBC vs JPA
+* Select, 페이지 조회여서 몽고가 괜찮게 나온듯
+    * MySQL 8: Average: 636.57 ms
+    * PostgreSQL 17: Average: 615.43 ms
+    * MongoDB 8: Average: 426.18 ms
+
+* Insert
+    * MySQL 8: Average: 473.85 ms
+    * PostgreSQL 17: Average: 875.85 ms
+    * MongoDB 8: Average: 33.04 ms
+
+* Update
+    * MySQL 8: Average: 51.46 ms
+    * PostgreSQL 17: Average: 57.44 ms
+    * MongoDB 8: Average: 30.96 ms
+
+* Delete
+    * MySQL 8: Average: 45.21 ms
+    * PostgreSQL 17: Average: 41.76 ms
+    * MongoDB 8: Average: 80.52 ms

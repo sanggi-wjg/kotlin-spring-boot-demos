@@ -1,8 +1,9 @@
 package com.raynor.demo.support.config
 
 object Constants {
-    const val TEST_CYCLE_COUNT = 20
-    const val DB_REPEAT_COUNT = 2_000
-    const val DB_REPEAT_COUNT_PER_CYCLE = DB_REPEAT_COUNT / TEST_CYCLE_COUNT
-    const val DB_BATCH_SIZE = 1_000
+    const val BATCH_SIZE = 1_000
+    const val CYCLE_COUNT = 100
+    const val INSERT_SIZE = 1_000
+    const val SELECT_RANGE = INSERT_SIZE / CYCLE_COUNT
+    const val OFFSET = 100
 }

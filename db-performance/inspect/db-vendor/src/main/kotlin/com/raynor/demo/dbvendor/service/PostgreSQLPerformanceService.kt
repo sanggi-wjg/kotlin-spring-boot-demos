@@ -3,8 +3,8 @@ package com.raynor.demo.dbvendor.service
 import com.raynor.demo.dbvendor.postgresql.OrderPostgreSQLEntity
 import com.raynor.demo.dbvendor.postgresql.OrderPostgreSQLRepository
 import com.raynor.demo.dbvendor.postgresql.PostgreSQLConfig
-import com.raynor.demo.support.config.Constants.DB_REPEAT_COUNT_PER_CYCLE
-import com.raynor.demo.support.config.Constants.TEST_CYCLE_COUNT
+import com.raynor.demo.support.config.Constants
+import com.raynor.demo.support.config.Constants.CYCLE_COUNT
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -24,7 +24,7 @@ class PostgreSQLPerformanceService(
 
     override fun create() {
         val now = Instant.now()
-        val persons = List(DB_REPEAT_COUNT_PER_CYCLE) {
+        val persons = List(Constants.INSERT_SIZE) {
             OrderPostgreSQLEntity(
                 orderNumber = "bulk-insert",
                 amount = BigDecimal(2222),
@@ -36,21 +36,23 @@ class PostgreSQLPerformanceService(
 
     override fun update() {
         val now = Instant.now()
-        val rand = Random.nextInt(0, TEST_CYCLE_COUNT)
-        val page = PageRequest.of(rand, DB_REPEAT_COUNT_PER_CYCLE)
+        val rand = Random.nextInt(0, Constants.SELECT_RANGE)
+        val page = PageRequest.of(rand, Constants.OFFSET)
         orderRepository.findAll(page).forEach {
             it.complete(now)
         }
     }
 
     override fun read() {
-        val rand = Random.nextInt(0, TEST_CYCLE_COUNT)
-        val page = PageRequest.of(rand, 20)
-        orderRepository.findAll(page)
+        repeat(CYCLE_COUNT / 5) {
+            val rand = Random.nextInt(0, Constants.CYCLE_COUNT)
+            val page = PageRequest.of(rand, Constants.OFFSET)
+            orderRepository.findAll(page)
+        }
     }
 
     override fun delete() {
-        val page = PageRequest.of(0, DB_REPEAT_COUNT_PER_CYCLE)
+        val page = PageRequest.of(0, Constants.OFFSET)
         orderRepository.findAll(page).also {
             orderRepository.deleteAll(it)
         }

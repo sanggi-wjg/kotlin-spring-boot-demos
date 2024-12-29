@@ -10,7 +10,7 @@ import java.time.Instant
 @Document(collection = "orders")
 data class OrderDocument(
     @Id
-    val id: ObjectId = ObjectId.get(),
+    val id: ObjectId? = null,
     val orderNumber: String,
     val amount: BigDecimal,
     val status: OrderStatus = OrderStatus.NEW_ORDER,
