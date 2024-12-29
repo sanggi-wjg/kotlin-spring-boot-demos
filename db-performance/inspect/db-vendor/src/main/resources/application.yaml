@@ -1,1 +1,37 @@
-spring.application.name=db-vendor
+spring:
+  jpa-mysql:
+    open-in-view: false
+    ddl-auto: create
+    use_sql_comments: true
+    default_batch_fetch_size: 50
+    show_sql: true
+    format_sql: false
+    globally_quoted_identifiers: true
+
+  jpa-postgresql:
+    open-in-view: false
+    ddl-auto: create
+    use_sql_comments: true
+    default_batch_fetch_size: 50
+    show_sql: true
+    format_sql: false
+    globally_quoted_identifiers: true
+    default_schema: public
+
+  datasource:
+    mysql:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:mysql://localhost:10001/inspect
+      username: user
+      password: passw0rd
+    #      hikari:
+    #        maximum-pool-size: 10
+    postgresql:
+      driver-class-name: org.postgresql.Driver
+      type: com.zaxxer.hikari.HikariDataSource
+      jdbc-url: jdbc:postgresql://localhost:10003/inspect
+      username: user
+      password: passw0rd
+  #      hikari:
+  #        maximum-pool-size: 10

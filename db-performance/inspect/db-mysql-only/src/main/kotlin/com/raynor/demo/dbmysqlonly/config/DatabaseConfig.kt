@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate
 import javax.sql.DataSource
 
 @Configuration
-class DataSourceConfig {
+class DatabaseConfig {
 
     companion object {
         const val MYSQL_5_DATA_SOURCE = "mysql5DataSource"

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component
 
 @Component
 class ApplicationEventHandler(
-    @Qualifier(DataSourceConfig.MYSQL_5_JDBC_TEMPLATE) private val mysql5JdbcTemplate: JdbcTemplate,
-    @Qualifier(DataSourceConfig.MYSQL_8_JDBC_TEMPLATE) private val mysql8JdbcTemplate: JdbcTemplate,
-    @Qualifier(DataSourceConfig.MYSQL_9_JDBC_TEMPLATE) private val mysql9JdbcTemplate: JdbcTemplate,
+    @Qualifier(DatabaseConfig.MYSQL_5_JDBC_TEMPLATE) private val mysql5JdbcTemplate: JdbcTemplate,
+    @Qualifier(DatabaseConfig.MYSQL_8_JDBC_TEMPLATE) private val mysql8JdbcTemplate: JdbcTemplate,
+    @Qualifier(DatabaseConfig.MYSQL_9_JDBC_TEMPLATE) private val mysql9JdbcTemplate: JdbcTemplate,
 ) {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
