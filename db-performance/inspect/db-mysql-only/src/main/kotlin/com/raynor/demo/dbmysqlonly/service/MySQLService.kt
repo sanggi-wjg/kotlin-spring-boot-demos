@@ -1,6 +1,7 @@
 package com.raynor.demo.dbmysqlonly.service
 
 import com.raynor.demo.dbmysqlonly.service.model.Person
+import com.raynor.demo.support.annotation.Benchmark
 import com.raynor.demo.support.config.Constants.BATCH_SIZE
 import com.raynor.demo.support.config.Constants.CYCLE_COUNT
 import com.raynor.demo.support.config.Constants.INSERT_SIZE
@@ -12,6 +13,7 @@ abstract class MySQLService(
     private val jdbcTemplate: JdbcTemplate
 ) : PerformanceService {
 
+    @Benchmark
     override fun simpleSelect() {
         repeat(CYCLE_COUNT) {
             val sql = "SELECT * FROM person WHERE id = ?"
@@ -21,6 +23,7 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun listSelect() {
         repeat(CYCLE_COUNT) {
             val limit = it * 10
@@ -30,10 +33,12 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun complexSelect() {
         TODO("Not yet implemented")
     }
 
+    @Benchmark
     override fun individualInsert() {
         val now = Instant.now()
         val sql = "INSERT INTO person (name, age, is_active, created_at) VALUES (?, ?, ?, ?)"
@@ -43,6 +48,7 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun bulkInsert() {
         val now = Instant.now()
         val timestamp = Timestamp.from(now)
@@ -69,6 +75,7 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun individualUpdate() {
         val now = Instant.now()
 
@@ -78,6 +85,7 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun bulkUpdate() {
         val now = Instant.now()
         val timestamp = Timestamp.from(now)
@@ -105,6 +113,7 @@ abstract class MySQLService(
         }
     }
 
+    @Benchmark
     override fun individualDelete() {
         repeat(CYCLE_COUNT) { id ->
             val sql = "DELETE FROM person WHERE id = ?"

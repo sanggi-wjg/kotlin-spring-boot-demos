@@ -1,5 +1,6 @@
 package com.raynor.demo.support.aspect
 
+import com.raynor.demo.support.annotation.Benchmark
 import com.raynor.demo.support.config.Constants.CYCLE_COUNT
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
@@ -13,10 +14,9 @@ import java.time.Instant
 class BenchmarkAspect {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    //    @Around("@annotation(benchmark)")
-//    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..)) || execution(* com.raynor.demo.dbvendor.service.*.*(..))")
-    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..))")
-    fun benchmarkAroundAdvice(joinPoint: ProceedingJoinPoint) {
+    //    @Around("execution(* com.raynor.demo.dbmysqlonly.service.*.*(..)) || execution(* com.raynor.demo.dbvendor.service.*.*(..))")
+    @Around("@annotation(benchmark)")
+    fun benchmarkAroundAdvice(joinPoint: ProceedingJoinPoint, benchmark: Benchmark) {
         val times = mutableListOf<Long>()
 
         repeat(CYCLE_COUNT) {

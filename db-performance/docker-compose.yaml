@@ -73,11 +73,11 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./grafana/prometheus:/etc/prometheus/
+      - ./docker_config/prometheus:/etc/prometheus/
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     depends_on:
-      - mysql8
+      - mysqld_exporter
 
   grafana:
     image: grafana/grafana:latest
@@ -89,10 +89,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./docker_config/grafana/provisioning:/etc/grafana/provisioning
     depends_on:
-      - mysql8
-      - postgres17
+      - prometheus
 
 networks:
   default:
