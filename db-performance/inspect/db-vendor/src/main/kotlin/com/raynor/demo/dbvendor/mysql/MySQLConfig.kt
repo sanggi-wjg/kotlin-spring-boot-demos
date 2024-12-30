@@ -1,5 +1,6 @@
 package com.raynor.demo.dbvendor.mysql
 
+import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -45,6 +46,7 @@ class MySQLConfig(
     @Bean(DATA_SOURCE)
     @ConfigurationProperties(prefix = "spring.datasource.mysql")
     fun dataSource(): DataSource {
+        val config = HikariConfig()
         return HikariDataSource()
     }
 

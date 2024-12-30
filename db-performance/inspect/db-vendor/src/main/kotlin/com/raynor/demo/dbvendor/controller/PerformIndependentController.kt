@@ -6,40 +6,29 @@ import com.raynor.demo.dbvendor.service.PerformanceService
 import com.raynor.demo.dbvendor.service.PostgreSQLPerformanceService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class PerformanceController(
+@RequestMapping("/independent")
+class PerformIndependentController(
     @Qualifier(MySQLPerformanceService.BEAN_NAME) private val mysqlService: PerformanceService,
     @Qualifier(PostgreSQLPerformanceService.BEAN_NAME) private val postgresqlService: PerformanceService,
     @Qualifier(MongoDBPerformanceService.BEAN_NAME) private val mongoDBService: PerformanceService,
 ) {
 
-    @GetMapping("/create")
-    fun cretate() {
+    @GetMapping("/mysql-create")
+    fun mysqlCreate() {
         mysqlService.create()
+    }
+
+    @GetMapping("/postgresql-create")
+    fun postgresqlCreate() {
         postgresqlService.create()
-        mongoDBService.create()
     }
 
-    @GetMapping("/update")
-    fun update() {
-        mysqlService.update()
-        postgresqlService.update()
-        mongoDBService.update()
-    }
-
-    @GetMapping("/read")
-    fun read() {
+    @GetMapping("/mysql-read")
+    fun mysqlRead() {
         mysqlService.read()
-        postgresqlService.read()
-        mongoDBService.read()
-    }
-
-    @GetMapping("/delete")
-    fun delete() {
-        mysqlService.delete()
-        postgresqlService.delete()
-        mongoDBService.delete()
     }
 }
