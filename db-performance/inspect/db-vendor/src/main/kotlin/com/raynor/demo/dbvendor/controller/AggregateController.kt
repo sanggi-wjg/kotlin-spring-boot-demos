@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/aggregate")
-class PerformAggregateController(
+class AggregateController(
     @Qualifier(MySQLPerformanceService.BEAN_NAME) private val mysqlService: PerformanceService,
     @Qualifier(PostgreSQLPerformanceService.BEAN_NAME) private val postgresqlService: PerformanceService,
     @Qualifier(MongoDBPerformanceService.BEAN_NAME) private val mongoDBService: PerformanceService,
@@ -36,6 +36,20 @@ class PerformAggregateController(
         mysqlService.read()
         postgresqlService.read()
         mongoDBService.read()
+    }
+
+    @GetMapping("/read-by-pk")
+    fun readByPk() {
+        mysqlService.readByPk()
+        postgresqlService.readByPk()
+        mongoDBService.readByPk()
+    }
+
+    @GetMapping("/read-by-none-index-column")
+    fun readByNoneIndexColumn() {
+        mysqlService.readByNoneIndexColumn()
+        postgresqlService.readByNoneIndexColumn()
+        mongoDBService.readByNoneIndexColumn()
     }
 
     @GetMapping("/delete")

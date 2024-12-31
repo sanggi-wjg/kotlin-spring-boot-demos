@@ -4,5 +4,7 @@ interface PerformanceService {
     fun create()
     fun update()
     fun read()
+    fun readByPk()
+    fun readByNoneIndexColumn()
     fun delete()
 }

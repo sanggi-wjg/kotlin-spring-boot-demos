@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/independent")
-class PerformIndependentController(
+class IndependentController(
     @Qualifier(MySQLPerformanceService.BEAN_NAME) private val mysqlService: PerformanceService,
     @Qualifier(PostgreSQLPerformanceService.BEAN_NAME) private val postgresqlService: PerformanceService,
     @Qualifier(MongoDBPerformanceService.BEAN_NAME) private val mongoDBService: PerformanceService,
