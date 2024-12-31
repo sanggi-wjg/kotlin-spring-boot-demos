@@ -1,5 +1,6 @@
 package com.raynor.demo.dbvendor.postgresql
 
+import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -39,18 +40,20 @@ class PostgreSQLConfig(
     companion object {
         const val PACKAGE_ROOT = "com.raynor.demo.dbvendor.postgresql"
         const val DATA_SOURCE = "postgresqlDataSource"
+        const val DATA_SOURCE_PROPERTIES = "postgresqlDataSourceProperties"
         const val ENTITY_MANAGER_FACTORY = "postgresqlEntityManagerFactory"
         const val TRANSACTION_MANAGER = "postgresqlTransactionManager"
     }
 
+    @Bean(DATA_SOURCE_PROPERTIES)
+    @ConfigurationProperties(prefix = "spring.datasource.postgresql")
+    fun dataSourceProperties(): HikariConfig {
+        return HikariConfig()
+    }
 
     @Bean(DATA_SOURCE)
-    @ConfigurationProperties(prefix = "spring.datasource.postgresql")
     fun dataSource(): DataSource {
-//        val config = HikariConfig().apply {
-//            this.poolName = "HikariPool-postgresql"
-//        }
-        return HikariDataSource()
+        return HikariDataSource(dataSourceProperties())
     }
 
     @Bean(ENTITY_MANAGER_FACTORY)

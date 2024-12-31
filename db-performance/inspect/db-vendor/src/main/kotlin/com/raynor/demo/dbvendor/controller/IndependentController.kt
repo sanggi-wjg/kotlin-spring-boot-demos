@@ -27,8 +27,8 @@ class IndependentController(
         postgresqlService.create()
     }
 
-    @GetMapping("/mysql-read")
+    @GetMapping("/mysql-read-by-pk")
     fun mysqlRead() {
-        mysqlService.read()
+        mysqlService.readByPk()
     }
 }

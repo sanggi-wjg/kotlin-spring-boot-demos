@@ -1,0 +1,11 @@
+#[mysqld]
+#innodb_buffer_pool_size = 716M
+#innodb_log_file_size = 128M
+#innodb_log_buffer_size = 4M
+#innodb_thread_concurrency = 2
+#innodb_io_capacity = 200
+
+# join_buffer_size = 128M
+# sort_buffer_size = 2M
+# read_rnd_buffer_size = 2M
+# https://dev.mysql.com/doc/refman/8.4/en/innodb-parameters.html#sysvar_innodb_commit_concurrency

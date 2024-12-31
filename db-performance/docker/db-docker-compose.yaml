@@ -29,6 +29,8 @@ services:
       MYSQL_DATABASE: inspect
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
+    volumes:
+      - ./mysql8:/etc/mysql/conf.d
     deploy:
       resources:
         limits:

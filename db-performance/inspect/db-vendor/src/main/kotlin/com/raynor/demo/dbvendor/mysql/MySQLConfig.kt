@@ -39,15 +39,20 @@ class MySQLConfig(
     companion object {
         const val PACKAGE_ROOT = "com.raynor.demo.dbvendor.mysql"
         const val DATA_SOURCE = "mysqlDataSource"
+        const val DATA_SOURCE_PROPERTIES = "mysqlDataSourceProperties"
         const val ENTITY_MANAGER_FACTORY = "mysqlEntityManagerFactory"
         const val TRANSACTION_MANAGER = "mysqlTransactionManager"
     }
 
-    @Bean(DATA_SOURCE)
+    @Bean(DATA_SOURCE_PROPERTIES)
     @ConfigurationProperties(prefix = "spring.datasource.mysql")
+    fun dataSourceProperties(): HikariConfig {
+        return HikariConfig()
+    }
+
+    @Bean(DATA_SOURCE)
     fun dataSource(): DataSource {
-        val config = HikariConfig()
-        return HikariDataSource()
+        return HikariDataSource(dataSourceProperties())
     }
 
     @Bean(ENTITY_MANAGER_FACTORY)

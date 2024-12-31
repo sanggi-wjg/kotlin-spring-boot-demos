@@ -25,12 +25,16 @@ spring:
       jdbc-url: jdbc:mysql://localhost:10001/inspect
       username: user
       password: passw0rd
+      pool-name: HikariPool-MySQL
+    #      maximum-pool-size: 20
+    #      minimum-idle: 10
     postgresql:
       driver-class-name: org.postgresql.Driver
       type: com.zaxxer.hikari.HikariDataSource
       jdbc-url: jdbc:postgresql://localhost:10003/inspect
       username: user
       password: passw0rd
+      pool-name: HikariPool-PostgreSQL
 
   data:
     mongodb:
