@@ -13,6 +13,12 @@ services:
       MYSQL_DATABASE: inspect
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
   mysql8:
     image: mysql:8.4
     container_name: mysql8
@@ -23,6 +29,12 @@ services:
       MYSQL_DATABASE: inspect
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
   mysql9:
     image: mysql:9.1
     container_name: mysql9
@@ -33,6 +45,11 @@ services:
       MYSQL_DATABASE: inspect
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
 
   postgres17:
     image: postgres:17.2
@@ -43,6 +60,11 @@ services:
       POSTGRES_DB: inspect
       POSTGRES_USER: user
       POSTGRES_PASSWORD: passw0rd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
 
   mongodb:
     image: mongo:8.0
@@ -53,45 +75,11 @@ services:
       MONGO_INITDB_DATABASE: inspect
       MONGO_INITDB_ROOT_USERNAME: user
       MONGO_INITDB_ROOT_PASSWORD: passw0rd
-
-  mysqld_exporter:
-    image: prom/mysqld-exporter:latest
-    container_name: mysqld_exporter
-    ports:
-      - "9104:9104"
-    environment:
-      DATA_SOURCE_NAME: "exporter:passw0rd@(mysql8:3306)/"
-    command:
-      - "--mysqld.username=exporter:passw0rd"
-      - "--mysqld.address=mysql8:3306"
-    depends_on:
-      - mysql8
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./docker_config/prometheus:/etc/prometheus/
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    depends_on:
-      - mysqld_exporter
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-    volumes:
-      - ./docker_config/grafana/provisioning:/etc/grafana/provisioning
-    depends_on:
-      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
 
 networks:
   default:
