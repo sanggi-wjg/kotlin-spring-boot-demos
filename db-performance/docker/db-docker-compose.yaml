@@ -30,7 +30,8 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: passw0rd
     volumes:
-      - ./mysql8:/etc/mysql/conf.d
+      - ./mysql8/conf:/etc/mysql/conf.d
+      - ./mysql8/init/init.sql:/docker-entrypoint-initdb.d/init.sql
     deploy:
       resources:
         limits:

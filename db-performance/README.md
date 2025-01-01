@@ -4,8 +4,6 @@ DB 성능 관련 측정 목적의 프로젝트.
 
 # TODO
 
-- [ ] Hikari 관련
-- [ ] 멀티 디비일때 jpa 설정 편하게 할 수 없는지 (yaml 만 해서라든지)
 - [ ] Grafana 세팅해서 TPS, QPS, Latency, Throughput 등 비교?
 
 ## Database Setup
