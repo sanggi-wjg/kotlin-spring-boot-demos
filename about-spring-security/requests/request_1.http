@@ -1,0 +1,5 @@
+### Ping
+GET http://localhost:8080/ping
+
+### Pong
+GET http://localhost:8080/pong

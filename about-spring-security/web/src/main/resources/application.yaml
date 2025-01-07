@@ -6,6 +6,7 @@ spring:
   config:
     import:
       - storage-mysql.yaml
+      - security-jwt.yaml
 
 server:
   tomcat:

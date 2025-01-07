@@ -1,10 +1,10 @@
-package com.raynor.demo.basic
+package com.raynor.demo.jwt
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class BasicApplicationTests {
+class JwtApplicationTests {
 
     @Test
     fun contextLoads() {
