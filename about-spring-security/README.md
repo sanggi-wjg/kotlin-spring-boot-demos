@@ -7,4 +7,4 @@
 ## Ref
 
 * https://docs.spring.io/spring-security/reference/
-* https://github.com/spring-projects/spring-security-samples
+* https://medium.com/@dharshib.8/securing-spring-boot-applications-with-jwt-part-2-5afa25bf5a35
