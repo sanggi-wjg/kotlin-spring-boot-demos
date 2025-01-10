@@ -1,6 +1,10 @@
 ### Ping
 GET http://localhost:8080/ping
 
+### Ping Has Secret
+GET http://localhost:8080/ping
+X-Secret: secret
+
 ### Pong
 GET http://localhost:8080/pong
 

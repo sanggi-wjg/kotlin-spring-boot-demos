@@ -1,6 +1,7 @@
 package com.raynor.demo.web.config
 
 import com.raynor.demo.jwt.enum.UserRole
+import com.raynor.demo.jwt.filter.EasterEggFilter
 import com.raynor.demo.jwt.filter.JwtTokenFilter
 import com.raynor.demo.jwt.jwt.JwtHelper
 import org.springframework.context.annotation.Bean
@@ -16,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
@@ -48,8 +50,10 @@ class SecurityConfig(
                     )
             }
             .addFilterBefore(
-                JwtTokenFilter(jwtHelper, userDetailsService),
-                UsernamePasswordAuthenticationFilter::class.java,
+                EasterEggFilter(), AuthorizationFilter::class.java
+            )
+            .addFilterBefore(
+                JwtTokenFilter(jwtHelper, userDetailsService), UsernamePasswordAuthenticationFilter::class.java,
             )
             .authenticationProvider(authenticationProvider())
 //            .addFilterBefore(
