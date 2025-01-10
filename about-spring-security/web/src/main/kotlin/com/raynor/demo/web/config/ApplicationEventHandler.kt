@@ -1,4 +1,4 @@
-package com.raynor.demo.jwt.config
+package com.raynor.demo.web.config
 
 import com.raynor.demo.mysql.entity.UserEntity
 import com.raynor.demo.mysql.repository.UserRepository
@@ -18,16 +18,17 @@ class ApplicationEventHandler(
 
     @EventListener(ApplicationStartedEvent::class)
     fun applicationStarted(event: ApplicationStartedEvent) {
+        val email = "admin@dev.com"
         val password = "p@ssw0rd"
-        val user = userRepository.save(
+
+        userRepository.save(
             UserEntity(
                 name = "admin",
-                email = "admin@dev.com",
+                email = email,
                 hashedPassword = passwordEncoder.encode(password),
-                isAdmin = true,
                 createdAt = Instant.now(),
             )
         )
-        logger.info("Default Admin user created with\nemail: ${user.email}\npassword: $password")
+        logger.info("Default Admin user created with\nemail: $email\npassword: $password")
     }
 }

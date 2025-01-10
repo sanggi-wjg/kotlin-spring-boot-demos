@@ -1,4 +1,4 @@
-package com.raynor.demo.jwt.model
+package com.raynor.demo.jwt
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -19,6 +19,10 @@ class AuthorizedUser(
         return authorities
     }
 
+    override fun getPassword(): String {
+        TODO("Not yet implemented")
+    }
+
     override fun getUsername(): String {
         return username
     }
@@ -29,25 +33,5 @@ class AuthorizedUser(
 
     override fun getUserEmail(): String {
         return userEmail
-    }
-
-    override fun getPassword(): String {
-        TODO("Not yet implemented")
-    }
-
-    override fun isAccountNonExpired(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun isAccountNonLocked(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun isCredentialsNonExpired(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override fun isEnabled(): Boolean {
-        TODO("Not yet implemented")
     }
 }

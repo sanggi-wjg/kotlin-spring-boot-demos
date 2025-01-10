@@ -1,9 +1,6 @@
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 dependencies {
-    implementation(project(":storage:mysql"))
-
-    compileOnly("org.springframework.boot:spring-boot-starter-web")
     api("org.springframework.boot:spring-boot-starter-security")
 
     implementation("io.jsonwebtoken:jjwt-api:0.12.3")

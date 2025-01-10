@@ -10,7 +10,6 @@ class UserEntity(
     name: String,
     email: String,
     hashedPassword: String,
-    isAdmin: Boolean,
     createdAt: Instant
 ) {
     @Id
@@ -32,11 +31,6 @@ class UserEntity(
     @NotNull
     @Column(name = "password", nullable = false, length = 100)
     var password: String = hashedPassword
-        private set
-
-    @NotNull
-    @Column(name = "is_admin", nullable = false)
-    var isAdmin: Boolean = isAdmin
         private set
 
     @NotNull

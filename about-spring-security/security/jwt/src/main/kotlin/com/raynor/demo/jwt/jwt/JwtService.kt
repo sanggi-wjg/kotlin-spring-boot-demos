@@ -1,18 +1,18 @@
 package com.raynor.demo.jwt.jwt
 
-import com.raynor.demo.jwt.model.AuthorizedUser
+import com.raynor.demo.jwt.AuthorizedUser
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import java.time.Instant
 import java.util.*
 import javax.crypto.SecretKey
 
-@Component
-class JwtHelper(
+@Service
+class JwtService(
     private val jwtProperty: JwtProperty,
 ) {
 
@@ -29,6 +29,10 @@ class JwtHelper(
             .compact()
     }
 
+    fun isTokenExpired(token: String): Boolean {
+        return decodeToken(token).expiration.before(Date())
+    }
+
     fun decodeToken(token: String): Claims {
         return Jwts.parser()
             .verifyWith(getSignKey())
@@ -37,26 +41,9 @@ class JwtHelper(
             .payload
     }
 
-    fun isTokenExpired(token: String): Boolean {
-        return decodeToken(token).expiration.before(Date())
-    }
-
-    fun isValidToken(token: String): Boolean {
-        return validateToken(token).isSuccess
-    }
-
-    private fun validateToken(token: String): Result<Unit> {
-        return runCatching {
-            Jwts.parser()
-                .verifyWith(getSignKey())
-                .build()
-                .parseSignedClaims(token)
-        }
-    }
-
     private fun getSignKey(): SecretKey {
-        return Keys.hmacShaKeyFor(
-            Decoders.BASE64.decode(jwtProperty.secretKey)
-        )
+        return Decoders.BASE64.decode(jwtProperty.secretKey).let {
+            Keys.hmacShaKeyFor(it)
+        }
     }
 }
