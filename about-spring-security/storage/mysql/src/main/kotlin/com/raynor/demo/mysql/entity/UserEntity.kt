@@ -11,7 +11,7 @@ class UserEntity(
     email: String,
     hashedPassword: String,
     isAdmin: Boolean,
-    createdAt: Instant
+    createdAt: Instant,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,8 +44,17 @@ class UserEntity(
     var createdAt: Instant = createdAt
         private set
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @NotNull
+    @Column(name = "updated_at", nullable = false)
+    var updatedAt: Instant = createdAt
+        private set
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     private val mutableDevices = mutableListOf<DeviceEntity>()
     val devices: List<DeviceEntity>
         get() = mutableDevices.toList()
+
+    fun addDevice(device: DeviceEntity) {
+        mutableDevices.add(device)
+    }
 }

@@ -1,0 +1,13 @@
+### Ping
+GET http://localhost:8080/ping
+
+### Ping Robot
+GET http://localhost:8080/ping
+X-Robot-Password: n00b_passw0rd
+
+### PongPong
+GET http://localhost:8080/pong
+
+### PongPong Robot
+GET http://localhost:8080/pong
+X-Robot-Password: n00b_passw0rd

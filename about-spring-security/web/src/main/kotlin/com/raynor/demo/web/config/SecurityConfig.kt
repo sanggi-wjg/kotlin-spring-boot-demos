@@ -1,8 +1,5 @@
 package com.raynor.demo.web.config
 
-import com.raynor.demo.jwt.enum.UserRole
-import com.raynor.demo.jwt.filter.EasterEggFilter
-import com.raynor.demo.jwt.filter.JwtTokenFilter
 import com.raynor.demo.jwt.jwt.JwtHelper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,14 +14,12 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.access.intercept.AuthorizationFilter
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
 class SecurityConfig(
     private val jwtHelper: JwtHelper,
     private val userDetailsService: UserDetailsService,
@@ -43,27 +38,31 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .exceptionHandling { it.authenticationEntryPoint(authenticationEntryPoint) }
             .authorizeHttpRequests {
-                it.requestMatchers("/ping").permitAll()
-                    .anyRequest().hasAnyAuthority(
-                        UserRole.GENERAL.name,
-                        UserRole.ADMIN.name,
-                    )
+                it.requestMatchers(
+                    "/ping",
+                    "/api/v1/email-login",
+                    "/api/v1/email-signup",
+                ).permitAll()
+//                it.anyRequest().authenticated()
             }
-            .addFilterBefore(
-                EasterEggFilter(), AuthorizationFilter::class.java
-            )
-            .addFilterBefore(
-                JwtTokenFilter(jwtHelper, userDetailsService), UsernamePasswordAuthenticationFilter::class.java,
-            )
-            .authenticationProvider(authenticationProvider())
-//            .addFilterBefore(
-//                TokenPreAuthenticatedProcessingFilter(jwtHelper),
-//                TokenPreAuthenticatedProcessingFilter::class.java,
-//            )
-            .anonymous {
-                it.authorities(UserRole.ANONYMOUS.name)
-            }
+//            .addFilterBefore(RobotFilter(), AuthorizationFilter::class.java)
+//            .addFilterBefore(JwtTokenFilter(jwtHelper, userDetailsService), AuthorizationFilter::class.java)
+//            .authenticationManager { it }
+//            .authenticationProvider(authenticationProvider())
+//            .anonymous { it.authorities(UserRole.ANONYMOUS.name) }
             .build()
+    }
+
+    @Bean
+    fun authenticationManager(authConfig: AuthenticationConfiguration): AuthenticationManager {
+        return authConfig.authenticationManager
+    }
+
+    @Bean
+    fun authenticationProvider(): AuthenticationProvider {
+        return DaoAuthenticationProvider(passwordEncoder).apply {
+            this.setUserDetailsService(userDetailsService)
+        }
     }
 
     @Bean
@@ -78,17 +77,5 @@ class SecurityConfig(
                 }
             )
         }
-    }
-
-    @Bean
-    fun authenticationProvider(): AuthenticationProvider {
-        return DaoAuthenticationProvider(passwordEncoder).apply {
-            this.setUserDetailsService(userDetailsService)
-        }
-    }
-
-    @Bean
-    fun authenticationManager(authConfig: AuthenticationConfiguration): AuthenticationManager {
-        return authConfig.authenticationManager
     }
 }

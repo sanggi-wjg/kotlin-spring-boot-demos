@@ -1,6 +1,7 @@
 package com.raynor.demo.jwt.filter
 
 import com.raynor.demo.jwt.jwt.JwtHelper
+import com.raynor.demo.jwt.service.CustomUserDetailsService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -22,16 +23,15 @@ class JwtTokenFilter(
 
         if (jwtHelper.isValidToken(token)) {
             val username = jwtHelper.decodeToken(token).subject
-            val user = userDetailsService.loadUserByUsername(username)
+            val user = (userDetailsService as CustomUserDetailsService).loadUserByEmail(username)
 
-            val authentication = UsernamePasswordAuthenticationToken(
+            SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
                 user,
                 null,
                 user.authorities
             ).apply {
                 this.details = WebAuthenticationDetailsSource().buildDetails(request)
             }
-            SecurityContextHolder.getContext().authentication = authentication
         }
 
         filterChain.doFilter(request, response)

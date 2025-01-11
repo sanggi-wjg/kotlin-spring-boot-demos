@@ -1,6 +1,6 @@
 package com.raynor.demo.jwt.jwt
 
-import com.raynor.demo.jwt.model.AuthorizedUser
+import com.raynor.demo.jwt.model.CustomUserDetails
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -16,13 +16,29 @@ class JwtHelper(
     private val jwtProperty: JwtProperty,
 ) {
 
-    fun generateToken(user: AuthorizedUser): String {
+    fun generateToken(user: CustomUserDetails): String {
         val now = Instant.now()
         val issuedAt = Date(now.toEpochMilli())
         val expiredAt = Date(now.toEpochMilli() + jwtProperty.tokenValidityTime)
 
         return Jwts.builder()
-            .subject(user.username)
+            .subject(user.getUserEmail())
+            .claim("userId", user.getUserId())
+            .claim("username", user.username)
+            .issuedAt(issuedAt)
+            .expiration(expiredAt)
+            .signWith(getSignKey(), SignatureAlgorithm.HS256)
+            .compact()
+    }
+
+    fun generateRefreshToken(user: CustomUserDetails): String {
+        val now = Instant.now()
+        val issuedAt = Date(now.toEpochMilli())
+        val expiredAt = Date(now.toEpochMilli() + jwtProperty.tokenValidityTime)
+
+        return Jwts.builder()
+            .claim("userId", user.getUserId())
+            .claim("typ", "RefreshToken")
             .issuedAt(issuedAt)
             .expiration(expiredAt)
             .signWith(getSignKey(), SignatureAlgorithm.HS256)
@@ -35,6 +51,10 @@ class JwtHelper(
             .build()
             .parseSignedClaims(token)
             .payload
+    }
+
+    fun getExpirationBy(token: String): Date? {
+        return decodeToken(token).expiration
     }
 
     fun isTokenExpired(token: String): Boolean {

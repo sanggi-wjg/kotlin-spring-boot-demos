@@ -11,15 +11,23 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+interface CustomUserDetailsService : UserDetailsService {
+    fun loadUserByEmail(email: String): CustomUserDetails
+}
+
 @Service
 @Transactional(readOnly = true)
-class CustomUserDetailsService(
+class BasicCustomUserDetailsService(
     private val userRepository: UserRepository,
-) : UserDetailsService {
+) : CustomUserDetailsService {
 
     override fun loadUserByUsername(username: String): CustomUserDetails {
-        val user = userRepository.findByName(username)
-            ?: throw UsernameNotFoundException("User $username not found")
+        throw IllegalAccessException("❌ You can't touch this. ❌")
+    }
+
+    override fun loadUserByEmail(email: String): CustomUserDetails {
+        val user = userRepository.findByEmail(email)
+            ?: throw UsernameNotFoundException("User $email not found")
 
         return AuthorizedUser(
             userId = user.id!!,

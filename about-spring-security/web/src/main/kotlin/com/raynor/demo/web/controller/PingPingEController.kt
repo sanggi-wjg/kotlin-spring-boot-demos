@@ -22,7 +22,9 @@ class PingPingEController {
     }
 
     @GetMapping("/pong")
-    fun pong(): ResponseEntity<String> {
-        return ResponseEntity.ok("ping")
+    fun pong(
+        authentication: Authentication,
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(authentication.principal.toString())
     }
 }

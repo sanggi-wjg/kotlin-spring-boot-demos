@@ -3,15 +3,15 @@ package com.raynor.demo.jwt.model
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.AuthorityUtils
 
-class EasterEggToken : AbstractAuthenticationToken(
-    AuthorityUtils.createAuthorityList("SECRET")
+class RobotToken : AbstractAuthenticationToken(
+    AuthorityUtils.createAuthorityList("ROBOT")
 ) {
     override fun getCredentials(): Any? {
         return null
     }
 
     override fun getPrincipal(): Any {
-        return "👍 👍 👍"
+        return "🤖 I think you are a robot! 🤖"
     }
 
     override fun isAuthenticated(): Boolean {
@@ -19,10 +19,10 @@ class EasterEggToken : AbstractAuthenticationToken(
     }
 
     override fun setAuthenticated(authenticated: Boolean) {
-        throw IllegalAccessException("You can't touch this")
+        throw IllegalAccessException("❌ You can't touch this. ❌")
     }
 
     override fun getName(): String {
-        return super.getName()
+        return "Robot Name: Mr.Robot"
     }
 }
