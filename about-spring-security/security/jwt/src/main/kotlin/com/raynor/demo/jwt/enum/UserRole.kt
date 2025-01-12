@@ -4,4 +4,5 @@ enum class UserRole {
     ANONYMOUS,
     GENERAL,
     ADMIN,
+    ROBOT,
 }

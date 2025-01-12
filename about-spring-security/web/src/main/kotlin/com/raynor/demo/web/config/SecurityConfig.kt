@@ -1,5 +1,8 @@
 package com.raynor.demo.web.config
 
+import com.raynor.demo.jwt.enum.UserRole
+import com.raynor.demo.jwt.filter.JwtTokenFilter
+import com.raynor.demo.jwt.filter.RobotFilter
 import com.raynor.demo.jwt.jwt.JwtHelper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -14,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -40,16 +44,25 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it.requestMatchers(
                     "/ping",
-                    "/api/v1/email-login",
-                    "/api/v1/email-signup",
+                    "/api/v1/accounts/email-signup",
+                    "/api/v1/accounts/email-login",
                 ).permitAll()
-//                it.anyRequest().authenticated()
+
+                it.requestMatchers("/robot").hasAnyAuthority(
+                    UserRole.ROBOT.name,
+                )
+
+                it.anyRequest().hasAnyAuthority(
+                    UserRole.ADMIN.name,
+                    UserRole.GENERAL.name,
+                    UserRole.ANONYMOUS.name,
+                )
             }
-//            .addFilterBefore(RobotFilter(), AuthorizationFilter::class.java)
-//            .addFilterBefore(JwtTokenFilter(jwtHelper, userDetailsService), AuthorizationFilter::class.java)
-//            .authenticationManager { it }
-//            .authenticationProvider(authenticationProvider())
-//            .anonymous { it.authorities(UserRole.ANONYMOUS.name) }
+            .addFilterBefore(RobotFilter(), AuthorizationFilter::class.java)
+            .addFilterBefore(JwtTokenFilter(jwtHelper, userDetailsService), AuthorizationFilter::class.java)
+            .authenticationManager { it }
+            .authenticationProvider(authenticationProvider())
+            .anonymous { it.authorities(UserRole.ANONYMOUS.name) }
             .build()
     }
 

@@ -12,19 +12,16 @@ class PingPingEController {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
     @GetMapping("/ping")
-    fun ping(
-        authentication: Authentication?,
-    ): ResponseEntity<String> {
-        if (authentication != null) {
-            return ResponseEntity.ok(authentication.principal.toString())
+    fun ping(authentication: Authentication?): ResponseEntity<String> {
+        return if (authentication == null) {
+            ResponseEntity.ok("Ping")
+        } else {
+            ResponseEntity.ok(authentication.principal.toString())
         }
-        return ResponseEntity.ok("pong")
     }
 
-    @GetMapping("/pong")
-    fun pong(
-        authentication: Authentication,
-    ): ResponseEntity<String> {
+    @GetMapping("/robot")
+    fun robot(authentication: Authentication): ResponseEntity<String> {
         return ResponseEntity.ok(authentication.principal.toString())
     }
 }

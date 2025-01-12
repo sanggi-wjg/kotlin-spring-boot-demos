@@ -1,17 +1,18 @@
 package com.raynor.demo.jwt.model
 
+import com.raynor.demo.jwt.enum.UserRole
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.AuthorityUtils
 
 class RobotToken : AbstractAuthenticationToken(
-    AuthorityUtils.createAuthorityList("ROBOT")
+    AuthorityUtils.createAuthorityList(UserRole.ROBOT.name),
 ) {
     override fun getCredentials(): Any? {
         return null
     }
 
     override fun getPrincipal(): Any {
-        return "🤖 I think you are a robot! 🤖"
+        return "🤖 I am a Robot! 🤖"
     }
 
     override fun isAuthenticated(): Boolean {
@@ -23,6 +24,6 @@ class RobotToken : AbstractAuthenticationToken(
     }
 
     override fun getName(): String {
-        return "Robot Name: Mr.Robot"
+        return "🤖 Mr.Robot"
     }
 }

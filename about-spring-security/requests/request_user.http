@@ -1,12 +1,33 @@
 ### Email Signup
-POST http://localhost:8080/api/v1/email-signup
+POST http://localhost:8080/api/v1/accounts/email-signup
 Content-Type: application/json
 
 {
   "email": "user@dev.com",
-  "password": "noob123"
+  "name": "Dev User",
+  "password": "n00b"
 }
 
 
+### Email Signin: User
+POST http://localhost:8080/api/v1/accounts/email-login
+Content-Type: application/json
+
+{
+  "email": "user@dev.com",
+  "password": "n00b"
+}
+
+### Email Signin: Admin
+POST http://localhost:8080/api/v1/accounts/email-login
+Content-Type: application/json
+
+{
+  "email": "admin@dev.com",
+  "password": "p@ssw0rd"
+}
+
 ### Users ME
 GET http://localhost:8080/api/v1/users/me
+Content-Type: application/json
+Authorization: Bearer {token}

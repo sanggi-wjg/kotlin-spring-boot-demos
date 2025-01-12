@@ -61,7 +61,7 @@ class AccountService(
         return UserEntity(
             name = name,
             email = email,
-            hashedPassword = passwordEncoder.encode(rawPassword),
+            hashedPassword = passwordEncoder.encode(password),
             isAdmin = false,
             createdAt = Instant.now(),
         )

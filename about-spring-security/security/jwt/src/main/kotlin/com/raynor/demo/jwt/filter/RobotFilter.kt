@@ -15,14 +15,12 @@ class RobotFilter : OncePerRequestFilter() {
 //            response.status = HttpStatus.ACCEPTED.value()
 //            response.writer.write("🇰🇷🇰🇷🇰🇷")
 //            return
-
             SecurityContextHolder.setContext(
                 SecurityContextHolder.createEmptyContext().apply {
                     this.authentication = RobotToken()
                 }
             )
-            filterChain.doFilter(request, response)
-            return
+            return filterChain.doFilter(request, response)
         }
 
         filterChain.doFilter(request, response)

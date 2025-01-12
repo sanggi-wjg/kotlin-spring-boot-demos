@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController {
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ROLE_GENERAL') or hasRole('ROLE_ADMIN')")
     fun me(): ResponseEntity<String> {
         return ResponseEntity.ok("me")
     }
