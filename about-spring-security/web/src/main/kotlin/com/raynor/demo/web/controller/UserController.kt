@@ -2,6 +2,7 @@ package com.raynor.demo.web.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RestController
 class UserController {
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('ROLE_GENERAL') or hasRole('ROLE_ADMIN')")
-    fun me(): ResponseEntity<String> {
+    @PreAuthorize("hasRole('GENERAL') or hasRole('ADMIN')")
+    fun me(
+        authentication: Authentication,
+    ): ResponseEntity<String> {
         return ResponseEntity.ok("me")
     }
 }

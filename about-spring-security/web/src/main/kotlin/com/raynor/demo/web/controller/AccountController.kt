@@ -3,7 +3,6 @@ package com.raynor.demo.web.controller
 import com.raynor.demo.web.controller.dto.auth.*
 import com.raynor.demo.web.service.AccountService
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -16,7 +15,6 @@ class AccountController(
     private val accountService: AccountService,
 ) {
 
-    @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
     @PostMapping("/email-signup")
     fun emailSignup(
         @RequestBody emailSignupRequestDto: EmailSignupRequestDto,
@@ -27,7 +25,6 @@ class AccountController(
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_ANONYMOUS')")
     @PostMapping("/email-login")
     fun emailLogin(
         @RequestBody emailLoginRequestDto: EmailLoginRequestDto,
