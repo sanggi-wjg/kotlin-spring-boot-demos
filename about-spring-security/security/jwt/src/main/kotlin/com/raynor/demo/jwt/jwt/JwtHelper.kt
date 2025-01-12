@@ -27,7 +27,7 @@ class JwtHelper(
             .claim("username", user.username)
             .issuedAt(issuedAt)
             .expiration(expiredAt)
-            .signWith(getSignKey(), SignatureAlgorithm.HS256)
+            .signWith(getSignKey(), SignatureAlgorithm.HS512)
             .compact()
     }
 
@@ -41,7 +41,7 @@ class JwtHelper(
             .claim("typ", "RefreshToken")
             .issuedAt(issuedAt)
             .expiration(expiredAt)
-            .signWith(getSignKey(), SignatureAlgorithm.HS256)
+            .signWith(getSignKey(), SignatureAlgorithm.HS512)
             .compact()
     }
 

@@ -8,7 +8,6 @@ Content-Type: application/json
   "password": "n00b"
 }
 
-
 ### Email Signin: User
 POST http://localhost:8080/api/v1/accounts/email-login
 Content-Type: application/json

@@ -35,14 +35,15 @@ class AccountService(
 
     fun emailLogin(emailLoginRequestDto: EmailLoginRequestDto): DeviceEntity {
         // implement caching logic with cache strategy in production
-        val user = userRepository.findByEmail(emailLoginRequestDto.email)
-            ?: throw EntityNotFoundException("${emailLoginRequestDto.email} not found")
-
         val authentication = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(emailLoginRequestDto.email, emailLoginRequestDto.password)
-        ) as CustomUserDetails
-        val accessToken = jwtHelper.generateToken(authentication)
-        val refreshToken = jwtHelper.generateRefreshToken(authentication)
+        )
+        val authorizationUser = authentication.principal as CustomUserDetails
+
+        val accessToken = jwtHelper.generateToken(authorizationUser)
+        val refreshToken = jwtHelper.generateRefreshToken(authorizationUser)
+        val user = userRepository.findByEmail(emailLoginRequestDto.email)
+            ?: throw EntityNotFoundException("${emailLoginRequestDto.email} not found")
 
         return DeviceEntity(
             accessToken = accessToken,
