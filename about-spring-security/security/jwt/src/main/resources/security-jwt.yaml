@@ -1,0 +1,7 @@
+security:
+  jwt:
+    secret-key: cebc7bd00a3dc7b2c1f62c6025ee0f84b4d3374fe4d685a0e3089e6e447b120a3b02c34f95ef41b14895354acecfc73c16f0fad0384b89f9c0e963595db1b841
+    token-validity-time: 3600000
+
+---
+spring.config.activate.on-profile: local

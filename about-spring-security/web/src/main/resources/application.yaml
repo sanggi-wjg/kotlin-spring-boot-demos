@@ -1,0 +1,25 @@
+spring.application.name: about-spring-security-web
+spring.profiles.active: local
+spring.web.resources.add-mappings: false
+
+spring:
+  config:
+    import:
+      - storage-mysql.yaml
+      - security-jwt.yaml
+
+server:
+  tomcat:
+    max-connections: 20000
+    threads:
+      max: 600
+      min-spare: 100
+
+---
+spring.config.activate.on-profile: local
+
+
+logging:
+  level:
+    org.springframework: DEBUG
+#    org.springframework.security: TRACE
