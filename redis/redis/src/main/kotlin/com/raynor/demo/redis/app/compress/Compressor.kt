@@ -24,13 +24,13 @@ class Lz4Compressor : Compressor {
         val originalBytes = data.toByteArray(StandardCharsets.UTF_8)
         val maxCompressedLength = compressor.maxCompressedLength(originalBytes.size)
         val compressedBytes = ByteArray(maxCompressedLength)
-        val compressedLength = compressor.compress(originalBytes, 0, originalBytes.size, compressedBytes, 0, maxCompressedLength)
-        return compressedBytes.copyOf(compressedLength)
+        compressor.compress(originalBytes, 0, originalBytes.size, compressedBytes, 0, maxCompressedLength)
+        return compressedBytes
     }
 
     override fun decompress(data: ByteArray): String {
         val restoredBytes = ByteArray(data.size * 255) // 안전을 위해 충분히 큰 배열 할당
         val decompressedLength = decompressor.decompress(data, 0, restoredBytes, 0, restoredBytes.size)
-        return String(restoredBytes, 0, decompressedLength, StandardCharsets.UTF_8)
+        return restoredBytes.toString(StandardCharsets.UTF_8)
     }
 }
