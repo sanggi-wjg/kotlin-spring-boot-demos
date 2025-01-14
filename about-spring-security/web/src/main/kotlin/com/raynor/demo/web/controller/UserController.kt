@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController
 class UserController {
 
     @GetMapping("/me")
-    @PreAuthorize("hasRole('GENERAL') or hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('GENERAL')")
     fun me(
-        authentication: Authentication,
+        authentication: Authentication?,
     ): ResponseEntity<String> {
         return ResponseEntity.ok("me")
     }
