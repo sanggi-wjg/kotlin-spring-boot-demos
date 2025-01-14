@@ -29,7 +29,7 @@ class Lz4Compressor : Compressor {
     }
 
     override fun decompress(data: ByteArray): String {
-        val restoredBytes = ByteArray(data.size * 255) // 안전을 위해 충분히 큰 배열 할당
+        val restoredBytes = ByteArray(data.size + 255) // 안전을 위해 충분히 큰 배열 할당
         val decompressedLength = decompressor.decompress(data, 0, restoredBytes, 0, restoredBytes.size)
         return restoredBytes.toString(StandardCharsets.UTF_8)
     }

@@ -13,8 +13,14 @@ class PerformanceController(
 ) {
 
     @GetMapping("/1")
-    fun perform(): ResponseEntity<Unit> {
-        performanceService.performTask()
+    fun perform1(): ResponseEntity<Unit> {
+        performanceService.performTask1()
+        return ResponseEntity.accepted().build()
+    }
+
+    @GetMapping("/2")
+    fun perform2(): ResponseEntity<Unit> {
+        performanceService.performTask2()
         return ResponseEntity.accepted().build()
     }
 }
