@@ -1,10 +1,10 @@
 package com.raynor.demo.controller
 
-import com.raynor.demo.controller.mapper.toModel
-import com.raynor.demo.controller.mapper.toUserId
-import com.raynor.demo.controller.mapper.toUserResponseDto
 import com.raynor.demo.controller.request.UserCreationRequestDto
+import com.raynor.demo.controller.request.toModel
+import com.raynor.demo.controller.request.toUserId
 import com.raynor.demo.controller.response.UserResponseDto
+import com.raynor.demo.controller.response.toUserResponseDto
 import com.raynor.demo.service.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*

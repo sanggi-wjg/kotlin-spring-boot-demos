@@ -1,6 +1,6 @@
 package com.raynor.demo.service.exception
 
-import com.raynor.demo.domain.model.ValidationResult
+import com.raynor.demo.domain.validator.model.ValidationResult
 
 class InvalidRequestException(
     validationErrors: List<ValidationResult.FieldValidation>

@@ -1,4 +1,4 @@
-package com.raynor.demo.domain.model
+package com.raynor.demo.domain.validator.model
 
 import com.raynor.demo.service.exception.InvalidRequestException
 

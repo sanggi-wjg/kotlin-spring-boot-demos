@@ -1,10 +1,7 @@
 package com.raynor.demo.domain.validator
 
-import com.raynor.demo.domain.model.ValidationResult
-import com.raynor.demo.domain.types.PositiveOrZeroInt
-import com.raynor.demo.domain.types.UserEmail
-import com.raynor.demo.domain.types.UserId
-import com.raynor.demo.domain.types.UserName
+import com.raynor.demo.domain.types.*
+import com.raynor.demo.domain.validator.model.ValidationResult
 import kotlin.reflect.full.declaredMemberProperties
 
 object ModelValidator {
@@ -46,6 +43,12 @@ object ModelValidator {
             is UserId -> {
                 if (!field.validate()) {
                     result.addError(fieldName, "${UserId.INVALID_MESSAGE}: ${field.value}")
+                }
+            }
+
+            is RawPassword -> {
+                if (!field.validate()) {
+                    result.addError(fieldName, RawPassword.INVALID_MESSAGE)
                 }
             }
         }
