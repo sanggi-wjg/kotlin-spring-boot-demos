@@ -1,18 +1,77 @@
-### POST Users
+### POST Users: Success
+POST http://localhost:8080/users
+Content-Type: Application/json
+
+{
+  "email": "user@dev.com",
+  "name": "noop",
+  "age": 10,
+  "password": "1234567890"
+}
+
+###
+//{
+//  "id": 1,
+//  "email": "user@dev.com",
+//  "name": "noop",
+//  "age": 10
+//}
+
+### POST Users: Failure
 POST http://localhost:8080/users
 Content-Type: Application/json
 
 {
   "email": "abc",
   "name": "123",
-  "age": -1
+  "age": -1,
+  "password": "1234"
 }
 
-### Get User 0
+###
+//{
+//  "code": 400,
+//  "message": "Invalid request. Please check your request and try again.",
+//  "errors": [
+//    {
+//      "field": "age",
+//      "message": "PositiveOrZeroInt must be positive or zero: -1"
+//    },
+//    {
+//      "field": "email",
+//      "message": "UserEmail must has valid format: abc"
+//    },
+//    {
+//      "field": "name",
+//      "message": "UserName must has valid format: 123"
+//    },
+//    {
+//      "field": "password",
+//      "message": "Password must be greater than 10 characters"
+//    }
+//  ]
+//}
+
+### Get User: Failure
 GET localhost:8080/users/0
 
-### Get User 1
+#{
+#  "code": 400,
+#  "message": "Invalid request. Please check your request and try again.",
+#  "errors": [
+#    {
+#      "field": "UserId",
+#      "message": "UserId must be positive: 0"
+#    }
+#  ]
+#}
+
+### Get User: Success
 GET localhost:8080/users/1
 
-### Get User 10
-GET localhost:8080/users/10
+#{
+#  "id": 1,
+#  "email": "abc@dev.com",
+#  "name": "abc",
+#  "age": 10
+#}

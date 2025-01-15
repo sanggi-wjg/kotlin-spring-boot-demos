@@ -1,10 +1,12 @@
-package com.raynor.demo.core.exception.dto
+package com.raynor.demo.controller.response
 
 data class ErrorResponseDto(
+    val code: Int,
+    val message: String,
     val errors: List<ErrorItemResponseDto>
 ) {
     data class ErrorItemResponseDto(
         val field: String,
-        val message: String
+        val message: String,
     )
 }

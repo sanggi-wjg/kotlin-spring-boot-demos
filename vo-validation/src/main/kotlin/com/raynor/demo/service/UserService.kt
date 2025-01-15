@@ -1,8 +1,9 @@
-package com.raynor.demo.app
+package com.raynor.demo.service
 
-import com.raynor.demo.app.dto.UserCreationRequest
-import com.raynor.demo.app.types.UserId
-import com.raynor.demo.app.types.UserName
+import com.raynor.demo.controller.request.UserCreationRequest
+import com.raynor.demo.domain.types.UserId
+import com.raynor.demo.storage.entity.UserEntity
+import com.raynor.demo.storage.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
@@ -19,13 +20,8 @@ class UserService(
         )
     }
 
-    fun getUser(userId: UserId): UserEntity? {
+    fun getUser(userId: UserId): UserEntity {
         return userRepository.findById(userId.value)
-            ?: throw IllegalArgumentException("User not found")
-    }
-
-    fun getUserByUserName(userName: UserName): UserEntity? {
-        return userRepository.findByUserName(userName.value)
             ?: throw IllegalArgumentException("User not found")
     }
 }
