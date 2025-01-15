@@ -1,5 +1,6 @@
-package com.raynor.demo.app
+package com.raynor.demo.storage.repository
 
+import com.raynor.demo.storage.entity.UserEntity
 import org.springframework.stereotype.Component
 
 @Component

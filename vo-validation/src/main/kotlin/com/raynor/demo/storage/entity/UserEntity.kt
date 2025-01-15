@@ -1,4 +1,4 @@
-package com.raynor.demo.app
+package com.raynor.demo.storage.entity
 
 class UserEntity(
     val id: Int,

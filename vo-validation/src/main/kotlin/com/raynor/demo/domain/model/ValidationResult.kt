@@ -1,6 +1,6 @@
-package com.raynor.demo.app.model
+package com.raynor.demo.domain.model
 
-import com.raynor.demo.core.exception.InvalidRequestException
+import com.raynor.demo.service.exception.InvalidRequestException
 
 data class ValidationResult(
     private val _errors: MutableList<FieldValidation> = mutableListOf()

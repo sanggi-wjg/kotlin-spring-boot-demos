@@ -1,7 +1,7 @@
-package com.raynor.demo.core.handler
+package com.raynor.demo.controller
 
-import com.raynor.demo.core.exception.InvalidRequestException
-import com.raynor.demo.core.exception.dto.ErrorResponseDto
+import com.raynor.demo.controller.response.ErrorResponseDto
+import com.raynor.demo.service.exception.InvalidRequestException
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice

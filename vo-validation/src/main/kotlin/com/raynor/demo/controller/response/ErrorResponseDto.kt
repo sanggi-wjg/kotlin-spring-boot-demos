@@ -1,4 +1,4 @@
-package com.raynor.demo.core.exception.dto
+package com.raynor.demo.controller.response
 
 data class ErrorResponseDto(
     val errors: List<ErrorItemResponseDto>

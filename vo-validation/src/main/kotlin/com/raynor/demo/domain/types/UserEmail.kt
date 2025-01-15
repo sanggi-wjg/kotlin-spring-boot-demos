@@ -1,4 +1,4 @@
-package com.raynor.demo.app.types
+package com.raynor.demo.domain.types
 
 data class UserEmail(val value: String) {
 

@@ -1,10 +1,10 @@
-package com.raynor.demo.app.validator
+package com.raynor.demo.domain.validator
 
-import com.raynor.demo.app.model.ValidationResult
-import com.raynor.demo.app.types.PositiveOrZeroInt
-import com.raynor.demo.app.types.UserEmail
-import com.raynor.demo.app.types.UserId
-import com.raynor.demo.app.types.UserName
+import com.raynor.demo.domain.model.ValidationResult
+import com.raynor.demo.domain.types.PositiveOrZeroInt
+import com.raynor.demo.domain.types.UserEmail
+import com.raynor.demo.domain.types.UserId
+import com.raynor.demo.domain.types.UserName
 import kotlin.reflect.full.declaredMemberProperties
 
 object ModelValidator {
