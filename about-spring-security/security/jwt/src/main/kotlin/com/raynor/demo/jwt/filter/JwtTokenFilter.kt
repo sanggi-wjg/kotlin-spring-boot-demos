@@ -22,7 +22,7 @@ class JwtTokenFilter(
             ?: return filterChain.doFilter(request, response)
 
         if (jwtHelper.isValidToken(token)) {
-            val user = (userDetailsService as CustomUserDetailsService).loadUserByToken(token)
+            val user = (userDetailsService as CustomUserDetailsService).loadUserByAccessToken(token)
 
 //            SecurityContextHolder.getContext().authentication = CustomAuthenticationToken(
 //                token = token,

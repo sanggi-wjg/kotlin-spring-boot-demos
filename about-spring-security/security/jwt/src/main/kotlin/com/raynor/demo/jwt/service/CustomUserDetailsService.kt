@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 
 interface CustomUserDetailsService : UserDetailsService {
     fun loadUserByEmail(email: String): CustomUserDetails
-    fun loadUserByToken(token: String): CustomUserDetails
+    fun loadUserByAccessToken(accessToken: String): CustomUserDetails
 }
 
 @Service
@@ -40,8 +40,17 @@ class BasicCustomUserDetailsService(
         )
     }
 
-    override fun loadUserByToken(token: String): CustomUserDetails {
-        TODO("Not yet implemented")
+    override fun loadUserByAccessToken(accessToken: String): CustomUserDetails {
+        val user = userRepository.findByAccessToken(accessToken)
+            ?: throw UsernameNotFoundException("User not found")
+
+        return AuthorizationUser(
+            id = user.id!!,
+            name = user.name,
+            email = user.email,
+            password = user.password,
+            authorities = determinedAuthorities(user)
+        )
     }
 
     private fun determinedAuthorities(user: UserEntity): List<SimpleGrantedAuthority> {
