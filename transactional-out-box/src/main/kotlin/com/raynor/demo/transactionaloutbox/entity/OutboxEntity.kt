@@ -55,7 +55,38 @@ class OutboxEntity(
     var createdAt: Instant = createdAt
         private set
 
+    @Column(name = "completed_at")
+    var completedAt: Instant? = null
+        private set
+
     fun done() {
         this.status = true
+        this.completedAt = Instant.now()
+    }
+
+    companion object {
+        fun userSigned(userId: Int): OutboxEntity {
+            return OutboxEntity(
+                aggregateId = userId,
+                aggregateType = AggregateType.USER_SIGNED,
+                payload = mapOf(
+                    "userId" to userId,
+                ),
+                status = false,
+                createdAt = Instant.now()
+            )
+        }
+
+        fun productUpdated(productId: Int): OutboxEntity {
+            return OutboxEntity(
+                aggregateId = productId,
+                aggregateType = AggregateType.PRODUCT_UPDATED,
+                payload = mapOf(
+                    "productId" to productId,
+                ),
+                status = false,
+                createdAt = Instant.now()
+            )
+        }
     }
 }

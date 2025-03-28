@@ -1,4 +1,3 @@
-version: "3.8"
 name: tob-docker-work-space
 services:
   tob-mysql:
@@ -15,8 +14,8 @@ services:
       - ./config/my.cnf:/etc/mysql/my.cnf
 
   tob-zookeeper:
-    image: debezium/zookeeper:2.5.1.Final # https://hub.docker.com/r/debezium/zookeeper
-    platform: linux/arm64/v8
+    image: debezium/zookeeper:2.7.3.Final
+    platform: linux/arm64
     hostname: tob-zookeeper
     container_name: tob-zookeeper
     networks:
@@ -33,8 +32,8 @@ services:
       ZOOKEEPER_SYNC_LIMIT: 2
 
   tob-kafka:
-    image: debezium/kafka:2.5.1.Final # https://hub.docker.com/r/debezium/kafka
-    platform: linux/arm64/v8
+    image: debezium/kafka:2.7.3.Final
+    platform: linux/arm64
     container_name: tob-kafka
     networks:
       - tob_network
@@ -52,7 +51,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
 
   tob-kafka-ui:
-    image: provectuslabs/kafka-ui
+    image: provectuslabs/kafka-ui:latest
     container_name: tob-kafka-ui
     networks:
       - tob_network
@@ -67,8 +66,8 @@ services:
       - KAFKA_CLUSTERS_0_ZOOKEEPER=tob-zookeeper:2181
   
   tob-connector:
-    image: debezium/connect:2.5.1.Final # https://hub.docker.com/r/debezium/connect
-    platform: linux/arm64/v8
+    image: debezium/connect:2.7.3.Final
+    platform: linux/arm64
     container_name: tob-connector
     networks:
       - tob_network
@@ -91,13 +90,10 @@ services:
       - LOG_LEVEL=INFO
       - KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
       - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-#      - VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-#      - INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter
-#      - INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter
 
   tob-debezium-ui:
-    image: debezium/debezium-ui:2.1.2.Final # https://hub.docker.com/r/debezium/debezium-ui
-    platform: linux/arm64/v8
+    image: debezium/debezium-ui:2.1.2.Final
+    platform: linux/arm64
     container_name: tob-debezium-ui
     networks:
       - tob_network

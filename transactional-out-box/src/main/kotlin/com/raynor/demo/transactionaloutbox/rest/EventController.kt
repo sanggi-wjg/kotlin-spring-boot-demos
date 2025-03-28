@@ -1,25 +1,32 @@
 package com.raynor.demo.transactionaloutbox.rest
 
-import com.raynor.demo.transactionaloutbox.service.CreateTaskService
+import com.raynor.demo.transactionaloutbox.model.Product
+import com.raynor.demo.transactionaloutbox.model.User
+import com.raynor.demo.transactionaloutbox.service.ProductService
+import com.raynor.demo.transactionaloutbox.service.UserService
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/event")
 class EventController(
-    private val createTaskService: CreateTaskService,
+    private val userService: UserService,
+    private val productService: ProductService,
 ) {
 
-    @RequestMapping("/user")
-    fun createUser(): ResponseEntity<String> {
-        createTaskService.publishOnUserSigned()
-        return ResponseEntity.ok("user created")
+    @GetMapping("/user")
+    fun createUser(): ResponseEntity<User> {
+        return ResponseEntity.ok(
+            userService.createUser()
+        )
     }
 
-    @RequestMapping("/product/u")
-    fun updateProduct(): ResponseEntity<String> {
-        createTaskService.publishOnProductUpdated()
-        return ResponseEntity.ok("product updated")
+    @GetMapping("/product/update")
+    fun updateProduct(): ResponseEntity<Product> {
+        return ResponseEntity.ok(
+            productService.updateProduct()
+        )
     }
 }

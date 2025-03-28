@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# shellcheck disable=SC2016
 curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" localhost:8083/connectors/ -d '{
   "name": "demo-mysql-connector",
   "config": {
@@ -22,6 +23,7 @@ curl -i -X POST -H "Accept:application/json" -H "Content-Type:application/json" 
     "transforms.outbox.table.field.event.payload": "payload",
     "transforms.outbox.table.json.payload.null.behavior": "ignore",
     "transforms.outbox.table.fields.additional.error.on.missing": "false",
+    "transforms.outbox.table.expand.json.payload": "true",
     "transforms.outbox.route.by.field": "aggregate_type",
     "transforms.outbox.route.topic.replacement" : "${routedByValue}.events",
     "transforms.outbox.table.fields.additional.placement": "event_type:header:eventType",
