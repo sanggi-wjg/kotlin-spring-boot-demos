@@ -1,12 +1,10 @@
 package com.raynor.demo.transactionaloutbox.consumer
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.raynor.demo.transactionaloutbox.consumer.model.ProductUpdatedEvent
-import com.raynor.demo.transactionaloutbox.consumer.model.UserSignedEvent
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaGroup
 import com.raynor.demo.transactionaloutbox.infra.kafka.KafkaTopic
+import com.raynor.demo.transactionaloutbox.model.event.UserEvent
 import com.raynor.demo.transactionaloutbox.repository.OutboxRepository
-import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.annotation.KafkaListener
@@ -30,65 +28,50 @@ class UserEventConsumer(
     fun consumerUserEvents(
         @Header(value = "id") outboxId: String,
 //        @Header(value = "eventType") eventType: String,
-        @Payload event: String,
+        @Payload value: String,
     ) {
         /*
-        2024-08-17T21:03:52.410+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : outboxId: 22
-        2024-08-17T21:03:52.410+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : eventType: USER_SIGNED
-        2024-08-17T21:03:52.410+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : event: {"schema":{"type":"string","optional":false,"name":"io.debezium.data.Json","version":1},"payload":"{\"id\":5117,\"name\":\"2b316917-98be-4062-b394-6f2cbc8c8c45\",\"email\":\"2b316917-98be-4062-b394-6f2cbc8c8c45@dev.com\"}"}
-        2024-08-17T21:03:52.412+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : payload: {"id":5117,"name":"2b316917-98be-4062-b394-6f2cbc8c8c45","email":"2b316917-98be-4062-b394-6f2cbc8c8c45@dev.com"}
-        2024-08-17T21:03:52.441+09:00  INFO 16257 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : userSignedEvent: UserSignedEvent(name=2b316917-98be-4062-b394-6f2cbc8c8c45, email=2b316917-98be-4062-b394-6f2cbc8c8c45@dev.com)
+        Hibernate: insert into `outbox` (`aggregate_id`,`aggregate_type`,`completed_at`,`created_at`,`payload`,`status`) values (?,?,?,?,cast(? as json),?)
+        2025-03-28T14:05:42.307+09:00  INFO 11806 --- [sat] [nio-8080-exec-1] c.r.d.t.service.UserService              : User created: User(id=1, name=123, email=123@dev.com, createdAt=2025-03-28T05:05:42.257785Z, updatedAt=2025-03-28T05:05:42.257785Z)
+        2025-03-28T14:05:42.839+09:00  INFO 11806 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : outboxId: 4, value: {"schema":{"type":"struct","fields":[{"type":"int32","optional":true,"field":"userId"}],"optional":true,"name":"payload"},"payload":{"userId":1}}
+        Hibernate: select oe1_0.`id`,oe1_0.`aggregate_id`,oe1_0.`aggregate_type`,oe1_0.`completed_at`,oe1_0.`created_at`,oe1_0.`payload`,oe1_0.`status` from `outbox` oe1_0 where oe1_0.`id`=?
+        2025-03-28T14:05:42.868+09:00  INFO 11806 --- [sat] [ntainer#0-0-C-1] c.r.d.t.consumer.UserEventConsumer       : do something with user event payload: UserEvent(userId=1)
+        Hibernate: update `outbox` set `aggregate_id`=?,`aggregate_type`=?,`completed_at`=?,`created_at`=?,`payload`=cast(? as json),`status`=? where `id`=?
         * */
-        logger.info("outboxId: $outboxId")
-        logger.info("event: $event")
+        logger.info("outboxId: $outboxId, value: $value")
 
-        val payload = getPayload(event)
-        logger.info("payload: $payload")
+        val outbox = outboxRepository.findByIdOrNull(outboxId.toLong())
+            ?: return // go to dead letter queue
+        val payload = objectMapper.convertValue(outbox.payload, UserEvent::class.java)
+        logger.info("do something with user event payload: $payload")
 
-        fire(outboxId.toLong()) {
-            val userSignedEvent = objectMapper.readValue(payload, UserSignedEvent::class.java)
-            logger.info("userSignedEvent: $userSignedEvent")
-        }
+        outbox.done()
     }
 
     @KafkaListener(
-        topics = [KafkaTopic.PRODUCT_CREATED],
+        topics = [KafkaTopic.PRODUCT_UPDATED],
         groupId = KafkaGroup.SPRING_TOB,
     )
     fun consumerProductEvents(
         @Header(value = "id") outboxId: String,
 //        @Header(value = "eventType") eventType: String,
-        @Payload event: String,
+        @Payload value: String,
     ) {
         /*
-        2024-08-17T21:03:56.407+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : outboxId: 23
-        2024-08-17T21:03:56.407+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : eventType: PRODUCT_UPDATED
-        2024-08-17T21:03:56.407+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : event: {"schema":{"type":"string","optional":false,"name":"io.debezium.data.Json","version":1},"payload":"{\"id\":2013}"}
-        2024-08-17T21:03:56.407+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : payload: {"id":2013}
-        2024-08-17T21:03:56.411+09:00  INFO 16257 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : productUpdatedEvent: ProductUpdatedEvent(id=2013)
+        Hibernate: insert into `outbox` (`aggregate_id`,`aggregate_type`,`completed_at`,`created_at`,`payload`,`status`) values (?,?,?,?,cast(? as json),?)
+        2025-03-28T14:06:34.088+09:00  INFO 11806 --- [sat] [nio-8080-exec-3] c.r.d.t.service.ProductService           : Product updated: Product(id=10, name=연금술사 - 72, price=60047, createdAt=2025-01-02T03:04:05Z, updatedAt=2025-03-28T05:06:34.076970Z)
+        2025-03-28T14:06:34.549+09:00  INFO 11806 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : outboxId: 5, value: {"schema":{"type":"struct","fields":[{"type":"int32","optional":true,"field":"productId"}],"optional":true,"name":"payload"},"payload":{"productId":10}}
+        Hibernate: select oe1_0.`id`,oe1_0.`aggregate_id`,oe1_0.`aggregate_type`,oe1_0.`completed_at`,oe1_0.`created_at`,oe1_0.`payload`,oe1_0.`status` from `outbox` oe1_0 where oe1_0.`id`=?
+        2025-03-28T14:06:34.553+09:00  INFO 11806 --- [sat] [ntainer#1-0-C-1] c.r.d.t.consumer.UserEventConsumer       : do something with product event payload: UserEvent(userId=0)
+        Hibernate: update `outbox` set `aggregate_id`=?,`aggregate_type`=?,`completed_at`=?,`created_at`=?,`payload`=cast(? as json),`status`=? where `id`=?
         * */
-        logger.info("outboxId: $outboxId")
-        logger.info("event: $event")
+        logger.info("outboxId: $outboxId, value: $value")
 
-        val payload = getPayload(event)
-        logger.info("payload: $payload")
+        val outbox = outboxRepository.findByIdOrNull(outboxId.toLong())
+            ?: return // go to dead letter queue
+        val payload = objectMapper.convertValue(outbox.payload, UserEvent::class.java)
+        logger.info("do something with product event payload: $payload")
 
-        fire(outboxId.toLong()) {
-            val productUpdatedEvent = objectMapper.readValue(payload, ProductUpdatedEvent::class.java)
-            logger.info("productUpdatedEvent: $productUpdatedEvent")
-        }
-    }
-
-    private fun fire(outboxId: Long, function: () -> Unit) {
-        val outbox = outboxRepository.findByIdOrNull(outboxId)
-            ?: throw EntityNotFoundException("Outbox not found: $outboxId")
-
-        function.invoke()
         outbox.done()
-        outboxRepository.save(outbox)
-    }
-
-    private fun getPayload(event: String): String {
-        return objectMapper.readTree(event).get("payload").asText()
     }
 }
