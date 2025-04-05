@@ -1,19 +1,33 @@
 services:
-  local-nginx:
+  my-nginx:
     image: nginx:latest
-    container_name: local-nginx
+    container_name: my-nginx
     networks: 
-      - local-nginx-network
-    restart: always
+      - about-nginx-network
     ports:
       - "80:80"
-      - "443:443"
+      - "443:443/tcp"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-      - ./nginx/html:/home/html
+      - ./nginx/html:/home/html:ro
+  
+  # https://hub.docker.com/r/macbre/nginx-http3
+  my-http3-nginx:
+    image: macbre/nginx-http3:latest
+    container_name: my-http3-nginx
+    networks: 
+      - about-nginx-network
+    ports:
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      - ./nginx/conf_http3.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/html:/home/html:ro
+  
 
 networks:
-  local-nginx-network:
-    name: local-nginx-network
+  about-nginx-network:
+    name: about-nginx-network
     driver: bridge
