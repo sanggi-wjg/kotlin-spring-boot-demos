@@ -13,9 +13,9 @@ services:
       - ./nginx/html:/home/html:ro
   
   # https://hub.docker.com/r/macbre/nginx-http3
-  my-http3-nginx:
+  my-nginx-http3:
     image: macbre/nginx-http3:latest
-    container_name: my-http3-nginx
+    container_name: my-nginx-http3
     networks: 
       - about-nginx-network
     ports:
@@ -25,7 +25,6 @@ services:
       - ./nginx/conf_http3.d:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:ro
       - ./nginx/html:/home/html:ro
-  
 
 networks:
   about-nginx-network:
