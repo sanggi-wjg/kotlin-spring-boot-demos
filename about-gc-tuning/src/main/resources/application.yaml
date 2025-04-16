@@ -1,0 +1,27 @@
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+      dialect: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate.default_batch_fetch_size: 100
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:10010/tuning
+    username: user
+    password: passw0rd
+    dbcp2:
+      validation-query: SELECT 1
+    hikari:
+      maximum-pool-size: 10
+
+management:
+  endpoints:
+    prometheus:
+      enabled: true
+    web:
+      exposure:
+        include: prometheus
