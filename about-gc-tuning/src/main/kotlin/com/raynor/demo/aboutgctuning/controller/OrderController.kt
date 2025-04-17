@@ -24,7 +24,7 @@ class OrderController(
     @GetMapping("")
     fun getOrders(): ResponseEntity<List<Order>> {
         val pageRequest = PageRequest.of(
-            Random.nextInt(0, 100),
+            Random.nextInt(0, 10),
             Random.nextInt(10, 100),
         )
         return orderService.getOrders(pageRequest).let {
@@ -35,7 +35,7 @@ class OrderController(
     @GetMapping("/realtime")
     fun getOrdersRealTime(): ResponseEntity<List<Order>> {
         val pageRequest = PageRequest.of(
-            Random.nextInt(0, 100),
+            Random.nextInt(0, 10),
             Random.nextInt(10, 100),
         )
         return orderService.getOrdersRealTime(pageRequest).let {

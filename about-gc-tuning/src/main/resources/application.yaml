@@ -10,7 +10,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:10010/tuning
+    url: jdbc:mysql://agt-mysql8:3306/tuning
     username: user
     password: passw0rd
     dbcp2:

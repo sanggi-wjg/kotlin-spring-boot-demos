@@ -18,6 +18,26 @@ services:
           cpus: '0.5'
           memory: 1G
 
+  agt-redis:
+    image: redis:latest
+    container_name: agt-redis
+    ports:
+      - "10011:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  agt-app:
+    image: girr311/agt-app:latest
+    container_name: agt-app
+    ports:
+      - "10012:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+  
   agt-prometheus:
     image: prom/prometheus:latest
     container_name: agt-prometheus

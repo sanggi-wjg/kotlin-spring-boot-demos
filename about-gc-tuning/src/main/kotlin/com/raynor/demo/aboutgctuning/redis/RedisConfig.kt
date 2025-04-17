@@ -14,8 +14,8 @@ class RedisConfig {
     fun connectionFactory(): LettuceConnectionFactory {
         return LettuceConnectionFactory(
             RedisStandaloneConfiguration().apply {
-                this.database = 9
-                this.hostName = "localhost"
+                this.database = 0
+                this.hostName = "agt-redis"
                 this.port = 6379
             }
         )
