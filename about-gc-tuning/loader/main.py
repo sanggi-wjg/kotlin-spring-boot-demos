@@ -1,7 +1,6 @@
 import collections
 import random
 from dataclasses import dataclass, field
-from typing import List
 
 from locust import FastHttpUser, between, task
 
@@ -15,9 +14,15 @@ class Config:
 
     create_order: TaskConfig = field(default=TaskConfig(endpoint="/orders", weight=5))
     get_orders: TaskConfig = field(default=TaskConfig(endpoint="/orders", weight=80))
-    get_orders_realtime: TaskConfig = field(default=TaskConfig(endpoint="/orders/realtime", weight=10))
-    get_order: TaskConfig = field(default=TaskConfig(endpoint="/orders/{order_id}", weight=10))
-    complete_order: TaskConfig = field(default=TaskConfig(endpoint="/orders/{order_id}/complete", weight=5))
+    get_orders_realtime: TaskConfig = field(
+        default=TaskConfig(endpoint="/orders/realtime", weight=10)
+    )
+    get_order: TaskConfig = field(
+        default=TaskConfig(endpoint="/orders/{order_id}", weight=10)
+    )
+    complete_order: TaskConfig = field(
+        default=TaskConfig(endpoint="/orders/{order_id}/complete", weight=5)
+    )
 
 
 config = Config()
@@ -48,10 +53,16 @@ class MyUser(FastHttpUser):
     def get_order(self):
         if self.order_ids:
             order_id = random.choice(self.order_ids)
-            self.client.get(config.get_order.endpoint.format(order_id=order_id))
+            self.client.get(
+                config.get_order.endpoint.format(order_id=order_id),
+                name=config.get_order.endpoint,
+            )
 
     @task(config.complete_order.weight)
     def complete_order(self):
         if self.order_ids:
-            order_id = random.choice(self.order_ids)
-            self.client.post(config.complete_order.endpoint.format(order_id=order_id))
+            self.order_ids.remove(order_id := random.choice(self.order_ids))
+            self.client.post(
+                config.complete_order.endpoint.format(order_id=order_id),
+                name=config.complete_order.endpoint,
+            )

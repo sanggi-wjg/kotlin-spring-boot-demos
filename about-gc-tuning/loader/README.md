@@ -15,8 +15,8 @@ locust -f main.py \
 locust -f main.py \
     --master \
     --host http://127.0.0.1:10012 \
-    --users 10000 \
-    --spawn-rate 500 \
+    --users 5000 \
+    --spawn-rate 100 \
     --run-time 10m \
     --stop-timeout 2s
 
