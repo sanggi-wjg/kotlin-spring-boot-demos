@@ -57,8 +57,8 @@ class OrderEntity(
     var product: ProductEntity = product
         private set
 
-    fun complete(time: Instant) {
+    fun complete() {
         this.status = OrderStatus.COMPLETED
-        this.completedAt = time
+        this.completedAt = Instant.now()
     }
 }
