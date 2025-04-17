@@ -37,6 +37,11 @@ services:
     depends_on:
       - agt-mysql8
       - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
   
   agt-prometheus:
     image: prom/prometheus:latest

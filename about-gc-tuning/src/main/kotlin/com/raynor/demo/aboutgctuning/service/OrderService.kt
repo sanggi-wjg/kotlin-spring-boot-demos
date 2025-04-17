@@ -64,7 +64,7 @@ class OrderService(
     @CachePut(value = ["orders"], key = "#orderId")
     @Transactional
     fun completeOrder(orderId: Int): Order {
-        val order = orderRepository.findByIdOrNull(orderId)
+        val order = orderRepository.findByIdWithLock(orderId)
             ?: throw EntityNotFoundException("Order not found with id:$orderId")
         order.complete()
         return Order.valueOf(order)

@@ -54,4 +54,4 @@ class MyUser(FastHttpUser):
     def complete_order(self):
         if self.order_ids:
             order_id = random.choice(self.order_ids)
-            self.client.put(config.complete_order.endpoint.format(order_id=order_id))
+            self.client.post(config.complete_order.endpoint.format(order_id=order_id))

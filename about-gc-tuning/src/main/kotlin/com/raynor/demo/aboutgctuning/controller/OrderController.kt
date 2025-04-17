@@ -13,7 +13,6 @@ import kotlin.random.Random
 class OrderController(
     private val orderService: OrderService,
 ) {
-
     @PostMapping("")
     fun createOrder(): ResponseEntity<Order> {
         return orderService.createOrder().let {

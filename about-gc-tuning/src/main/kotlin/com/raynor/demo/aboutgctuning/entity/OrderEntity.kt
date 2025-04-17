@@ -57,7 +57,19 @@ class OrderEntity(
     var product: ProductEntity = product
         private set
 
+    fun isBeforeComplete(): Boolean {
+        return this.status in listOf(
+            OrderStatus.NEW_ORDER,
+            OrderStatus.SHIPPING,
+            OrderStatus.DELIVERED,
+        )
+    }
+
     fun complete() {
+        require(this.isBeforeComplete()) {
+            "Order is already completed"
+        }
+
         this.status = OrderStatus.COMPLETED
         this.completedAt = Instant.now()
     }
