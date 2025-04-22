@@ -1,0 +1,104 @@
+version: "3.8"
+name: about-gc-tuning
+
+services:
+  agt-mysql8:
+    image: mysql:8.4
+    container_name: agt-mysql8
+    ports:
+      - "10010:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootroot
+      MYSQL_DATABASE: tuning
+      MYSQL_USER: user
+      MYSQL_PASSWORD: passw0rd
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  agt-redis:
+    image: redis:latest
+    container_name: agt-redis
+    ports:
+      - "10011:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G
+
+  agt-app-serial:
+    image: girr311/agt-app:serial
+    container_name: agt-app-serial
+    ports:
+      - "10012:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  agt-app-g1gc:
+    image: girr311/agt-app:g1gc
+    container_name: agt-app-g1gc
+    ports:
+      - "10013:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  agt-app-zgc:
+    image: girr311/agt-app:zgc
+    container_name: agt-app-zgc
+    ports:
+      - "10014:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+  
+  agt-prometheus:
+    image: prom/prometheus:latest
+    container_name: agt-prometheus
+    ports:
+      - "10020:9090"
+    volumes:
+      - .docker/prometheus:/etc/prometheus/
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
+
+  agt-grafana:
+    image: grafana/grafana:latest
+    container_name: agt-grafana
+    ports:
+      - "10030:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - agt-prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 500M
