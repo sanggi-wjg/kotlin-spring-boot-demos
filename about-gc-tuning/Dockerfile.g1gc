@@ -11,5 +11,6 @@ FROM amazoncorretto:21.0.7
 WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
+ENV JAVA_TOOL_OPTIONS="-XX:+UseG1GC"
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

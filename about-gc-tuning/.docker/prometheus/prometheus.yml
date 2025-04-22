@@ -2,10 +2,18 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'spring-boot-app'
+  - job_name: 'spring-boot'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: [ 'agt-app:8080' ]
+
+      - targets: [ 'agt-app-serial:8080' ]
         labels:
-          group: 'application'
-          instance: 'spring-boot-instance'
+          group: 'spring-boot-application'
+
+      - targets: [ 'agt-app-g1gc:8080' ]
+        labels:
+          group: 'spring-boot-application'
+
+      - targets: [ 'agt-app-zgc:8080' ]
+        labels:
+          group: 'spring-boot-application'

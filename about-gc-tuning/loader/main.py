@@ -12,16 +12,20 @@ class Config:
         endpoint: str
         weight: int
 
-    create_order: TaskConfig = field(default=TaskConfig(endpoint="/orders", weight=5))
-    get_orders: TaskConfig = field(default=TaskConfig(endpoint="/orders", weight=80))
+    create_order: TaskConfig = field(
+        default=TaskConfig(endpoint="/orders", weight=5),
+    )
+    get_orders: TaskConfig = field(
+        default=TaskConfig(endpoint="/orders", weight=80),
+    )
     get_orders_realtime: TaskConfig = field(
-        default=TaskConfig(endpoint="/orders/realtime", weight=10)
+        default=TaskConfig(endpoint="/orders/realtime", weight=10),
     )
     get_order: TaskConfig = field(
-        default=TaskConfig(endpoint="/orders/{order_id}", weight=10)
+        default=TaskConfig(endpoint="/orders/{order_id}", weight=10),
     )
     complete_order: TaskConfig = field(
-        default=TaskConfig(endpoint="/orders/{order_id}/complete", weight=5)
+        default=TaskConfig(endpoint="/orders/{order_id}/complete", weight=5),
     )
 
 

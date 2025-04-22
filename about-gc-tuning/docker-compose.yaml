@@ -29,11 +29,39 @@ services:
           cpus: '0.5'
           memory: 1G
 
-  agt-app:
-    image: girr311/agt-app:latest
-    container_name: agt-app
+  agt-app-serial:
+    image: girr311/agt-app:serial
+    container_name: agt-app-serial
     ports:
       - "10012:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  agt-app-g1gc:
+    image: girr311/agt-app:g1gc
+    container_name: agt-app-g1gc
+    ports:
+      - "10013:8080"
+    depends_on:
+      - agt-mysql8
+      - agt-redis
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+
+  agt-app-zgc:
+    image: girr311/agt-app:zgc
+    container_name: agt-app-zgc
+    ports:
+      - "10014:8080"
     depends_on:
       - agt-mysql8
       - agt-redis
