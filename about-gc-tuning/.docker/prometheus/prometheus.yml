@@ -10,10 +10,22 @@ scrape_configs:
         labels:
           group: 'spring-boot-application'
 
+      - targets: [ 'agt-app-serial-m:8080' ]
+        labels:
+          group: 'spring-boot-application'
+
       - targets: [ 'agt-app-g1gc:8080' ]
         labels:
           group: 'spring-boot-application'
 
+      - targets: [ 'agt-app-g1gc-m:8080' ]
+        labels:
+          group: 'spring-boot-application'
+
       - targets: [ 'agt-app-zgc:8080' ]
+        labels:
+          group: 'spring-boot-application'
+
+      - targets: [ 'agt-app-zgc-m:8080' ]
         labels:
           group: 'spring-boot-application'

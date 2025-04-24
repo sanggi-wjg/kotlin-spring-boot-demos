@@ -16,7 +16,7 @@ class Config:
         default=TaskConfig(endpoint="/orders", weight=5),
     )
     get_orders: TaskConfig = field(
-        default=TaskConfig(endpoint="/orders", weight=80),
+        default=TaskConfig(endpoint="/orders", weight=20),
     )
     get_orders_realtime: TaskConfig = field(
         default=TaskConfig(endpoint="/orders/realtime", weight=10),
@@ -28,6 +28,68 @@ class Config:
         default=TaskConfig(endpoint="/orders/{order_id}/complete", weight=5),
     )
 
+    computing: TaskConfig = field(
+        default=TaskConfig(endpoint="/load/computing", weight=30),
+    )
+    json_computing: TaskConfig = field(
+        default=TaskConfig(endpoint="/load/json", weight=30),
+    )
+
+
+default_person = {
+    "persons": [
+        {
+            "id": 1,
+            "name": "John",
+            "email": "bHbNw@example.com",
+        },
+        {
+            "id": 2,
+            "name": "Jane",
+            "email": "jane@me.com",
+        },
+        {
+            "id": 3,
+            "name": "Bob",
+            "email": "bob@me.com",
+        },
+        {
+            "id": 4,
+            "name": "Alice",
+            "email": "alice@me.com",
+        },
+        {
+            "id": 5,
+            "name": "Eve",
+            "email": "eve@me.com",
+        },
+        {
+            "id": 6,
+            "name": "Charlie",
+            "email": "charlie@me.com",
+        },
+        {
+            "id": 7,
+            "name": "Dennis",
+            "email": "dennis@me.com",
+        },
+        {
+            "id": 8,
+            "name": "Frank",
+            "email": "frank@me.com",
+        },
+        {
+            "id": 9,
+            "name": "Grace",
+            "email": "grace@me.com",
+        },
+        {
+            "id": 10,
+            "name": "Henry",
+            "email": "henry@me.com",
+        },
+    ]
+}
 
 config = Config()
 
@@ -70,3 +132,11 @@ class MyUser(FastHttpUser):
                 config.complete_order.endpoint.format(order_id=order_id),
                 name=config.complete_order.endpoint,
             )
+
+    @task(config.computing.weight)
+    def computing(self):
+        self.client.get(config.computing.endpoint)
+
+    @task(config.json_computing.weight)
+    def json_computing(self):
+        self.client.post(config.json_computing.endpoint, json=default_person)

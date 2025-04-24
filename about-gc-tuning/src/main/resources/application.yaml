@@ -24,13 +24,16 @@ management:
       enabled: true
     web:
       exposure:
-        include: prometheus
+        include: prometheus, metrics
 
 #server:
+#  compression:
+#    enabled: true
+#    min-response-size: 1024
 #  tomcat:
-#    accept-count: 1000
 #    threads:
-#      max: 500
-#      min-spare: 50
-#    max-connections: 10000
+#      max: 300
+#      min-spare: 30
+#    accept-count: 200
+#    max-connections: 5000
 #    connection-timeout: 10s

@@ -30,46 +30,100 @@ services:
           memory: 1G
 
   agt-app-serial:
-    image: girr311/agt-app:serial
+    image: girr311/agt-app:latest
     container_name: agt-app-serial
     ports:
       - "10012:8080"
-    depends_on:
-      - agt-mysql8
-      - agt-redis
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 2G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseSerialGC
+        -XX:ActiveProcessorCount=1
+
+  agt-app-serial-m:
+    image: girr311/agt-app:latest
+    container_name: agt-app-serial-m
+    ports:
+      - "10012:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 6G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseSerialGC
+        -XX:InitialRAMPercentage=25.0
+        -XX:MaxRAMPercentage=90.0
+        -XX:ActiveProcessorCount=3
 
   agt-app-g1gc:
-    image: girr311/agt-app:g1gc
+    image: girr311/agt-app:latest
     container_name: agt-app-g1gc
     ports:
       - "10013:8080"
-    depends_on:
-      - agt-mysql8
-      - agt-redis
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 2G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseG1GC
+        -XX:ActiveProcessorCount=1
+
+  agt-app-g1gc-m:
+    image: girr311/agt-app:latest
+    container_name: agt-app-g1gc-m
+    ports:
+      - "10013:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 6G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseG1GC
+        -XX:InitialRAMPercentage=25.0
+        -XX:MaxRAMPercentage=90.0
+        -XX:ActiveProcessorCount=3
 
   agt-app-zgc:
-    image: girr311/agt-app:zgc
+    image: girr311/agt-app:latest
     container_name: agt-app-zgc
     ports:
       - "10014:8080"
-    depends_on:
-      - agt-mysql8
-      - agt-redis
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 2G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseZGC
+        -XX:ActiveProcessorCount=1
+
+  agt-app-zgc-m:
+    image: girr311/agt-app:latest
+    container_name: agt-app-zgc-m
+    ports:
+      - "10014:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 6G
+    environment:
+      JAVA_TOOL_OPTIONS: >
+        -XX:+UseZGC
+        -XX:InitialRAMPercentage=25.0
+        -XX:MaxRAMPercentage=90.0
+        -XX:ActiveProcessorCount=3
   
   agt-prometheus:
     image: prom/prometheus:latest
