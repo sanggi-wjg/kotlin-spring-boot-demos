@@ -1,0 +1,21 @@
+version: "3.8"
+name: about-jooq
+
+services:
+  aj-mysql8:
+    image: mysql:8.4
+    container_name: aj-mysql8
+    ports:
+      - "10100:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootroot
+      MYSQL_DATABASE: jooq
+      MYSQL_USER: user
+      MYSQL_PASSWORD: passw0rd
+    volumes:
+      - ./docker/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 1G
