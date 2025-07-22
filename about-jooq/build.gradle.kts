@@ -29,9 +29,6 @@ dependencies {
 
     // jooq
     implementation("org.springframework.boot:spring-boot-starter-jooq")
-//    implementation("org.jooq:jooq:3.19.4")
-//    implementation("org.jooq:jooq-meta:3.19.4")
-//    implementation("org.jooq:jooq-codegen:3.19.4")
     jooqGenerator("com.mysql:mysql-connector-j")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -77,10 +74,11 @@ jooq {
                         isRecords = true
                         isImmutablePojos = true
                         isFluentSetters = true
+                        withPojosEqualsAndHashCodeIncludePrimaryKeyOnly(true)
                     }
                     target.apply {
                         packageName = "com.raynor.demo.aboutjooq.entity"
-                        directory = "build/generated/jooq/main"
+                        directory = "src/main/generated/entity"
                     }
                     strategy.name = "org.jooq.codegen.DefaultGeneratorStrategy"
                 }
@@ -92,4 +90,12 @@ jooq {
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     allInputsDeclared = true
     outputs.cacheIf { true }
+}
+
+sourceSets {
+    main {
+        kotlin {
+            srcDirs("src/main/generated/entity")
+        }
+    }
 }
