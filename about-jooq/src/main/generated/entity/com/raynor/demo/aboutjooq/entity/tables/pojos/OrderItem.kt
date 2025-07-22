@@ -6,6 +6,7 @@ package com.raynor.demo.aboutjooq.entity.tables.pojos
 
 import java.io.Serializable
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 
 /**
@@ -17,7 +18,9 @@ data class OrderItem(
     val orderId: Int? = null,
     val productId: Int? = null,
     val quantity: Int? = null,
-    val unitPrice: BigDecimal? = null
+    val unitPrice: BigDecimal? = null,
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 ): Serializable {
 
     override fun equals(other: Any?): Boolean {
@@ -58,6 +61,18 @@ data class OrderItem(
         }
         else if (this.unitPrice != o.unitPrice)
             return false
+        if (this.createdAt == null) {
+            if (o.createdAt != null)
+                return false
+        }
+        else if (this.createdAt != o.createdAt)
+            return false
+        if (this.updatedAt == null) {
+            if (o.updatedAt != null)
+                return false
+        }
+        else if (this.updatedAt != o.updatedAt)
+            return false
         return true
     }
 
@@ -69,6 +84,8 @@ data class OrderItem(
         result = prime * result + (if (this.productId == null) 0 else this.productId.hashCode())
         result = prime * result + (if (this.quantity == null) 0 else this.quantity.hashCode())
         result = prime * result + (if (this.unitPrice == null) 0 else this.unitPrice.hashCode())
+        result = prime * result + (if (this.createdAt == null) 0 else this.createdAt.hashCode())
+        result = prime * result + (if (this.updatedAt == null) 0 else this.updatedAt.hashCode())
         return result
     }
 
@@ -80,6 +97,8 @@ data class OrderItem(
         sb.append(", ").append(productId)
         sb.append(", ").append(quantity)
         sb.append(", ").append(unitPrice)
+        sb.append(", ").append(createdAt)
+        sb.append(", ").append(updatedAt)
 
         sb.append(")")
         return sb.toString()

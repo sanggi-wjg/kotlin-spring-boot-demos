@@ -35,6 +35,10 @@ open class OrderRecord() : UpdatableRecordImpl<OrderRecord>(Order.ORDER) {
         set(value): Unit = set(3, value)
         get(): LocalDateTime? = get(3) as LocalDateTime?
 
+    open var updatedAt: LocalDateTime?
+        set(value): Unit = set(4, value)
+        get(): LocalDateTime? = get(4) as LocalDateTime?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -44,11 +48,12 @@ open class OrderRecord() : UpdatableRecordImpl<OrderRecord>(Order.ORDER) {
     /**
      * Create a detached, initialised OrderRecord
      */
-    constructor(id: Int? = null, orderStatus: String? = null, totalAmount: BigDecimal? = null, createdAt: LocalDateTime? = null): this() {
+    constructor(id: Int? = null, orderStatus: String? = null, totalAmount: BigDecimal? = null, createdAt: LocalDateTime? = null, updatedAt: LocalDateTime? = null): this() {
         this.id = id
         this.orderStatus = orderStatus
         this.totalAmount = totalAmount
         this.createdAt = createdAt
+        this.updatedAt = updatedAt
         resetChangedOnNotNull()
     }
 
@@ -61,6 +66,7 @@ open class OrderRecord() : UpdatableRecordImpl<OrderRecord>(Order.ORDER) {
             this.orderStatus = value.orderStatus
             this.totalAmount = value.totalAmount
             this.createdAt = value.createdAt
+            this.updatedAt = value.updatedAt
             resetChangedOnNotNull()
         }
     }

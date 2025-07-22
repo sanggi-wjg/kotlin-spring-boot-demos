@@ -27,4 +27,18 @@ class ProductController(
             ResponseEntity.ok(it)
         }
     }
+
+    @GetMapping("/products/create-1")
+    fun createProduct1(): ResponseEntity<String> {
+        return productService.createProducts1().let {
+            ResponseEntity.ok("123")
+        }
+    }
+
+    @GetMapping("/products/create-2")
+    fun createProduct2(): ResponseEntity<String> {
+        return productService.createProducts2().let {
+            ResponseEntity.ok("123")
+        }
+    }
 }

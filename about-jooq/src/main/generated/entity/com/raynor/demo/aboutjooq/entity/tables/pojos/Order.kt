@@ -17,7 +17,8 @@ data class Order(
     val id: Int? = null,
     val orderStatus: String? = null,
     val totalAmount: BigDecimal? = null,
-    val createdAt: LocalDateTime? = null
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 ): Serializable {
 
     override fun equals(other: Any?): Boolean {
@@ -52,6 +53,12 @@ data class Order(
         }
         else if (this.createdAt != o.createdAt)
             return false
+        if (this.updatedAt == null) {
+            if (o.updatedAt != null)
+                return false
+        }
+        else if (this.updatedAt != o.updatedAt)
+            return false
         return true
     }
 
@@ -62,6 +69,7 @@ data class Order(
         result = prime * result + (if (this.orderStatus == null) 0 else this.orderStatus.hashCode())
         result = prime * result + (if (this.totalAmount == null) 0 else this.totalAmount.hashCode())
         result = prime * result + (if (this.createdAt == null) 0 else this.createdAt.hashCode())
+        result = prime * result + (if (this.updatedAt == null) 0 else this.updatedAt.hashCode())
         return result
     }
 
@@ -72,6 +80,7 @@ data class Order(
         sb.append(", ").append(orderStatus)
         sb.append(", ").append(totalAmount)
         sb.append(", ").append(createdAt)
+        sb.append(", ").append(updatedAt)
 
         sb.append(")")
         return sb.toString()

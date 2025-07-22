@@ -77,24 +77,34 @@ open class Product(
     override fun getRecordType(): Class<ProductRecord> = ProductRecord::class.java
 
     /**
-     * The column <code>jooq.product.id</code>.
+     * The column <code>jooq.product.id</code>. PK
      */
-    val ID: TableField<ProductRecord, Int?> = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val ID: TableField<ProductRecord, Int?> = createField(DSL.name("id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "PK")
 
     /**
-     * The column <code>jooq.product.name</code>.
+     * The column <code>jooq.product.name</code>. 이름
      */
-    val NAME: TableField<ProductRecord, String?> = createField(DSL.name("name"), SQLDataType.VARCHAR(100).nullable(false), this, "")
+    val NAME: TableField<ProductRecord, String?> = createField(DSL.name("name"), SQLDataType.VARCHAR(100).nullable(false), this, "이름")
 
     /**
-     * The column <code>jooq.product.price</code>.
+     * The column <code>jooq.product.memo</code>. 메모
      */
-    val PRICE: TableField<ProductRecord, BigDecimal?> = createField(DSL.name("price"), SQLDataType.DECIMAL(10, 2).nullable(false), this, "")
+    val MEMO: TableField<ProductRecord, String?> = createField(DSL.name("memo"), SQLDataType.CLOB, this, "메모")
 
     /**
-     * The column <code>jooq.product.created_at</code>.
+     * The column <code>jooq.product.price</code>. 가격
      */
-    val CREATED_AT: TableField<ProductRecord, LocalDateTime?> = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP"), SQLDataType.LOCALDATETIME)), this, "")
+    val PRICE: TableField<ProductRecord, BigDecimal?> = createField(DSL.name("price"), SQLDataType.DECIMAL(10, 2).nullable(false), this, "가격")
+
+    /**
+     * The column <code>jooq.product.created_at</code>. 생성일시
+     */
+    val CREATED_AT: TableField<ProductRecord, LocalDateTime?> = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP(6)"), SQLDataType.LOCALDATETIME)), this, "생성일시")
+
+    /**
+     * The column <code>jooq.product.updated_at</code>. 수정일시
+     */
+    val UPDATED_AT: TableField<ProductRecord, LocalDateTime?> = createField(DSL.name("updated_at"), SQLDataType.LOCALDATETIME(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP(6)"), SQLDataType.LOCALDATETIME)), this, "수정일시")
 
     private constructor(alias: Name, aliased: Table<ProductRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<ProductRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

@@ -7,10 +7,12 @@ DROP TABLE IF EXISTS `product`;
 
 CREATE TABLE `product`
 (
-    id         INT AUTO_INCREMENT PRIMARY KEY,
-    name       VARCHAR(100)   NOT NULL,
-    price      DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id         INT AUTO_INCREMENT PRIMARY KEY COMMENT 'PK',
+    name       VARCHAR(100)   NOT NULL COMMENT '이름',
+    memo       LONGTEXT       NULL COMMENT '메모',
+    price      DECIMAL(10, 2) NOT NULL COMMENT '가격',
+    created_at DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
+    updated_at DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일시'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
@@ -20,7 +22,8 @@ CREATE TABLE `order`
     id           INT AUTO_INCREMENT PRIMARY KEY,
     order_status VARCHAR(20)    NOT NULL DEFAULT 'PENDING',
     total_amount DECIMAL(10, 2) NOT NULL,
-    created_at   TIMESTAMP               DEFAULT CURRENT_TIMESTAMP
+    created_at   DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
+    updated_at   DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일시'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci;
@@ -32,6 +35,9 @@ CREATE TABLE `order_item`
     product_id INT            NOT NULL,
     quantity   INT            NOT NULL,
     unit_price DECIMAL(10, 2) NOT NULL,
+    created_at DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일시',
+    updated_at DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일시',
+
     FOREIGN KEY (order_id) REFERENCES `order` (id) ON DELETE RESTRICT,
     FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE RESTRICT
 ) ENGINE = InnoDB

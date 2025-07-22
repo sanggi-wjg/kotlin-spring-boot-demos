@@ -16,8 +16,10 @@ import java.time.LocalDateTime
 data class Product(
     val id: Int? = null,
     val name: String? = null,
+    val memo: String? = null,
     val price: BigDecimal? = null,
-    val createdAt: LocalDateTime? = null
+    val createdAt: LocalDateTime? = null,
+    val updatedAt: LocalDateTime? = null
 ): Serializable {
 
     override fun equals(other: Any?): Boolean {
@@ -40,6 +42,12 @@ data class Product(
         }
         else if (this.name != o.name)
             return false
+        if (this.memo == null) {
+            if (o.memo != null)
+                return false
+        }
+        else if (this.memo != o.memo)
+            return false
         if (this.price == null) {
             if (o.price != null)
                 return false
@@ -52,6 +60,12 @@ data class Product(
         }
         else if (this.createdAt != o.createdAt)
             return false
+        if (this.updatedAt == null) {
+            if (o.updatedAt != null)
+                return false
+        }
+        else if (this.updatedAt != o.updatedAt)
+            return false
         return true
     }
 
@@ -60,8 +74,10 @@ data class Product(
         var result = 1
         result = prime * result + (if (this.id == null) 0 else this.id.hashCode())
         result = prime * result + (if (this.name == null) 0 else this.name.hashCode())
+        result = prime * result + (if (this.memo == null) 0 else this.memo.hashCode())
         result = prime * result + (if (this.price == null) 0 else this.price.hashCode())
         result = prime * result + (if (this.createdAt == null) 0 else this.createdAt.hashCode())
+        result = prime * result + (if (this.updatedAt == null) 0 else this.updatedAt.hashCode())
         return result
     }
 
@@ -70,8 +86,10 @@ data class Product(
 
         sb.append(id)
         sb.append(", ").append(name)
+        sb.append(", ").append(memo)
         sb.append(", ").append(price)
         sb.append(", ").append(createdAt)
+        sb.append(", ").append(updatedAt)
 
         sb.append(")")
         return sb.toString()

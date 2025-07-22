@@ -15,6 +15,7 @@ import com.raynor.demo.aboutjooq.entity.tables.Product.ProductPath
 import com.raynor.demo.aboutjooq.entity.tables.records.OrderItemRecord
 
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 import kotlin.collections.Collection
 import kotlin.collections.List
@@ -105,6 +106,16 @@ open class OrderItem(
      * The column <code>jooq.order_item.unit_price</code>.
      */
     val UNIT_PRICE: TableField<OrderItemRecord, BigDecimal?> = createField(DSL.name("unit_price"), SQLDataType.DECIMAL(10, 2).nullable(false), this, "")
+
+    /**
+     * The column <code>jooq.order_item.created_at</code>. 생성일시
+     */
+    val CREATED_AT: TableField<OrderItemRecord, LocalDateTime?> = createField(DSL.name("created_at"), SQLDataType.LOCALDATETIME(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP(6)"), SQLDataType.LOCALDATETIME)), this, "생성일시")
+
+    /**
+     * The column <code>jooq.order_item.updated_at</code>. 수정일시
+     */
+    val UPDATED_AT: TableField<OrderItemRecord, LocalDateTime?> = createField(DSL.name("updated_at"), SQLDataType.LOCALDATETIME(6).nullable(false).defaultValue(DSL.field(DSL.raw("CURRENT_TIMESTAMP(6)"), SQLDataType.LOCALDATETIME)), this, "수정일시")
 
     private constructor(alias: Name, aliased: Table<OrderItemRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<OrderItemRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

@@ -7,6 +7,7 @@ package com.raynor.demo.aboutjooq.entity.tables.records
 import com.raynor.demo.aboutjooq.entity.tables.OrderItem
 
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 import org.jooq.Record1
 import org.jooq.impl.UpdatableRecordImpl
@@ -38,6 +39,14 @@ open class OrderItemRecord() : UpdatableRecordImpl<OrderItemRecord>(OrderItem.OR
         set(value): Unit = set(4, value)
         get(): BigDecimal? = get(4) as BigDecimal?
 
+    open var createdAt: LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
+
+    open var updatedAt: LocalDateTime?
+        set(value): Unit = set(6, value)
+        get(): LocalDateTime? = get(6) as LocalDateTime?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -47,12 +56,14 @@ open class OrderItemRecord() : UpdatableRecordImpl<OrderItemRecord>(OrderItem.OR
     /**
      * Create a detached, initialised OrderItemRecord
      */
-    constructor(id: Int? = null, orderId: Int? = null, productId: Int? = null, quantity: Int? = null, unitPrice: BigDecimal? = null): this() {
+    constructor(id: Int? = null, orderId: Int? = null, productId: Int? = null, quantity: Int? = null, unitPrice: BigDecimal? = null, createdAt: LocalDateTime? = null, updatedAt: LocalDateTime? = null): this() {
         this.id = id
         this.orderId = orderId
         this.productId = productId
         this.quantity = quantity
         this.unitPrice = unitPrice
+        this.createdAt = createdAt
+        this.updatedAt = updatedAt
         resetChangedOnNotNull()
     }
 
@@ -66,6 +77,8 @@ open class OrderItemRecord() : UpdatableRecordImpl<OrderItemRecord>(OrderItem.OR
             this.productId = value.productId
             this.quantity = value.quantity
             this.unitPrice = value.unitPrice
+            this.createdAt = value.createdAt
+            this.updatedAt = value.updatedAt
             resetChangedOnNotNull()
         }
     }

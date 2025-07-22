@@ -27,13 +27,21 @@ open class ProductRecord() : UpdatableRecordImpl<ProductRecord>(Product.PRODUCT)
         set(value): Unit = set(1, value)
         get(): String? = get(1) as String?
 
-    open var price: BigDecimal?
+    open var memo: String?
         set(value): Unit = set(2, value)
-        get(): BigDecimal? = get(2) as BigDecimal?
+        get(): String? = get(2) as String?
+
+    open var price: BigDecimal?
+        set(value): Unit = set(3, value)
+        get(): BigDecimal? = get(3) as BigDecimal?
 
     open var createdAt: LocalDateTime?
-        set(value): Unit = set(3, value)
-        get(): LocalDateTime? = get(3) as LocalDateTime?
+        set(value): Unit = set(4, value)
+        get(): LocalDateTime? = get(4) as LocalDateTime?
+
+    open var updatedAt: LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -44,11 +52,13 @@ open class ProductRecord() : UpdatableRecordImpl<ProductRecord>(Product.PRODUCT)
     /**
      * Create a detached, initialised ProductRecord
      */
-    constructor(id: Int? = null, name: String? = null, price: BigDecimal? = null, createdAt: LocalDateTime? = null): this() {
+    constructor(id: Int? = null, name: String? = null, memo: String? = null, price: BigDecimal? = null, createdAt: LocalDateTime? = null, updatedAt: LocalDateTime? = null): this() {
         this.id = id
         this.name = name
+        this.memo = memo
         this.price = price
         this.createdAt = createdAt
+        this.updatedAt = updatedAt
         resetChangedOnNotNull()
     }
 
@@ -59,8 +69,10 @@ open class ProductRecord() : UpdatableRecordImpl<ProductRecord>(Product.PRODUCT)
         if (value != null) {
             this.id = value.id
             this.name = value.name
+            this.memo = value.memo
             this.price = value.price
             this.createdAt = value.createdAt
+            this.updatedAt = value.updatedAt
             resetChangedOnNotNull()
         }
     }
