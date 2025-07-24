@@ -3,10 +3,8 @@ package com.raynor.demo.aboutjooq.controller
 import com.raynor.demo.aboutjooq.model.ProductModel
 import com.raynor.demo.aboutjooq.service.ProductService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
+import java.net.URI
 
 @RestController
 @RequestMapping("/api/v1")
@@ -28,17 +26,38 @@ class ProductController(
         }
     }
 
+    @PutMapping("/products/{productId}")
+    fun updateProduct(@PathVariable productId: Int): ResponseEntity<Unit> {
+        return productService.update(productId).let {
+            ResponseEntity.noContent().build()
+        }
+    }
+
+    @DeleteMapping("/products/{productId}")
+    fun deleteProduct(@PathVariable productId: Int): ResponseEntity<Unit> {
+        return productService.delete(productId).let {
+            ResponseEntity.noContent().build()
+        }
+    }
+
     @GetMapping("/products/create-1")
     fun createProduct1(): ResponseEntity<String> {
         return productService.createProducts1().let {
-            ResponseEntity.ok("123")
+            ResponseEntity.created(URI.create("/api/v1/products/123")).build()
         }
     }
 
     @GetMapping("/products/create-2")
     fun createProduct2(): ResponseEntity<String> {
         return productService.createProducts2().let {
-            ResponseEntity.ok("123")
+            ResponseEntity.created(URI.create("/api/v1/products/123")).build()
+        }
+    }
+
+    @GetMapping("/products/create-3")
+    fun createProduct3(): ResponseEntity<List<ProductModel>> {
+        return productService.createProducts3().let {
+            ResponseEntity.created(URI.create("/api/v1/products/123")).build()
         }
     }
 }

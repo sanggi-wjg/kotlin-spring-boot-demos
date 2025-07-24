@@ -89,7 +89,7 @@ jooq {
 
 tasks.named<nu.studer.gradle.jooq.JooqGenerate>("generateJooq") {
     allInputsDeclared = true
-    outputs.cacheIf { true }
+    outputs.cacheIf { false }
 }
 
 sourceSets {

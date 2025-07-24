@@ -3,6 +3,7 @@ package com.raynor.demo.aboutjooq.service
 import com.raynor.demo.aboutjooq.entity.tables.records.ProductRecord
 import com.raynor.demo.aboutjooq.model.ProductCreate
 import com.raynor.demo.aboutjooq.model.ProductModel
+import com.raynor.demo.aboutjooq.model.ProductUpdate
 import com.raynor.demo.aboutjooq.repository.ProductRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -27,6 +28,40 @@ class ProductService(
         return productRepository.findById(id)?.let {
             ProductModel.from(it)
         } ?: throw RuntimeException("Product not found")
+    }
+
+    @Transactional
+    fun update(id: Int): Boolean {
+        /*
+2025-07-23T07:45:01.373863Z        49 Query     SET autocommit=0
+2025-07-23T07:45:01.384828Z        49 Query     update `jooq`.`product` set `jooq`.`product`.`name` = 'd0da887c-717d-492a-a782-6a6e322258df', `jooq`.`product`.`memo` = null, `jooq`.`product`.`price` = 525 where `jooq`.`product`.`id` = 26
+2025-07-23T07:45:01.402043Z        49 Query     COMMIT
+2025-07-23T07:45:01.404622Z        49 Query     SET autocommit=1
+        * */
+        val result = productRepository.update(
+            id,
+            ProductUpdate(
+                name = UUID.randomUUID().toString(),
+                memo = null,
+                price = Random.nextInt(1000).toBigDecimal(),
+            )
+        )
+        require(result) { "Product not found" }
+        return true
+    }
+
+    @Transactional
+    fun delete(id: Int): Boolean {
+        /*
+2025-07-23T07:32:11.676759Z        19 Query     SET autocommit=0
+2025-07-23T07:32:11.680570Z        19 Query     SELECT @@session.transaction_read_only
+2025-07-23T07:32:11.682313Z        19 Query     delete from `jooq`.`product` where `jooq`.`product`.`id` = 28
+2025-07-23T07:32:11.684218Z        19 Query     COMMIT
+2025-07-23T07:32:11.687656Z        19 Query     SET autocommit=1
+        * */
+        val result = productRepository.delete(id)
+        require(result) { "Product not found" }
+        return true
     }
 
     @Transactional
@@ -73,11 +108,49 @@ class ProductService(
                 name = UUID.randomUUID().toString(),
                 memo = null,
                 price = Random.nextInt(10000).toBigDecimal(),
-                createdAt = LocalDateTime.now(),
-                updatedAt = LocalDateTime.now(),
             )
         }.let {
             productRepository.saveWithValues(it)
+        }
+    }
+
+    @Transactional
+    fun createProducts3(): List<ProductModel> {
+        /*
+2025-07-23T07:27:15.178929Z         8 Query     SET autocommit=0
+2025-07-23T07:27:15.213520Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('3ad438d7-92c3-407a-8546-6d56105241d5', null, 9618, '2025-07-23 16:27:15.181123', '2025-07-23 16:27:15.182093')
+2025-07-23T07:27:15.398855Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (21)
+2025-07-23T07:27:15.418035Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('869fbea9-c3f4-40b4-84fc-6e42aa3d53f2', null, 9129, '2025-07-23 16:27:15.414195', '2025-07-23 16:27:15.41448')
+2025-07-23T07:27:15.420235Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (22)
+2025-07-23T07:27:15.426698Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('80e9b5b0-59fd-41c1-8779-7dd1e3df9fd4', null, 3854, '2025-07-23 16:27:15.422536', '2025-07-23 16:27:15.422619')
+2025-07-23T07:27:15.430675Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (23)
+2025-07-23T07:27:15.435182Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('303ba459-ab5a-403a-8796-5ea188f26252', null, 5824, '2025-07-23 16:27:15.434052', '2025-07-23 16:27:15.434084')
+2025-07-23T07:27:15.437476Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (24)
+2025-07-23T07:27:15.442529Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('283f0c21-27fc-43b7-99a3-8be79014fb47', null, 7135, '2025-07-23 16:27:15.43908', '2025-07-23 16:27:15.439103')
+2025-07-23T07:27:15.445748Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (25)
+2025-07-23T07:27:15.450218Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('8fd55c4b-6a17-4576-b00e-105ee5b4cbe3', null, 8036, '2025-07-23 16:27:15.44841', '2025-07-23 16:27:15.448438')
+2025-07-23T07:27:15.452610Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (26)
+2025-07-23T07:27:15.458405Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('afe000e8-e855-475c-9bd6-ed2e78a7c90e', null, 3782, '2025-07-23 16:27:15.456135', '2025-07-23 16:27:15.456163')
+2025-07-23T07:27:15.460794Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (27)
+2025-07-23T07:27:15.463683Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('79cdbcf8-db05-45af-8eaa-331483d93a95', null, 589, '2025-07-23 16:27:15.462291', '2025-07-23 16:27:15.462321')
+2025-07-23T07:27:15.465666Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (28)
+2025-07-23T07:27:15.468941Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('24bf7a60-161f-4915-8512-58702a50808b', null, 3461, '2025-07-23 16:27:15.467925', '2025-07-23 16:27:15.467953')
+2025-07-23T07:27:15.470478Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (29)
+2025-07-23T07:27:15.477221Z         8 Query     insert into `jooq`.`product` (`name`, `memo`, `price`, `created_at`, `updated_at`) values ('2097c0dc-9546-458e-8f3c-51170840d38c', null, 3234, '2025-07-23 16:27:15.475663', '2025-07-23 16:27:15.475695')
+2025-07-23T07:27:15.480260Z         8 Query     select `jooq`.`product`.`id`, `jooq`.`product`.`name`, `jooq`.`product`.`memo`, `jooq`.`product`.`price`, `jooq`.`product`.`created_at`, `jooq`.`product`.`updated_at` from `jooq`.`product` where `jooq`.`product`.`id` in (30)
+2025-07-23T07:27:15.486297Z         8 Query     COMMIT
+2025-07-23T07:27:15.487978Z         8 Query     SET autocommit=1
+        * */
+        return (1..10).map {
+            ProductCreate(
+                name = UUID.randomUUID().toString(),
+                memo = null,
+                price = Random.nextInt(10000).toBigDecimal(),
+            )
+        }.map {
+            productRepository.save(it)
+        }.map {
+            ProductModel.from(it)
         }
     }
 }
