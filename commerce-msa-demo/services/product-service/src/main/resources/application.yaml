@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: product-service
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        show_sql: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://localhost:8010/product
+    username: general_user
+    password: passw0rd
+    hikari:
+      maximum-pool-size: 10
+      validation-timeout: 1000
+      connection-timeout: 2000
+      keepalive-time: 30000
+      max-lifetime: 600000
+      pool-name: product-service-pool
+      data-source-properties:
+        socketTimeout: 3000
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+
+server:
+  port: 8081

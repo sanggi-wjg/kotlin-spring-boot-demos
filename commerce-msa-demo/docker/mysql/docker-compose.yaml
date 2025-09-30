@@ -1,0 +1,32 @@
+name: commerce-msa-demo
+
+services:
+  product-service-mysql:
+    image: mysql:8.0
+    container_name: product-service-mysql
+    ports:
+      - "8010:3306"
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_DATABASE=product
+      - MYSQL_USER=general_user
+      - MYSQL_PASSWORD=passw0rd
+    volumes:
+      - ./config/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./config/product-service-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+#  redis:
+#    image: redis:8-alpine
+#    container_name: fitpet-scraper-redis
+#    ports:
+#      - "6400:6379"
+#    volumes:
+#      - redis_data:/data
+#
+#volumes:
+#  redis_data:
