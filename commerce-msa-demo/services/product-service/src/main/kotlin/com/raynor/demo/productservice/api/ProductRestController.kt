@@ -39,7 +39,7 @@ class ProductRestController(
                 size = size,
                 sortBy = sortBy,
                 sortDirection = sortDirection,
-                lastId = lastId?.toProductId(),
+                cursorId = lastId?.toProductId(),
             )
         ).let {
             ResponseEntity.ok(it)
@@ -50,7 +50,7 @@ class ProductRestController(
     fun getProductById(
         @PathVariable id: Long
     ): ResponseEntity<ProductResponseDto> {
-        return productService.getProductById(id).let {
+        return productService.getProductById(id.toProductId()).let {
             ResponseEntity.ok(it)
         }
     }

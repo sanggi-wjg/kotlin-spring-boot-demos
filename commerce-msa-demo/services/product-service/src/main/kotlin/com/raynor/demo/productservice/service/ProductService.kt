@@ -33,8 +33,8 @@ class ProductService(
     }
 
     @Transactional(readOnly = true)
-    fun getProductById(id: Long): ProductResponseDto {
-        return productRdsRepository.findByIdOrNull(id)?.toResponseDto()
+    fun getProductById(id: ProductId): ProductResponseDto {
+        return productRdsRepository.findByIdOrNull(id.value)?.toResponseDto()
             ?: throw EntityNotFoundException("상품 ID: ${id}를 찾을 수 없습니다.")
     }
 }

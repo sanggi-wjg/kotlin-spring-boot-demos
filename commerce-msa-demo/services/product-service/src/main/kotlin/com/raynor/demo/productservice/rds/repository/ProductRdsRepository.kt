@@ -22,7 +22,7 @@ class ProductQueryDslRepositoryImpl(
     override fun findPageByCondition(condition: ProductSearchCondition): List<ProductEntity> {
         val query = jpaQueryFactory.selectFrom(product)
 
-        condition.lastId?.let { lastId ->
+        condition.cursorId?.let { lastId ->
             when (condition.sortDirection) {
                 SortDirection.ASC -> query.where(product.id.gt(lastId.value))
                 SortDirection.DESC -> query.where(product.id.lt(lastId.value))

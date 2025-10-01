@@ -14,5 +14,5 @@ data class ProductSearchCondition(
     val size: Long = 10,
     val sortBy: ProductSortBy = ProductSortBy.ID,
     val sortDirection: SortDirection = SortDirection.DESC,
-    val lastId: ProductId? = null,
+    val cursorId: ProductId? = null,
 )
