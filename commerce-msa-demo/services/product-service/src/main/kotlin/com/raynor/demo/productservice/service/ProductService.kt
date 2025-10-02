@@ -12,22 +12,22 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
-@Service
 @Transactional
+@Service
 class ProductService(
     private val productRdsRepository: ProductRdsRepository
 ) {
     @Transactional
     fun createProduct(command: CreateProductCommand): ProductId {
-        return productRdsRepository.save(command.toEntity()).let {
-            it.id!!.toProductId()
+        return productRdsRepository.save(command.toEntity()).let { product ->
+            product.id!!.toProductId()
         }
     }
 
     @Transactional(readOnly = true)
     fun getProducts(searchQuery: ProductSearchQuery): List<Product> {
-        return productRdsRepository.findPageByQuery(searchQuery).map {
-            it.toModel()
+        return productRdsRepository.findPageByQuery(searchQuery).map { product ->
+            product.toModel()
         }
     }
 

@@ -42,4 +42,11 @@ class ProductEntity(
     @LastModifiedDate
     @Column(nullable = false)
     lateinit var updatedAt: Instant
+
+    fun reduceStockQuantity(quantity: Int) {
+        check(quantity > 0) { "Quantity must be positive" }
+        check(quantity >= this.stockQuantity) { "Not enough stock quantity" }
+
+        this.stockQuantity -= quantity
+    }
 }
