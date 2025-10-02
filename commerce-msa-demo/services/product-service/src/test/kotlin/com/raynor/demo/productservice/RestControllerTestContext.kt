@@ -1,7 +1,7 @@
 package com.raynor.demo.productservice
 
 import com.ninjasquad.springmockk.MockkBean
-import com.raynor.demo.productservice.api.ProductRestControllerTest
+import com.raynor.demo.productservice.api.ProductRestController
 import com.raynor.demo.productservice.service.ProductService
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Import
 
 @WebMvcTest(
     value = [
-        ProductRestControllerTest::class,
+        ProductRestController::class,
     ],
 )
 @Import(
@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Import
     ]
 )
 @EnableConfigurationProperties(value = [])
-//@AutoConfigureRestDocs
 open class RestControllerTestContext(
     body: FunSpec.() -> Unit = {}
 ) : FunSpec({

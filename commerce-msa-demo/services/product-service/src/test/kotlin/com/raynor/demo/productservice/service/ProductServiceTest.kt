@@ -4,7 +4,7 @@ import com.raynor.demo.productservice.ServiceTestContext
 import com.raynor.demo.productservice.api.dto.response.ProductResponseDto
 import com.raynor.demo.productservice.rds.entity.ProductEntity
 import com.raynor.demo.productservice.rds.repository.ProductRdsRepository
-import com.raynor.demo.productservice.service.condition.ProductSearchCondition
+import com.raynor.demo.productservice.service.model.query.ProductSearchQuery
 import com.raynor.demo.shared.typed.product.toProductId
 import com.raynor.demo.shared.typed.product.toProductName
 import com.raynor.demo.shared.typed.toMoney
@@ -39,7 +39,7 @@ class ProductServiceTest(
             )
 
             // when
-            val result = productService.getProducts(ProductSearchCondition())
+            val result = productService.getProducts(ProductSearchQuery())
 
             // then
             result shouldHaveSize 1

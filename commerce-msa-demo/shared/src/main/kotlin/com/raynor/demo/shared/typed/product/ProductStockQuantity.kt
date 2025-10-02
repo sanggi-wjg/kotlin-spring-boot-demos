@@ -14,3 +14,5 @@ value class ProductStockQuantity(val value: Int) {
         return ProductStockQuantity(this.value - other.value)
     }
 }
+
+fun Int.toProductStockQuantity() = ProductStockQuantity(this)

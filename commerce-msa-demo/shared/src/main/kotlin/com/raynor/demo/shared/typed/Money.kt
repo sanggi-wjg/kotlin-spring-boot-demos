@@ -17,6 +17,4 @@ value class Money(val value: BigDecimal) {
     }
 }
 
-fun BigDecimal.toMoney(): Money {
-    return Money(this)
-}
+fun BigDecimal.toMoney() = Money(this)

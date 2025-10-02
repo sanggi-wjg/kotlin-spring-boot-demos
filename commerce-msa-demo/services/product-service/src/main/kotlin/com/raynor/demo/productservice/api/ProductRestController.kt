@@ -3,10 +3,11 @@ package com.raynor.demo.productservice.api
 import com.raynor.demo.productservice.api.dto.request.CreateProductRequestDto
 import com.raynor.demo.productservice.api.dto.response.ProductIdResponseDto
 import com.raynor.demo.productservice.api.dto.response.ProductResponseDto
+import com.raynor.demo.productservice.api.dto.response.toResponseDto
 import com.raynor.demo.productservice.service.ProductService
-import com.raynor.demo.productservice.service.condition.ProductSearchCondition
-import com.raynor.demo.productservice.service.condition.ProductSortBy
-import com.raynor.demo.productservice.service.condition.SortDirection
+import com.raynor.demo.productservice.service.model.query.ProductSearchQuery
+import com.raynor.demo.productservice.service.model.query.ProductSortBy
+import com.raynor.demo.productservice.service.model.query.SortDirection
 import com.raynor.demo.shared.typed.product.toProductId
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -21,7 +22,7 @@ class ProductRestController(
     fun createProduct(
         @RequestBody requestDto: CreateProductRequestDto
     ): ResponseEntity<ProductIdResponseDto> {
-        return productService.createProduct(requestDto).let {
+        return productService.createProduct(requestDto.toCommand()).let {
             ResponseEntity.created(URI.create("/api/v1/products/$it"))
                 .body(ProductIdResponseDto(it))
         }
@@ -35,14 +36,14 @@ class ProductRestController(
         @RequestParam(defaultValue = "DESC") sortDirection: SortDirection
     ): ResponseEntity<List<ProductResponseDto>> {
         return productService.getProducts(
-            ProductSearchCondition(
+            ProductSearchQuery(
                 size = size,
                 sortBy = sortBy,
                 sortDirection = sortDirection,
                 cursorId = lastId?.toProductId(),
             )
-        ).let {
-            ResponseEntity.ok(it)
+        ).let { products ->
+            ResponseEntity.ok(products.map { it.toResponseDto() })
         }
     }
 
@@ -51,7 +52,7 @@ class ProductRestController(
         @PathVariable id: Long
     ): ResponseEntity<ProductResponseDto> {
         return productService.getProductById(id.toProductId()).let {
-            ResponseEntity.ok(it)
+            ResponseEntity.ok(it.toResponseDto())
         }
     }
 }

@@ -3,14 +3,14 @@ package com.raynor.demo.productservice.rds.repository
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.raynor.demo.productservice.rds.entity.ProductEntity
 import com.raynor.demo.productservice.rds.entity.QProductEntity
-import com.raynor.demo.productservice.service.condition.ProductSearchCondition
-import com.raynor.demo.productservice.service.condition.SortDirection
+import com.raynor.demo.productservice.service.model.query.ProductSearchQuery
+import com.raynor.demo.productservice.service.model.query.SortDirection
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProductRdsRepository : JpaRepository<ProductEntity, Long>, ProductQueryDslRepository
 
 interface ProductQueryDslRepository {
-    fun findPageByCondition(condition: ProductSearchCondition): List<ProductEntity>
+    fun findPageByQuery(searchQuery: ProductSearchQuery): List<ProductEntity>
 }
 
 class ProductQueryDslRepositoryImpl(
@@ -19,24 +19,24 @@ class ProductQueryDslRepositoryImpl(
 
     private val product = QProductEntity.productEntity
 
-    override fun findPageByCondition(condition: ProductSearchCondition): List<ProductEntity> {
-        val query = jpaQueryFactory.selectFrom(product)
+    override fun findPageByQuery(searchQuery: ProductSearchQuery): List<ProductEntity> {
+        val jpaQuery = jpaQueryFactory.selectFrom(product)
 
-        condition.cursorId?.let { lastId ->
-            when (condition.sortDirection) {
-                SortDirection.ASC -> query.where(product.id.gt(lastId.value))
-                SortDirection.DESC -> query.where(product.id.lt(lastId.value))
+        searchQuery.cursorId?.let { lastId ->
+            when (searchQuery.sortDirection) {
+                SortDirection.ASC -> jpaQuery.where(product.id.gt(lastId.value))
+                SortDirection.DESC -> jpaQuery.where(product.id.lt(lastId.value))
             }
         }
 
-        val orderSpec = when (condition.sortDirection) {
+        val orderSpec = when (searchQuery.sortDirection) {
             SortDirection.ASC -> product.id.asc()
             SortDirection.DESC -> product.id.desc()
         }
 
-        return query
+        return jpaQuery
             .orderBy(orderSpec)
-            .limit(condition.size)
+            .limit(searchQuery.size)
             .fetch()
     }
 }

@@ -31,11 +31,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.kafka:spring-kafka-test")
 
-    // SpringRestDocs
-    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
-//    testImplementation("org.springframework.restdocs:spring-restdocs-core")
-//    testImplementation("org.springframework.restdocs:spring-restdocs-webtestclient")
-
     // TestContainers
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")

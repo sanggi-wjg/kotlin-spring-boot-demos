@@ -8,6 +8,4 @@ value class ProductName(val value: String) {
     }
 }
 
-fun String.toProductName(): ProductName {
-    return ProductName(this)
-}
+fun String.toProductName() = ProductName(this)

@@ -7,6 +7,4 @@ value class ProductId(val value: Long) {
     }
 }
 
-fun Long.toProductId(): ProductId {
-    return ProductId(this)
-}
+fun Long.toProductId() = ProductId(this)

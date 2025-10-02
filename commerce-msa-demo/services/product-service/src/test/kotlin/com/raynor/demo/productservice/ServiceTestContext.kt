@@ -56,7 +56,7 @@ class ServiceTestContext(
         @Container
         @ServiceConnection
         @JvmStatic
-        val mysqlContainer = MySQLContainer("mysql:8.0")
+        private val mysqlContainer = MySQLContainer("mysql:8.0")
             .withDatabaseName("msa_product")
             .withUsername("test_user")
             .withPassword("passw0rd")

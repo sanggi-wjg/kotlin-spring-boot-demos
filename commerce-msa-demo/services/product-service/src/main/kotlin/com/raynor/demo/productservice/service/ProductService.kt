@@ -1,11 +1,10 @@
 package com.raynor.demo.productservice.service
 
-import com.raynor.demo.productservice.api.dto.request.CreateProductRequestDto
-import com.raynor.demo.productservice.api.dto.response.ProductResponseDto
 import com.raynor.demo.productservice.rds.repository.ProductRdsRepository
-import com.raynor.demo.productservice.service.condition.ProductSearchCondition
-import com.raynor.demo.productservice.service.mapper.toEntity
-import com.raynor.demo.productservice.service.mapper.toResponseDto
+import com.raynor.demo.productservice.service.model.Product
+import com.raynor.demo.productservice.service.model.command.CreateProductCommand
+import com.raynor.demo.productservice.service.model.query.ProductSearchQuery
+import com.raynor.demo.productservice.service.model.toModel
 import com.raynor.demo.shared.typed.product.ProductId
 import com.raynor.demo.shared.typed.product.toProductId
 import jakarta.persistence.EntityNotFoundException
@@ -19,22 +18,22 @@ class ProductService(
     private val productRdsRepository: ProductRdsRepository
 ) {
     @Transactional
-    fun createProduct(requestDto: CreateProductRequestDto): ProductId {
-        return productRdsRepository.save(requestDto.toEntity()).let {
+    fun createProduct(command: CreateProductCommand): ProductId {
+        return productRdsRepository.save(command.toEntity()).let {
             it.id!!.toProductId()
         }
     }
 
     @Transactional(readOnly = true)
-    fun getProducts(searchCondition: ProductSearchCondition): List<ProductResponseDto> {
-        return productRdsRepository.findPageByCondition(searchCondition).map {
-            it.toResponseDto()
+    fun getProducts(searchQuery: ProductSearchQuery): List<Product> {
+        return productRdsRepository.findPageByQuery(searchQuery).map {
+            it.toModel()
         }
     }
 
     @Transactional(readOnly = true)
-    fun getProductById(id: ProductId): ProductResponseDto {
-        return productRdsRepository.findByIdOrNull(id.value)?.toResponseDto()
+    fun getProductById(id: ProductId): Product {
+        return productRdsRepository.findByIdOrNull(id.value)?.toModel()
             ?: throw EntityNotFoundException("상품 ID: ${id}를 찾을 수 없습니다.")
     }
 }
