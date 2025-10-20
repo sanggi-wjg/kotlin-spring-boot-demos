@@ -33,34 +33,3 @@ dependencies {
     testImplementation("org.testcontainers:mysql")
 //    testImplementation("org.testcontainers:kafka")
 }
-
-//val snippetsDir by extra { file("build/generated-snippets") }
-//
-//tasks {
-//    test {
-//        outputs.dir(snippetsDir)
-//    }
-//
-//    asciidoctor {
-//        dependsOn(test)
-//        inputs.dir(snippetsDir)
-//
-//        doFirst {
-////            delete(file("src/main/resources/static/docs"))
-//        }
-//        doLast {
-//            copy {
-////                from(snippetsDir)
-////                into(file("src/main/resources/static/docs"))
-//            }
-//        }
-//    }
-//
-//    build {
-//        dependsOn(asciidoctor)
-//    }
-//
-//    bootJar {
-//        dependsOn(asciidoctor)
-//    }
-//}

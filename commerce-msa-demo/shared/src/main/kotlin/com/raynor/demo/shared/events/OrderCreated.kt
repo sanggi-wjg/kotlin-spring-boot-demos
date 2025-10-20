@@ -1,3 +1,5 @@
 package com.raynor.demo.shared.events
 
-sealed class OrderCreated
+sealed interface OrderEvent {
+    sealed class OrderCreated : OrderEvent
+}

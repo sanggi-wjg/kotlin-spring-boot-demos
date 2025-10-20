@@ -1,7 +1,7 @@
 package com.raynor.demo.shared.enums
 
 enum class OrderStatus {
-    ACCEPTED,
+    PENDING,
     TRANSACTION_APPROVED,
     SHIPPING,
     DELIVERED,
