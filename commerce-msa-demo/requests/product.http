@@ -1,5 +1,12 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+### GET products
+GET http://localhost:8081/api/v1/products?size=5
 
-###
+### POST products
+POST http://localhost:8081/api/v1/products
+Content-Type: application/json
+
+{
+  "name": "Product 1",
+  "price": 1000,
+  "stockQuantity": 0
+}

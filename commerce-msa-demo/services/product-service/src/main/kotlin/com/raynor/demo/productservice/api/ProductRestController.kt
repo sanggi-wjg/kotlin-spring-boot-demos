@@ -9,6 +9,8 @@ import com.raynor.demo.productservice.service.model.query.ProductSearchQuery
 import com.raynor.demo.productservice.service.model.query.ProductSortBy
 import com.raynor.demo.productservice.service.model.query.SortDirection
 import com.raynor.demo.shared.typed.product.toProductId
+import jakarta.validation.Valid
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.net.URI
@@ -18,13 +20,17 @@ import java.net.URI
 class ProductRestController(
     private val productService: ProductService
 ) {
-    @PostMapping("")
+    @PostMapping(
+        "",
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE],
+    )
     fun createProduct(
-        @RequestBody requestDto: CreateProductRequestDto
+        @Valid @RequestBody requestDto: CreateProductRequestDto
     ): ResponseEntity<ProductIdResponseDto> {
         return productService.createProduct(requestDto.toCommand()).let {
             ResponseEntity.created(URI.create("/api/v1/products/$it"))
-                .body(ProductIdResponseDto(it))
+                .body(ProductIdResponseDto(it.value))
         }
     }
 

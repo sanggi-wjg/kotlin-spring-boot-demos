@@ -23,7 +23,10 @@ class ProductConsumer(
     fun productReduceStockQuantity(
         @Payload payload: String,
     ) {
-        val message = objectMapper.readValue(payload, ProductReduceStockQuantityMessage::class.java)
+        val message = objectMapper.readValue(
+            payload,
+            ProductReduceStockQuantityMessage::class.java
+        )
         val product = productRdsRepository.findByIdWithLock(message.productId)
         if (product == null) {
             logger.warn("Product with id ${message.productId} not found")
