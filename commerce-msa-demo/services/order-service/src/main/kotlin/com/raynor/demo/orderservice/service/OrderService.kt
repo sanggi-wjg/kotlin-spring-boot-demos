@@ -6,5 +6,6 @@ import org.springframework.stereotype.Service
 @Service
 class OrderService {
     fun createOrder(command: CreateOrderCommand) {
+        
     }
 }

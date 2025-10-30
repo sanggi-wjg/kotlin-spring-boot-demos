@@ -13,10 +13,9 @@ import java.time.Instant
 @Table(name = "order", schema = "msa_order")
 @EntityListeners(AuditingEntityListener::class)
 class OrderEntity(
-    productId: Long,
-    quantity: Int,
     orderNumber: String,
-    amount: BigDecimal,
+    totalAmount: BigDecimal,
+    orderItems: MutableList<OrderItemEntity>,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,23 +28,18 @@ class OrderEntity(
         private set
 
     @NotNull
-    @Column(name = "product_id", nullable = false)
-    var productId: Long = productId
-        private set
-
-    @NotNull
-    @Column(name = "quantity", nullable = false)
-    var quantity: Int = quantity
-        private set
-
-    @NotNull
     @Column(name = "order_number", nullable = false)
     var orderNumber: String = orderNumber
         private set
 
     @NotNull
     @Column(name = "amount", nullable = false)
-    var amount: BigDecimal = amount
+    var amount: BigDecimal = totalAmount
+        private set
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    var orderItems: MutableList<OrderItemEntity> = orderItems
         private set
 
     @CreatedDate
