@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://localhost:3400/ak_demo
+    username: general_user
+    password: passw0rd
+    hikari:
+      maximum-pool-size: 10
+      validation-timeout: 1000
+      connection-timeout: 2000
+      keepalive-time: 30000
+      max-lifetime: 600000
+      pool-name: abut-kafka-pool
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    producer:
+      acks: all
+      retries: 3
+      compression-type: gzip
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+        batch.size: 16384
+        linger.ms: 10
+
+server:
+  port: 8200
