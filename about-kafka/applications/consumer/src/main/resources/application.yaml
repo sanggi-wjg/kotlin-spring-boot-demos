@@ -1,0 +1,59 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    jdbc-url: jdbc:mysql://localhost:3400/ak_demo
+    username: general_user
+    password: passw0rd
+    hikari:
+      maximum-pool-size: 20
+      validation-timeout: 1000
+      connection-timeout: 2000
+      keepalive-time: 30000
+      max-lifetime: 600000
+      pool-name: abut-kafka-pool
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    listener:
+      ack-mode: RECORD
+      concurrency: 10
+    consumer:
+      group-id: ak-demo-consumer-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+        max.poll.records: 500
+        max.poll.interval.ms: 300000
+        session.timeout.ms: 30000
+        heartbeat.interval.ms: 3000
+        isolation.level: read_committed
+    retry:
+      topic:
+        attempts: 3
+        backoff:
+          delay: 1000
+          multiplier: 2.0
+          max-delay: 10000
+
+server:
+  port: 8301
+  shutdown: graceful
+
+---
+spring.config.activate.on-profile: consumer2
+
+server:
+  port: 8302
+
+---
+spring.config.activate.on-profile: consumer3
+
+server:
+  port: 8303
