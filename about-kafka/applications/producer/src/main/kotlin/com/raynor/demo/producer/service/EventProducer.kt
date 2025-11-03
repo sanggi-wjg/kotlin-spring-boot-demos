@@ -31,6 +31,8 @@ class EventProducer(
             .whenComplete { result, ex ->
                 if (ex != null) {
                     logger.error("Failed to send message: $message, $result, $ex")
+                } else {
+                    logger.info("Successfully sent message: $message, $result")
                 }
             }
         return eventId

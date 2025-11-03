@@ -10,3 +10,6 @@ CREATE TABLE first_scenario_event
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_0900_ai_ci COMMENT ='첫번째 시나리오 이벤트 로그';
+
+
+CREATE INDEX `idx_first_scenario_event_001` ON `first_scenario_event` (`event_id`);

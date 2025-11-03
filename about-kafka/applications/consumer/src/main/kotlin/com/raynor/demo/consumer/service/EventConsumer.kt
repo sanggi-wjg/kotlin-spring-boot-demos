@@ -28,8 +28,12 @@ class EventConsumer(
         val message = objectMapper.readValue(messageJson, FirstScenarioEventMessage::class.java)
 
 //        if (message.randomValue == 100) {
-//            throw IllegalArgumentException("백점 만점에 백점")
+//            throw IllegalArgumentException("백점 만점에 백점인가")
 //        }
+        firstScenarioEventRepository.findByEventId(message.eventId)?.let {
+            logger.warn("🔥 EventId ${message.eventId} 중복 발생")
+            throw RuntimeException("EventId ${message.eventId} 중복 발생")
+        }
 
         FirstScenarioEventEntity(
             eventId = message.eventId,
@@ -37,7 +41,7 @@ class EventConsumer(
             timestamp = message.timestamp,
         ).let {
             firstScenarioEventRepository.save(it)
-            logger.info("FirstScenarioEvent created. Entity(id=${it.id}, eventId=${it.eventId})")
+            logger.info("FirstScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
         }
     }
 }

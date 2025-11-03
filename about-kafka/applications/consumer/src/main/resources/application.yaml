@@ -43,4 +43,17 @@ spring:
           max-delay: 10000
 
 server:
-  port: 8300
+  port: 8301
+  shutdown: graceful
+
+---
+spring.config.activate.on-profile: consumer2
+
+server:
+  port: 8302
+
+---
+spring.config.activate.on-profile: consumer3
+
+server:
+  port: 8303

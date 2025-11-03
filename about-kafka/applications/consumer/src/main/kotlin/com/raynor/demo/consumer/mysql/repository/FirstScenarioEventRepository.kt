@@ -5,4 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface FirstScenarioEventRepository : JpaRepository<FirstScenarioEventEntity, Long>
+interface FirstScenarioEventRepository : JpaRepository<FirstScenarioEventEntity, Long> {
+
+    fun findByEventId(eventId: String): FirstScenarioEventEntity?
+}
