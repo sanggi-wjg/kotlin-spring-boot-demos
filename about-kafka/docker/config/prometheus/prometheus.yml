@@ -1,0 +1,36 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: [ 'localhost:9090' ]
+
+  - job_name: 'kafka-exporter'
+    static_configs:
+      - targets: [ 'host.docker.internal:9308' ]
+
+  - job_name: 'kafka-producer-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8200' ]
+        labels:
+          instance: 'producer-app'
+          application: 'producer-app'
+
+  - job_name: 'kafka-consumer-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'host.docker.internal:8301' ]
+        labels:
+          instance: 'consumer-app-1'
+          application: 'consumer-app'
+  #      - targets: ['host.docker.internal:8302']
+  #        labels:
+  #          instance: 'consumer-app-2'
+  #          application: 'consumer-app'
+  #      - targets: ['host.docker.internal:8303']
+  #        labels:
+  #          instance: 'consumer-app-3'
+  #          application: 'consumer-app'

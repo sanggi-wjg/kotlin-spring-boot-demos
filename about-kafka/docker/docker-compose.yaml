@@ -39,7 +39,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
-      KAFKA_NUM_PARTITIONS: 20
+      KAFKA_NUM_PARTITIONS: 30
     networks:
       - ak-kafka-network
     deploy:
@@ -69,7 +69,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
-      KAFKA_NUM_PARTITIONS: 20
+      KAFKA_NUM_PARTITIONS: 30
     networks:
       - ak-kafka-network
     deploy:
@@ -99,7 +99,7 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_MIN_INSYNC_REPLICAS: 2
-      KAFKA_NUM_PARTITIONS: 20
+      KAFKA_NUM_PARTITIONS: 30
     networks:
       - ak-kafka-network
     deploy:
@@ -107,7 +107,6 @@ services:
         limits:
           cpus: '0.5'
           memory: 1G
-
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -130,6 +129,29 @@ services:
           cpus: '0.50'
           memory: 512M
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: ak-kafka-exporter
+    depends_on:
+      - kafka-1
+      - kafka-2
+      - kafka-3
+    ports:
+      - "9308:9308"
+    command:
+      - '--kafka.server=kafka-1:29092'
+      - '--kafka.server=kafka-2:29093'
+      - '--kafka.server=kafka-3:29094'
+      - '--web.listen-address=:9308'
+      - '--log.level=info'
+    networks:
+      - ak-kafka-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
   mysql:
     image: mysql:8.0
     container_name: ak-mysql
@@ -141,8 +163,44 @@ services:
       - MYSQL_USER=general_user
       - MYSQL_PASSWORD=passw0rd
     volumes:
-      - ./config/my.cnf:/etc/mysql/conf.d/my.cnf:ro
-      - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./config/mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ak-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ak-grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
     deploy:
       resources:
         limits:

@@ -3,7 +3,7 @@ USE ak_demo;
 CREATE TABLE first_scenario_event
 (
     id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'PK',
-    event_id   VARCHAR(100) NOT NULL COMMENT '이벤트 고유 ID (UUID)',
+    event_id   VARCHAR(100) NOT NULL UNIQUE COMMENT '이벤트 고유 ID (UUID)',
     message    VARCHAR(500) NOT NULL COMMENT '이벤트 메시지 내용',
     timestamp  DATETIME(6)  NOT NULL COMMENT '이벤트 발생 시각 (UTC)',
     created_at DATETIME(6)  NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일'

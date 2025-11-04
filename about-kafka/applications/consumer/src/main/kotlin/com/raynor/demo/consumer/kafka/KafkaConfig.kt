@@ -32,6 +32,11 @@ class KafkaConfig(
         return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             this.consumerFactory = consumerFactory()
             this.setConcurrency(kafkaProperties.listener.concurrency)
+
+            containerProperties.apply {
+                isMicrometerEnabled = true
+                isObservationEnabled = true
+            }
         }
     }
 
