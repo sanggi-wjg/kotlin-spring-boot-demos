@@ -7,8 +7,8 @@ import java.time.Instant
 
 @Entity
 @EntityListeners(AuditingEntityListener::class)
-@Table(name = "first_scenario_event")
-class FirstScenarioEventEntity(
+@Table(name = "event")
+class EventEntity(
     eventId: String,
     message: String,
     timestamp: Instant,

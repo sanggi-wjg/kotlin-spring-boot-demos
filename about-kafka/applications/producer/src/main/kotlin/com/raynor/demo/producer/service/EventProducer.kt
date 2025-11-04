@@ -2,7 +2,7 @@ package com.raynor.demo.producer.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.raynor.demo.shared.kafka.KafkaTopicName
-import com.raynor.demo.shared.kafka.message.FirstScenarioEventMessage
+import com.raynor.demo.shared.kafka.message.EventMessage
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
@@ -19,7 +19,7 @@ class EventProducer(
 
     fun publishFirstScenarioEvent(): String {
         val eventId = UUID.randomUUID().toString()
-        val message = FirstScenarioEventMessage(
+        val message = EventMessage(
             eventId = eventId,
             message = (0..100).random().toString(),
             randomValue = Random.nextInt(101),

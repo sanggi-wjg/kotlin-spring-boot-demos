@@ -2,7 +2,7 @@ package com.raynor.demo.shared.kafka.message
 
 import java.time.Instant
 
-data class FirstScenarioEventMessage(
+data class EventMessage(
     val eventId: String,
     val message: String,
     val randomValue: Int,
