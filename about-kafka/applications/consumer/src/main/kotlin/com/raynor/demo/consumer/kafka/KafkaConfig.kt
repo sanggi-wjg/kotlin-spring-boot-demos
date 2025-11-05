@@ -3,7 +3,7 @@ package com.raynor.demo.consumer.kafka
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.JsonMappingException
 import com.raynor.demo.shared.kafka.KafkaConstants
-import com.raynor.demo.shared.kafka.KafkaTopicName
+import com.raynor.demo.shared.kafka.KafkaTopic
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,11 +32,6 @@ class KafkaConfig(
         return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
             this.consumerFactory = consumerFactory()
             this.setConcurrency(kafkaProperties.listener.concurrency)
-
-            containerProperties.apply {
-                isMicrometerEnabled = true
-                isObservationEnabled = true
-            }
         }
     }
 
@@ -56,14 +51,14 @@ class KafkaConfig(
             )
             .notRetryOn(
                 listOf(
-                    IllegalArgumentException::class.java,
                     JsonMappingException::class.java,
                     JsonProcessingException::class.java,
                 )
             )
             .includeTopics(
                 listOf(
-                    KafkaTopicName.FIRST_SCENARIO,
+                    KafkaTopic.FIRST_SCENARIO,
+                    KafkaTopic.SECOND_SCENARIO,
                 )
             )
             .create(kafkaTemplate)

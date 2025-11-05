@@ -7,4 +7,8 @@ data class EventMessage(
     val message: String,
     val randomValue: Int,
     val timestamp: Instant,
-)
+) {
+    fun isRandomValueDivisibleByTen(): Boolean {
+        return randomValue % 10 == 0
+    }
+}

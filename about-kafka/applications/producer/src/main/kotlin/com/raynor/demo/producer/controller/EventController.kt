@@ -15,7 +15,18 @@ class EventController(
     @PostMapping("/first-scenario")
     fun publishFirstScenario(): ResponseEntity<Map<String, String>> {
         return eventProducer.publishFirstScenarioEvent().let { eventId ->
-            ResponseEntity.accepted().body(mapOf("eventId" to eventId))
+            ResponseEntity.accepted().body(
+                mapOf("eventId" to eventId)
+            )
+        }
+    }
+
+    @PostMapping("/second-scenario")
+    fun publishSecondScenario(): ResponseEntity<Map<String, List<String>>> {
+        return eventProducer.publishSecondScenarioEvent().let { eventIds ->
+            ResponseEntity.accepted().body(
+                mapOf("eventId" to eventIds)
+            )
         }
     }
 }

@@ -3,7 +3,7 @@ import time
 import httpx
 
 if __name__ == "__main__":
-    repeat = 10000
+    repeat = 1
 
     with httpx.Client() as client:
         for i in range(repeat):
