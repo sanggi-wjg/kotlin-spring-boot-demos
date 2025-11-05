@@ -12,6 +12,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 import org.springframework.kafka.core.KafkaTemplate
+import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.retrytopic.RetryTopicConfiguration
 import org.springframework.kafka.retrytopic.RetryTopicConfigurationBuilder
 
@@ -36,6 +37,17 @@ class KafkaConfig(
     }
 
     @Bean
+    fun manualAckKafkaListenerContainerFactory(
+        consumerFactory: ConsumerFactory<String, String>
+    ): ConcurrentKafkaListenerContainerFactory<String, String> {
+        return ConcurrentKafkaListenerContainerFactory<String, String>().apply {
+            this.consumerFactory = consumerFactory
+            this.setConcurrency(kafkaProperties.listener.concurrency * 3)
+            containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
+        }
+    }
+
+    @Bean
     fun retryAndDltConfig(
         kafkaTemplate: KafkaTemplate<String, String>,
         listenerContainerFactory: ConcurrentKafkaListenerContainerFactory<String, String>,
@@ -53,12 +65,12 @@ class KafkaConfig(
                 listOf(
                     JsonMappingException::class.java,
                     JsonProcessingException::class.java,
+                    RuntimeException::class.java,
                 )
             )
             .includeTopics(
                 listOf(
                     KafkaTopic.FIRST_SCENARIO,
-                    KafkaTopic.SECOND_SCENARIO,
                 )
             )
             .create(kafkaTemplate)

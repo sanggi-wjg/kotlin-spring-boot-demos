@@ -4,7 +4,7 @@ import httpx
 
 
 async def main():
-    repeat = 10
+    repeat = 100
 
     async with httpx.AsyncClient() as client:
         for i in range(repeat):

@@ -62,15 +62,6 @@ class KafkaConfig(
     @Bean
     fun secondScenarioTopic(): NewTopic = createTopic(KafkaTopic.SECOND_SCENARIO)
 
-    @Bean
-    fun secondScenarioRetry0Topic(): NewTopic = createRetryTopic(KafkaTopic.SECOND_SCENARIO, 0)
-
-    @Bean
-    fun secondScenarioRetry1Topic(): NewTopic = createRetryTopic(KafkaTopic.SECOND_SCENARIO, 1)
-
-    @Bean
-    fun secondScenarioDltTopic(): NewTopic = createDltTopic(KafkaTopic.SECOND_SCENARIO)
-
     private fun createTopic(
         name: String,
         partitions: Int = DEFAULT_PARTITIONS,
