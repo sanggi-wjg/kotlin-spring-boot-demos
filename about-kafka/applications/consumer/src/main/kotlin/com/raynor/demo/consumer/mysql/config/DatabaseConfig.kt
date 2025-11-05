@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration
 class DatabaseConfig {
 
     @Bean
-    @ConfigurationProperties("spring.datasource")
+    @ConfigurationProperties("spring.datasource.hikari")
     fun dataSourceProperties(): HikariConfig {
         return HikariConfig()
     }

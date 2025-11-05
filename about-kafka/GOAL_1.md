@@ -53,7 +53,7 @@ http://localhost:8100
 # Producer 실행
 ./gradlew :applications:producer:bootRun
 
-# Consumer 실행
+# Consumer 실행 or intellij에서 profile 만 변경해서 실행.
 ./gradlew :applications:consumer:bootRun
 ./gradlew :applications:consumer:bootRun --args='--spring.profiles.active=consumer2'
 ./gradlew :applications:consumer:bootRun --args='--spring.profiles.active=consumer3'
@@ -75,7 +75,7 @@ http://localhost:8100
 
 **Step 1: 부하 생성** (loader 폴더 참고)
 
-```bash
+```python
 # Producer로 지속적으로 메시지 전송 (초당 100개)
 import time
 import httpx
@@ -90,12 +90,11 @@ if __name__ == "__main__":
 
             if (i % 200) == 0:
                 time.sleep(1)
-
 ```
 
 **Step 2: Consumer 정상 종료 (Graceful Shutdown)**
 
-SIGTERM 신호 전송
+SIGTERM 신호 전송, bootRun 터미널에서 `CTRL+C`.
 
 **Step 3: 로그 확인하며 Consumer 재시작**
 
@@ -112,10 +111,10 @@ SIGTERM 신호 전송
 
 ```sql
 SELECT COUNT(*)
-FROM ak_demo.first_scenario_event;
+FROM ak_demo.event;
 
 SELECT event_id, COUNT(*) as cnt
-FROM ak_demo.first_scenario_event
+FROM ak_demo.event
 GROUP BY event_id
 HAVING cnt > 1;
 ```

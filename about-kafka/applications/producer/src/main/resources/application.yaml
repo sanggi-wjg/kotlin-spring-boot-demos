@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: producer-app
   jpa:
     hibernate:
       ddl-auto: validate
@@ -32,6 +34,21 @@ spring:
         batch.size: 16384
         linger.ms: 10
 
+
 server:
   port: 8200
   shutdown: graceful
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      instance: ${spring.application.name}-${server.port}

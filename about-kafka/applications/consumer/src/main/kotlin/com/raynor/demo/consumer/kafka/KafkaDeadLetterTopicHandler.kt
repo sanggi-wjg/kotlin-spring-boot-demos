@@ -1,5 +1,7 @@
 package com.raynor.demo.consumer.kafka
 
+import com.raynor.demo.consumer.mysql.entity.DeadLetterEntity
+import com.raynor.demo.consumer.mysql.repository.DeadLetterRepository
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -11,7 +13,9 @@ import org.springframework.stereotype.Component
 
 @ConditionalOnClass(KafkaTemplate::class)
 @Component(KafkaDeadLetterTopicHandler.BEAN_NAME)
-class KafkaDeadLetterTopicHandler {
+class KafkaDeadLetterTopicHandler(
+    private val deadLetterRepository: DeadLetterRepository,
+) {
 
     companion object {
         const val BEAN_NAME = "kafkaDeadLetterTopicHandler"
@@ -35,10 +39,10 @@ class KafkaDeadLetterTopicHandler {
             "receivedPartitionId" to receivedPartitionId,
             "offset" to offset,
             "exceptionMessage" to exceptionMessage,
-            "consumerRecord" to consumerRecord,
             "message" to message,
         ).let {
-            logger.error("❌💀 Failed to consume message: $it")
+            deadLetterRepository.save(DeadLetterEntity(it.toMutableMap()))
+            logger.error("❌💀 Failed to consume message: {}", it + ("consumerRecord" to consumerRecord))
         }
     }
 }

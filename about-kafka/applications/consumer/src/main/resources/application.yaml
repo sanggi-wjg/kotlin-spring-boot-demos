@@ -1,20 +1,22 @@
 spring:
+  application:
+    name: consumer-app
   jpa:
     hibernate:
       ddl-auto: validate
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    jdbc-url: jdbc:mysql://localhost:3400/ak_demo
-    username: general_user
-    password: passw0rd
     hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:3400/ak_demo
+      username: general_user
+      password: passw0rd
       maximum-pool-size: 20
       validation-timeout: 1000
       connection-timeout: 2000
       keepalive-time: 30000
       max-lifetime: 600000
-      pool-name: abut-kafka-pool
+      pool-name: about-kafka-pool
 
   kafka:
     bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
@@ -34,6 +36,7 @@ spring:
         session.timeout.ms: 30000
         heartbeat.interval.ms: 3000
         isolation.level: read_committed
+        metrics.recording.level: INFO
     retry:
       topic:
         attempts: 3
@@ -45,6 +48,20 @@ spring:
 server:
   port: 8301
   shutdown: graceful
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      instance: ${spring.application.name}-${server.port}
 
 ---
 spring.config.activate.on-profile: consumer2
