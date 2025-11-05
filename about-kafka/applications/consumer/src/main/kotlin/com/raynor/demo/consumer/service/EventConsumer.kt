@@ -38,7 +38,7 @@ class EventConsumer(
             timestamp = message.timestamp,
         ).let {
             eventRepository.save(it)
-            logger.info("FirstScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
+            logger.info("😎 FirstScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
         }
     }
 
@@ -48,11 +48,11 @@ class EventConsumer(
     )
     fun consumeSecondScenarioEvent(@Payload messageJson: String) {
         val message = objectMapper.readValue(messageJson, EventMessage::class.java)
-        if (message.isRandomValueDivisibleByTen()) {
-            Thread.sleep(3000)
-            throw RuntimeException("😢 앗앗앗, ${message.randomValue}")
-        }
+//        if (message.isRandomValueDivisibleByTen()) {
+//            throw RuntimeException("😢 앗앗앗, ${message.randomValue}")
+//        }
 
+        Thread.sleep(3000)
         eventRepository.findByEventId(message.eventId)?.let {
             logger.warn("🔥 SecondScenarioEvent EventId ${message.eventId} 중복 발생")
             throw RuntimeException("EventId ${message.eventId} 중복 발생")
@@ -64,7 +64,7 @@ class EventConsumer(
             timestamp = message.timestamp,
         ).let {
             eventRepository.save(it)
-            logger.info("SecondScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
+            logger.info("😎 SecondScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
         }
     }
 }
