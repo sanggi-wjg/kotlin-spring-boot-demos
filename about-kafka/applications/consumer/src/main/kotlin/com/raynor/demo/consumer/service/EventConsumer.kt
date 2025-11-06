@@ -55,7 +55,7 @@ class EventConsumer(
             Thread.sleep(3000)
             eventRepository.findByEventId(message.eventId)?.let {
                 logger.warn("🔥 SecondScenarioEvent EventId ${message.eventId} 중복 발생")
-                throw RuntimeException("EventId ${message.eventId} 중복 발생")
+                throw IllegalStateException("EventId ${message.eventId} 중복 발생")
             }
 
             EventEntity(
@@ -66,6 +66,9 @@ class EventConsumer(
                 eventRepository.save(it)
                 logger.info("😎 SecondScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
             }
+            ack.acknowledge()
+        } catch (e: IllegalStateException) {
+            logger.warn("😢 SecondScenarioEvent IllegalStateException: {}", e.message)
             ack.acknowledge()
         } catch (e: Exception) {
             logger.error("❌ SecondScenarioEvent 생성 실패. Exception: {}", e.message)
