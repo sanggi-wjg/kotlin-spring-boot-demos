@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: producer-app
+
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+    producer:
+      acks: all
+      retries: 3
+      compression-type: gzip
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max.in.flight.requests.per.connection: 5
+        enable.idempotence: true
+        delivery.timeout.ms: 120000
+        request.timeout.ms: 30000
+        batch.size: 16384
+        linger.ms: 10
+
+
+server:
+  port: 8200
+  shutdown: graceful
+
+management:
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      instance: ${spring.application.name}-${server.port}
