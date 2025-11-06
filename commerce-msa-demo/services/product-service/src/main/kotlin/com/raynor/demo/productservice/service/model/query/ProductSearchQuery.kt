@@ -1,0 +1,18 @@
+package com.raynor.demo.productservice.service.model.query
+
+import com.raynor.demo.shared.typed.product.ProductId
+
+enum class ProductSortBy {
+    ID,
+}
+
+enum class SortDirection {
+    ASC, DESC,
+}
+
+data class ProductSearchQuery(
+    val size: Long = 10,
+    val sortBy: ProductSortBy = ProductSortBy.ID,
+    val sortDirection: SortDirection = SortDirection.DESC,
+    val cursorId: ProductId? = null,
+)
