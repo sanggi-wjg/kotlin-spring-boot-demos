@@ -29,4 +29,13 @@ class EventController(
             )
         }
     }
+
+    @PostMapping("/third-scenario")
+    fun publishThirdScenario(): ResponseEntity<Map<String, String>> {
+        return eventProducer.publishThirdScenarioEvent().let { eventId ->
+            ResponseEntity.accepted().body(
+                mapOf("eventId" to eventId)
+            )
+        }
+    }
 }
