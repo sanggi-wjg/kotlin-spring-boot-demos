@@ -62,6 +62,9 @@ class KafkaConfig(
     @Bean
     fun secondScenarioTopic(): NewTopic = createTopic(KafkaTopic.SECOND_SCENARIO)
 
+    @Bean
+    fun thirdScenarioTopic(): NewTopic = createTopic(KafkaTopic.THIRD_SCENARIO)
+
     private fun createTopic(
         name: String,
         partitions: Int = DEFAULT_PARTITIONS,

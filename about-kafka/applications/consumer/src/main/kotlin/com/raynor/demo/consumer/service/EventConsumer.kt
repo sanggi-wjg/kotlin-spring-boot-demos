@@ -75,4 +75,26 @@ class EventConsumer(
             throw e
         }
     }
+
+    @KafkaListener(
+        topics = [KafkaTopic.THIRD_SCENARIO],
+        groupId = KafkaGroup.CONSUMER_GROUP_ID,
+    )
+    fun consumeThirdScenarioEvent(@Payload messageJson: String) {
+        val message = objectMapper.readValue(messageJson, EventMessage::class.java)
+
+        eventRepository.findByEventId(message.eventId)?.let {
+            logger.warn("🔥 ThirdScenarioEvent EventId ${message.eventId} 중복 발생")
+            throw RuntimeException("EventId ${message.eventId} 중복 발생")
+        }
+
+        EventEntity(
+            eventId = message.eventId,
+            message = message.message,
+            timestamp = message.timestamp,
+        ).let {
+            eventRepository.save(it)
+            logger.info("😎 ThirdScenarioEvent 생성 완료. Entity(id=${it.id}, eventId=${it.eventId})")
+        }
+    }
 }
