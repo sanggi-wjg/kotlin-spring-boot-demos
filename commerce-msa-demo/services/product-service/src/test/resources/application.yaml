@@ -1,0 +1,18 @@
+spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_batch_fetch_size: 100
+        show_sql: true
+
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    jdbc-url: jdbc:tc:mysql://localhost:8010/msa_product
+    username: test_user
+    password: passw0rd
+    hikari:
+      maximum-pool-size: 10
+      pool-name: product-service-pool
