@@ -29,6 +29,11 @@ class EventProducer(
         return listOf(message1.eventId, message2.eventId, message3.eventId)
     }
 
+    fun publishThirdScenarioEvent(): String {
+        val message = publishMessage(KafkaTopic.THIRD_SCENARIO)
+        return message.eventId
+    }
+
     private fun createEventMessage(): EventMessage {
         val eventId = UUID.randomUUID().toString()
         return EventMessage(
