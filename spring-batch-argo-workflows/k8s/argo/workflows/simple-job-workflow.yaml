@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: simple-job-
+  namespace: batch
+  labels:
+    workflows.argoproj.io/type: batch-job
+spec:
+  entrypoint: run-simple-job
+  templates:
+    - name: run-simple-job
+      dag:
+        tasks:
+          - name: trigger
+            templateRef:
+              name: batch-common
+              template: trigger-job
+            arguments:
+              parameters:
+                - name: job-name
+                  value: simpleJob
+
+          - name: poll
+            depends: trigger
+            templateRef:
+              name: batch-common
+              template: poll-job-completion
+            arguments:
+              parameters:
+                - name: execution-id
+                  value: "{{tasks.trigger.outputs.parameters.execution-id}}"

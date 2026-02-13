@@ -1,0 +1,98 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: batch-common
+  namespace: batch
+  labels:
+    app.kubernetes.io/part-of: spring-batch-argo-workflows
+spec:
+  templates:
+    # ──────────────────────────────────────────────
+    # trigger-job: POST /api/batch/jobs/{jobName}
+    # - Job을 비동기 실행하고 executionId를 반환
+    # - 네트워크/서버 오류 시 최대 3회 재시도
+    # ──────────────────────────────────────────────
+    - name: trigger-job
+      inputs:
+        parameters:
+          - name: job-name
+          - name: params
+            default: "{}"
+      retryStrategy:
+        limit: "3"
+        backoff:
+          duration: "5s"
+          factor: 2
+          maxDuration: "1m"
+        retryPolicy: Always
+      http:
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/{{inputs.parameters.job-name}}"
+        method: POST
+        headers:
+          - name: Content-Type
+            value: application/json
+        body: "{{inputs.parameters.params}}"
+        successCondition: "response.statusCode == 202"
+      outputs:
+        parameters:
+          - name: execution-id
+            valueFrom:
+              expression: "string(response.body.executionId)"
+
+    # ──────────────────────────────────────────────
+    # poll-job-completion: GET /api/batch/jobs/executions/{id}
+    # - COMPLETED 또는 FAILED가 될 때까지 10초 간격 폴링
+    # - successCondition 미충족 시 retryStrategy가 재시도
+    #   → 사실상 polling loop 역할
+    # ──────────────────────────────────────────────
+    - name: poll-job-completion
+      inputs:
+        parameters:
+          - name: execution-id
+      retryStrategy:
+        limit: "60"
+        backoff:
+          duration: "10s"
+          factor: 1
+          maxDuration: "10s"
+        retryPolicy: Always
+      http:
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.execution-id}}"
+        method: GET
+        successCondition: "response.body.status == 'COMPLETED' || response.body.status == 'FAILED'"
+      outputs:
+        parameters:
+          - name: status
+            valueFrom:
+              expression: "string(response.body.status)"
+          - name: exit-code
+            valueFrom:
+              expression: "string(response.body.exitCode)"
+
+    # ──────────────────────────────────────────────
+    # restart-job: POST /api/batch/jobs/executions/{id}/restart
+    # - 실패한 Job을 재시작하고 새 executionId를 반환
+    # ──────────────────────────────────────────────
+    - name: restart-job
+      inputs:
+        parameters:
+          - name: execution-id
+      retryStrategy:
+        limit: "3"
+        backoff:
+          duration: "5s"
+          factor: 2
+          maxDuration: "1m"
+        retryPolicy: Always
+      http:
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.execution-id}}/restart"
+        method: POST
+        successCondition: "response.statusCode == 200"
+      outputs:
+        parameters:
+          - name: new-execution-id
+            valueFrom:
+              expression: "string(response.body.newExecutionId)"
+          - name: status
+            valueFrom:
+              expression: "string(response.body.status)"
