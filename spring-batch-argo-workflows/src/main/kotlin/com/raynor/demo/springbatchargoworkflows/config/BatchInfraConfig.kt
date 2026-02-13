@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
+import java.util.concurrent.ThreadPoolExecutor
+import kotlin.contracts.CallsInPlace
 
 @Configuration
 class BatchInfraConfig {
@@ -33,8 +35,9 @@ class BatchInfraConfig {
             maxPoolSize = 5
             queueCapacity = 10
             setWaitForTasksToCompleteOnShutdown(true)
-            setAwaitTerminationSeconds(120)
-            setThreadNamePrefix("batch-heavy-")
+            setAwaitTerminationSeconds(300)
+            setThreadNamePrefix("heavy-")
+            setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
         }
     }
 
@@ -45,8 +48,9 @@ class BatchInfraConfig {
             maxPoolSize = 10
             queueCapacity = 20
             setWaitForTasksToCompleteOnShutdown(true)
-            setAwaitTerminationSeconds(60)
-            setThreadNamePrefix("batch-light-")
+            setAwaitTerminationSeconds(300)
+            setThreadNamePrefix("light-")
+            setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
         }
     }
 

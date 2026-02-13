@@ -27,7 +27,7 @@ spring:
       pool-name: sbaw-pool
 
   lifecycle:
-    timeout-per-shutdown-phase: 10s
+    timeout-per-shutdown-phase: 300s
 
 server:
   port: 8080
