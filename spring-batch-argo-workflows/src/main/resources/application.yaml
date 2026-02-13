@@ -16,9 +16,9 @@ spring:
   datasource:
     hikari:
       driver-class-name: com.mysql.cj.jdbc.Driver
-      jdbc-url: jdbc:mysql://localhost:10001/demo
-      username: general_user
-      password: passw0rd
+      jdbc-url: ${DATABASE_URL:jdbc:mysql://localhost:10001/demo}
+      username: ${DATABASE_URL:general_user}
+      password: ${DATABASE_PASSWORD:passw0rd}
       maximum-pool-size: 20
       validation-timeout: 1000
       connection-timeout: 2000

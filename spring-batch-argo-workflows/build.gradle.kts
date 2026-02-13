@@ -51,6 +51,10 @@ allOpen {
     annotation("jakarta.persistence.Embeddable")
 }
 
+tasks.named<Jar>("jar") {
+    enabled = false
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
