@@ -41,7 +41,7 @@ kubectl -n batch port-forward svc/batch-api-server 8080:8080
 kubectl rollout restart deployment/batch-api-server -n batch
 ```
 
-## Argo Workflows
+## Argo Workflows[simple-job-cron.yaml](k8s/argo/cron-workflows/simple-job-cron.yaml)
 
 - https://argo-workflows.readthedocs.io/en/latest/quick-start/
 
@@ -66,6 +66,7 @@ kubectl apply -f k8s/argo/templates/batch-common.yaml
 #### Cron workflow
 
 ```shell
+kubectl apply -f k8s/argo/cron-workflows/.
 kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
 kubectl apply -f k8s/argo/cron-workflows/failable-job-cron.yaml
 
@@ -73,11 +74,9 @@ argo cron list -n batch
 
 argo cron get simple-job-cron -n batch
 (or kubectl get cronworkflows -n batch)
-
-argo logs -n batch @latest
 ```
 
-#### Manual workflow (확인 중...)
+#### Manual workflow
 
 ```shell
 argo submit k8s/argo/workflows/simple-job-workflow.yaml -n batch --watch

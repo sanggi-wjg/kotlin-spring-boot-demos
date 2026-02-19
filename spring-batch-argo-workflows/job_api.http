@@ -9,7 +9,7 @@ POST http://localhost:8080/api/batch/jobs/simpleJob
 Content-Type: application/json
 
 {
-  "period": "MINUTELY_5",
+  "period": "MINUTELY_1",
   "params": {
     "abc": "123"
   }

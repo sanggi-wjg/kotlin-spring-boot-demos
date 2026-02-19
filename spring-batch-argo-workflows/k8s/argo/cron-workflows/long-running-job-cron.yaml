@@ -1,21 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
-  name: failable-job-cron
+  name: long-running-job-cron
   namespace: batch
   labels:
     workflows.argoproj.io/type: batch-job
 spec:
   schedules:
-    - "*/5 * * * *"
+    - "*/10 * * * *"
   timezone: UTC
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 5
   failedJobsHistoryLimit: 5
   workflowSpec:
-    entrypoint: run-failable-job
+    entrypoint: run-long-running-job
     templates:
-      - name: run-failable-job
+      - name: run-long-running-job
         dag:
           tasks:
             - name: trigger
@@ -25,10 +25,9 @@ spec:
               arguments:
                 parameters:
                   - name: job-name
-                    value: failableJob
+                    value: longRunningJob
                   - name: params
-                    value: '{"shouldFail": "true"}'
-
+                    value: '{}'
             - name: poll
               depends: trigger
               when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"

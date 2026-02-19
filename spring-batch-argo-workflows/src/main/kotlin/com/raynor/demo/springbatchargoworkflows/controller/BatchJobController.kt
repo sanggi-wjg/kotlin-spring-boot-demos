@@ -41,7 +41,7 @@ class BatchJobController(
     fun launchJob(
         @PathVariable jobName: String,
         @RequestBody request: JobLaunchRequestDto,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<JobLaunchResponseDto> {
         val job = jobs[jobName]
             ?: throw JobNotFoundException(jobName)
 
@@ -71,7 +71,7 @@ class BatchJobController(
     @GetMapping("/jobs/executions/{executionId}")
     fun getExecution(
         @PathVariable executionId: Long,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<JobExecutionResponseDto> {
         val execution = jobRepository.getJobExecution(executionId)
             ?: throw JobExecutionNotFoundException(executionId)
 
@@ -96,7 +96,7 @@ class BatchJobController(
     @PostMapping("/jobs/executions/{executionId}/stop")
     fun stopExecution(
         @PathVariable executionId: Long,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<Map<String, String>> {
         val execution = jobRepository.getJobExecution(executionId)
             ?: throw JobExecutionNotFoundException(executionId)
 
@@ -114,7 +114,7 @@ class BatchJobController(
     @PostMapping("/jobs/executions/{executionId}/restart")
     fun restartExecution(
         @PathVariable executionId: Long,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<JobRestartResponseDto> {
         val execution = jobRepository.getJobExecution(executionId)
             ?: throw JobExecutionNotFoundException(executionId)
 

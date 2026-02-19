@@ -12,10 +12,12 @@ enum class JobLaunchPeriod(
     private val pattern: String,
 ) {
     DAILY(ChronoUnit.DAYS, 0, "yyyy-MM-dd"),
-    HOURLY(ChronoUnit.HOURS, 0, "yyyy-MM-dd'T'HH"),
-    MINUTELY_30(ChronoUnit.MINUTES, 30, "yyyy-MM-dd'T'HH:mm"),
-    MINUTELY_15(ChronoUnit.MINUTES, 15, "yyyy-MM-dd'T'HH:mm"),
-    MINUTELY_5(ChronoUnit.MINUTES, 5, "yyyy-MM-dd'T'HH:mm"),
+    HOURLY(ChronoUnit.HOURS, 0, "yyyy-MM-dd HH"),
+    MINUTELY_30(ChronoUnit.MINUTES, 30, "yyyy-MM-dd HH:mm"),
+    MINUTELY_15(ChronoUnit.MINUTES, 15, "yyyy-MM-dd HH:mm"),
+    MINUTELY_5(ChronoUnit.MINUTES, 5, "yyyy-MM-dd HH:mm"),
+    MINUTELY_1(ChronoUnit.MINUTES, 1, "yyyy-MM-dd HH:mm"),
+    NONE(ChronoUnit.MINUTES, 0, "yyyy-MM-dd HH:mm.zzz"),
     ;
 
     fun toParameterValue(): String {

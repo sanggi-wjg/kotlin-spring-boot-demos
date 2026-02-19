@@ -26,21 +26,26 @@ class LongRunningJobConfig(
     }
 
     @Bean
-    fun longJob(): Job {
+    fun longRunningJob(): Job {
         return JobBuilder(JOB_NAME, jobRepository)
-            .start(longJobStep())
+            .start(longRunningJobStep())
             .listener(jobCompletionListener)
             .build()
     }
 
     @Bean
-    fun longJobStep(): Step {
+    fun longRunningJobStep(): Step {
         return StepBuilder(STEP_NAME, jobRepository).tasklet({ _, chunkContext ->
             val params = chunkContext.stepContext.jobParameters
             log.info("⏳ $STEP_NAME 실행 중. parameters: {}", params)
 
-            Thread.sleep(500_000)
-            log.info("✅ $STEP_NAME 완료 (5초 sleep)")
+            // 8분 슬립
+            repeat(500_000) {
+                val time = (it * 1000).toLong()
+                Thread.sleep(time)
+                log.info("⏳ $STEP_NAME 실행 중. 현재: $time second")
+            }
+            log.info("✅ $STEP_NAME 완료")
 
             RepeatStatus.FINISHED
         }, transactionManager).build()
