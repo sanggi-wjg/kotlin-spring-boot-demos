@@ -1,6 +1,5 @@
 package com.raynor.demo.springbatchargoworkflows.job
 
-import com.raynor.demo.springbatchargoworkflows.job.SimpleJobConfig.Companion.SIMPLE_STEP_NAME
 import com.raynor.demo.springbatchargoworkflows.listener.JobCompletionListener
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.job.Job
@@ -14,7 +13,7 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 
 @Configuration
-class LongJobConfig(
+class LongRunningJobConfig(
     private val jobRepository: JobRepository,
     private val transactionManager: PlatformTransactionManager,
     private val jobCompletionListener: JobCompletionListener,
@@ -22,7 +21,7 @@ class LongJobConfig(
     private val log = LoggerFactory.getLogger(javaClass)
 
     companion object {
-        const val JOB_NAME = "longJob"
+        const val JOB_NAME = "longRunningJob"
         const val STEP_NAME = "${JOB_NAME}Step"
     }
 
@@ -34,7 +33,7 @@ class LongJobConfig(
             .build()
     }
 
-    @Bean
+    @Bean(STEP_NAME)
     fun longJobStep(): Step {
         return StepBuilder(STEP_NAME, jobRepository).tasklet({ _, chunkContext ->
             val params = chunkContext.stepContext.jobParameters

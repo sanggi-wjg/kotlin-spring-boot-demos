@@ -9,5 +9,4 @@ class SpringBatchArgoWorkflowsApplicationTests {
     @Test
     fun contextLoads() {
     }
-
 }
