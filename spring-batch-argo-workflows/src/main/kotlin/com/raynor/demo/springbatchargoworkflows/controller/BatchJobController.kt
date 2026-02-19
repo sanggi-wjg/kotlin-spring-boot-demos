@@ -31,7 +31,9 @@ class BatchJobController(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
-    private val heavyJobs = setOf(FailableJobConfig.JOB_NAME)
+    private val heavyJobs = setOf(
+        FailableJobConfig.JOB_NAME,
+    )
 
     private fun resolveOperator(jobName: String): JobOperator {
         return if (jobName in heavyJobs) heavyJobOperator else lightJobOperator
