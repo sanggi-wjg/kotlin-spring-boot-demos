@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
+import kotlin.random.Random
 
 @Configuration
 class FailableJobConfig(
@@ -68,9 +69,9 @@ class FailableJobConfig(
         @Value("#{jobParameters['shouldFail']}") shouldFail: String?,
     ): ItemProcessor<String, String> {
         return ItemProcessor { item ->
-            if (shouldFail.toBoolean()) {
+            if (shouldFail.toBoolean() || Random.nextInt() % 2 == 0) {
                 log.error("💥 FailableJob 프로세서 - shouldFail=true, 의도적 예외 발생. item: {}", item)
-                throw RuntimeException("의도적 실패: $item")
+                throw RuntimeException("의도한 실패: $item")
             }
             log.info("⚙️ FailableJob 프로세서 - 아이템 처리 중: {}", item)
             item.uppercase()

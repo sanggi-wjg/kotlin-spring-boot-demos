@@ -1,13 +1,18 @@
 package com.raynor.demo.springbatchargoworkflows.controller
 
 import com.raynor.demo.springbatchargoworkflows.config.JobOperatorResolver
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobExecutionResponse
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobLaunchResponse
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobRestartResponse
+import com.raynor.demo.springbatchargoworkflows.controller.dto.JobExecutionResponseDto
+import com.raynor.demo.springbatchargoworkflows.controller.dto.JobLaunchRequestDto
+import com.raynor.demo.springbatchargoworkflows.controller.dto.JobLaunchResponseDto
+import com.raynor.demo.springbatchargoworkflows.controller.dto.JobRestartResponseDto
+import com.raynor.demo.springbatchargoworkflows.exceptions.JobExecutionNotFoundException
+import com.raynor.demo.springbatchargoworkflows.exceptions.JobExecutionStillRunningException
+import com.raynor.demo.springbatchargoworkflows.exceptions.JobNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.BatchStatus
 import org.springframework.batch.core.job.Job
 import org.springframework.batch.core.job.parameters.JobParametersBuilder
+import org.springframework.batch.core.launch.JobExecutionNotRunningException
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -35,25 +40,27 @@ class BatchJobController(
     @PostMapping("/jobs/{jobName}")
     fun launchJob(
         @PathVariable jobName: String,
-        @RequestBody(required = false) body: Map<String, String>?,
+        @RequestBody request: JobLaunchRequestDto,
     ): ResponseEntity<Any> {
         val job = jobs[jobName]
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to "Job not found: $jobName"))
+            ?: throw JobNotFoundException(jobName)
 
-        val parametersBuilder = JobParametersBuilder()
-            .addLong("run.id", System.currentTimeMillis())
-
-        body?.forEach { (key, value) ->
-            parametersBuilder.addString(key, value)
-        }
+        val jobParameters = JobParametersBuilder()
+            .addString("period", request.period.name)
+            .addString("execAt", request.period.toParameterValue())
+            .also {
+                request.params?.forEach { (key, value) ->
+                    it.addString(key, value)
+                }
+            }
+            .toJobParameters()
+        log.info("🚀 [{}] Job 실행 요청. parameters={}", jobName, jobParameters)
 
         val operator = jobOperatorResolver.resolve(jobName)
-        val execution = operator.start(job, parametersBuilder.toJobParameters())
-        log.info("🚀 [{}] Job 실행 요청. executionId={}, operator={}", jobName, execution.id, if (jobOperatorResolver.isHeavy(jobName)) "heavy" else "light")
+        val execution = operator.start(job, jobParameters)
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(
-            JobLaunchResponse(
+            JobLaunchResponseDto(
                 executionId = execution.id,
                 jobName = jobName,
                 status = execution.status.name,
@@ -66,15 +73,14 @@ class BatchJobController(
         @PathVariable executionId: Long,
     ): ResponseEntity<Any> {
         val execution = jobRepository.getJobExecution(executionId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to "Execution not found: $executionId"))
+            ?: throw JobExecutionNotFoundException(executionId)
 
         val failedSteps = execution.stepExecutions
             .filter { it.status == BatchStatus.FAILED }
             .map { it.stepName }
 
         return ResponseEntity.ok(
-            JobExecutionResponse(
+            JobExecutionResponseDto(
                 executionId = execution.id,
                 jobName = execution.jobInstance.jobName,
                 status = execution.status.name,
@@ -92,12 +98,10 @@ class BatchJobController(
         @PathVariable executionId: Long,
     ): ResponseEntity<Any> {
         val execution = jobRepository.getJobExecution(executionId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to "Execution not found: $executionId"))
+            ?: throw JobExecutionNotFoundException(executionId)
 
         if (!execution.isRunning) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(mapOf("error" to "Execution is not running. status=${execution.status}"))
+            throw JobExecutionNotRunningException("Execution is not running. status=${execution.status}")
         }
 
         val operator = jobOperatorResolver.resolve(execution.jobInstance.jobName)
@@ -112,12 +116,10 @@ class BatchJobController(
         @PathVariable executionId: Long,
     ): ResponseEntity<Any> {
         val execution = jobRepository.getJobExecution(executionId)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to "Execution not found: $executionId"))
+            ?: throw JobExecutionNotFoundException(executionId)
 
         if (execution.isRunning) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(mapOf("error" to "Execution is still running. status=${execution.status}"))
+            throw JobExecutionStillRunningException(execution.status)
         }
 
         val operator = jobOperatorResolver.resolve(execution.jobInstance.jobName)
@@ -125,7 +127,7 @@ class BatchJobController(
         log.info("🔄 [{}] Job 재시작. originalId={}, newId={}", execution.jobInstance.jobName, executionId, newExecution.id)
 
         return ResponseEntity.ok(
-            JobRestartResponse(
+            JobRestartResponseDto(
                 originalExecutionId = executionId,
                 newExecutionId = newExecution.id,
                 jobName = execution.jobInstance.jobName,

@@ -5,11 +5,14 @@ GET http://localhost:8080/actuator/health
 GET http://localhost:8080/api/batch/jobs
 
 ### Job 실행
-POST http://localhost:8080/api/batch/jobs/sampleJob
+POST http://localhost:8080/api/batch/jobs/simpleJob
 Content-Type: application/json
 
 {
-  "param1": "value1"
+  "period": "MINUTELY_5",
+  "params": {
+    "abc": "123"
+  }
 }
 
 ### 실행 상태 조회

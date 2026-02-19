@@ -26,9 +26,28 @@ spec:
                 parameters:
                   - name: job-name
                     value: simpleJob
+                  - name: params
+                    value: '{"period": "{{= sprig.date("2006-01-02T15:04", sprig.now()) }}"}'
+                    # 하루 주기:  "2026-02-19"
+                    # value: '{"period": "{{= sprig.date("2006-01-02", sprig.now()) }}"}'
+
+                    # 시간 주기:  "2026-02-19T14"
+                    # value: '{"period": "{{= sprig.date("2006-01-02T15", sprig.now()) }}"}'
+
+                    # 30분 단위: "2026-02-19T14:3" (십의 자리만 → 0~29, 30~59 구분)
+                    # value: '{"period": "{{= sprig.date("2006-01-02T15:0", sprig.now()) }}"}'
+
+                    # 10분 단위: "2026-02-19T14:30" (십의 자리 + "0")
+                    # value: '{"period": "{{= sprig.date("2006-01-02T15:0", sprig.now()) }}0"}'
+
+                    # 5분 단위:  sprig만으로 불가 → 앱에서 period 값을 5분 내림 처리 필요
+
+                    # 1분 단위:  "2026-02-19T14:37"
+                    # value: '{"period": "{{= sprig.date("2006-01-02T15:04", sprig.now()) }}"}'
 
             - name: poll
               depends: trigger
+              when: "response.statusCode == 202"
               templateRef:
                 name: batch-common
                 template: poll-job-completion

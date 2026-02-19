@@ -32,12 +32,15 @@ spec:
           - name: Content-Type
             value: application/json
         body: "{{inputs.parameters.params}}"
-        successCondition: "response.statusCode == 202"
+        successCondition: "response.statusCode == 202 || response.statusCode == 409"
       outputs:
         parameters:
           - name: execution-id
             valueFrom:
-              expression: "string(response.body.executionId)"
+              expression: "response.statusCode == 409 ? 'SKIPPED' : string(response.body.executionId)"
+          - name: status-code
+            valueFrom:
+              expression: "string(response.statusCode)"
 
     # ──────────────────────────────────────────────
     # poll-job-completion: GET /api/batch/jobs/executions/{id}

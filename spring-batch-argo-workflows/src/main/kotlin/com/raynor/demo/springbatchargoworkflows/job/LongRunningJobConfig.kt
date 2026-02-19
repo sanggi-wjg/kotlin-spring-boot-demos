@@ -33,7 +33,7 @@ class LongRunningJobConfig(
             .build()
     }
 
-    @Bean(STEP_NAME)
+    @Bean
     fun longJobStep(): Step {
         return StepBuilder(STEP_NAME, jobRepository).tasklet({ _, chunkContext ->
             val params = chunkContext.stepContext.jobParameters

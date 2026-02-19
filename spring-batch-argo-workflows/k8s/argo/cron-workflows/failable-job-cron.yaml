@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: failable-job-cron
+  namespace: batch
+  labels:
+    workflows.argoproj.io/type: batch-job
+spec:
+  schedules:
+    - "*/5 * * * *"
+  timezone: Asia/Seoul
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 3
+  workflowSpec:
+    entrypoint: run-failable-job
+    templates:
+      - name: run-failable-job
+        dag:
+          tasks:
+            - name: trigger
+              templateRef:
+                name: batch-common
+                template: trigger-job
+              arguments:
+                parameters:
+                  - name: job-name
+                    value: failableJob
+                  - name: params
+                    value: '{"shouldFail": "true"}'
+
+            - name: poll
+              depends: trigger
+              when: "response.statusCode == 202"
+              templateRef:
+                name: batch-common
+                template: poll-job-completion
+              arguments:
+                parameters:
+                  - name: execution-id
+                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"

@@ -27,9 +27,10 @@ spec:
                 - name: params
                   value: '{"shouldFail":"{{workflow.parameters.shouldFail}}"}'
 
-          # 2) Job 완료 대기 (COMPLETED 또는 FAILED)
+          # 2) Job 완료 대기 (COMPLETED 또는 FAILED) — 409(중복 스킵)이면 poll 생략
           - name: poll
             depends: trigger
+            when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"
             templateRef:
               name: batch-common
               template: poll-job-completion

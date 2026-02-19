@@ -2,13 +2,13 @@ package com.raynor.demo.springbatchargoworkflows.controller.dto
 
 import java.time.LocalDateTime
 
-data class JobLaunchResponse(
+data class JobLaunchResponseDto(
     val executionId: Long,
     val jobName: String,
     val status: String,
 )
 
-data class JobExecutionResponse(
+data class JobExecutionResponseDto(
     val executionId: Long,
     val jobName: String,
     val status: String,
@@ -19,7 +19,7 @@ data class JobExecutionResponse(
     val failedSteps: List<String>,
 )
 
-data class JobRestartResponse(
+data class JobRestartResponseDto(
     val originalExecutionId: Long,
     val newExecutionId: Long,
     val jobName: String,

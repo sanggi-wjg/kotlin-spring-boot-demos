@@ -19,7 +19,7 @@
 
 ---
 
-## k8s
+## Kubernetes
 
 ```shell
 cd docker 
@@ -32,14 +32,12 @@ docker build . -t sbaw-batch-app:latest
 # k3d
 k3d cluster create batch-argo
 k3d image import sbaw-batch-app:latest -c batch-argo 
-
 kubectl-ctx-switch batch-argo
 
-cd k8s
-kubectl apply -f .
+kubectl apply -f k8s/base/.
 kubectl -n batch port-forward svc/batch-api-server 8080:8080
 
-# 배포 테스트 (이후 배포 진행 테스트시 사용)
+# 배포
 kubectl rollout restart deployment/batch-api-server -n batch
 ```
 
@@ -69,15 +67,17 @@ kubectl apply -f k8s/argo/templates/batch-common.yaml
 
 ```shell
 kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
+kubectl apply -f k8s/argo/cron-workflows/failable-job-cron.yaml
 
 argo cron list -n batch
+
 argo cron get simple-job-cron -n batch
 (or kubectl get cronworkflows -n batch)
 
 argo logs -n batch @latest
 ```
 
-#### Manual workflow
+#### Manual workflow (확인 중...)
 
 ```shell
 argo submit k8s/argo/workflows/simple-job-workflow.yaml -n batch --watch
