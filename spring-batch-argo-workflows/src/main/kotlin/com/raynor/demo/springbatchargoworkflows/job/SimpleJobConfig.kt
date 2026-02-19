@@ -27,7 +27,7 @@ class SimpleJobConfig(
     }
 
     @Bean
-    fun sampleJob(): Job {
+    fun simpleJob(): Job {
         return JobBuilder(JOB_NAME, jobRepository)
             .listener(jobCompletionListener)
             .start(simpleStep())

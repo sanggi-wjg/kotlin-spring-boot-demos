@@ -23,23 +23,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 30s
-
-  sbaw-batch-app:
-    build:
-      context: ..
-      dockerfile: Dockerfile
-    container_name: sbaw-batch-app
-    ports:
-      - "8080:8080"
-    environment:
-      DATABASE_URL: jdbc:mysql://sbaw-mysql:3306/demo
-      DATABASE_USER: general_user
-      DATABASE_PASSWORD: passw0rd
-    depends_on:
-      sbaw-mysql:
-        condition: service_healthy
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
+# 테스트용
+#  sbaw-batch-app:
+#    build:
+#      context: ..
+#      dockerfile: Dockerfile
+#    container_name: sbaw-batch-app
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      DATABASE_URL: jdbc:mysql://sbaw-mysql:3306/demo
+#      DATABASE_USER: general_user
+#      DATABASE_PASSWORD: passw0rd
+#    depends_on:
+#      sbaw-mysql:
+#        condition: service_healthy
+#    deploy:
+#      resources:
+#        limits:
+#          cpus: '1.0'
+#          memory: 1G

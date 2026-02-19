@@ -1,5 +1,6 @@
 package com.raynor.demo.springbatchargoworkflows.job
 
+import com.raynor.demo.springbatchargoworkflows.config.HeavyJob
 import com.raynor.demo.springbatchargoworkflows.listener.JobCompletionListener
 import org.slf4j.LoggerFactory
 import org.springframework.batch.core.configuration.annotation.StepScope
@@ -32,6 +33,7 @@ class FailableJobConfig(
     }
 
     @Bean
+    @HeavyJob
     fun failableJob(): Job {
         return JobBuilder(JOB_NAME, jobRepository)
             .listener(jobCompletionListener)

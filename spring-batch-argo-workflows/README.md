@@ -58,38 +58,44 @@ kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/do
 
 ### 워크플로우
 
+#### Template
+
 ```shell
 # template 
 kubectl apply -f k8s/argo/templates/batch-common.yaml
-
-# cron workflow 
-kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
-
-# workflow submit 
-argo submit --watch k8s/argo/workflows/simple-job-workflow.yaml -n batch --watch
-(or kubectl create -f k8s/argo/workflows/simple-job-workflow.yaml)
-
-argo submit --watch k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch
-argo submit --watch k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch -p shouldFail=False
-
-argo submit --watch k8s/argo/workflows/long-running-job-workflow.yaml -n batch --watch
 ```
 
+#### Cron workflow
+
 ```shell
-# 특정 워크플로우 삭제                           
+kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
+
+argo cron list -n batch
+argo cron get simple-job-cron -n batch
+(or kubectl get cronworkflows -n batch)
+
+argo logs -n batch @latest
+```
+
+#### Manual workflow
+
+```shell
+argo submit k8s/argo/workflows/simple-job-workflow.yaml -n batch --watch
+
+argo submit k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch
+argo submit k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch -p shouldFail=False
+```
+
+#### Delete workflow
+
+```shell
 argo delete <workflow-name> -n batch                                                                                           
-
-# 완료된 워크플로우 모두 삭제
 argo delete --completed -n batch  
-
-# 전체 삭제
 argo delete --all -n batch
 ```
 
-### 모니터링
+### 웹 콘솔
 
 ```shell
 kubectl -n argo port-forward svc/argo-server 2746:2746
-
-argo list -n batch
 ```

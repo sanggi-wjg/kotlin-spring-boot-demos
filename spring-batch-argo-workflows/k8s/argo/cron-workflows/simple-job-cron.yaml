@@ -6,7 +6,8 @@ metadata:
   labels:
     workflows.argoproj.io/type: batch-job
 spec:
-  schedule: "*/2 * * * *"
+  schedules:
+    - "*/2 * * * *"
   timezone: Asia/Seoul
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 5
