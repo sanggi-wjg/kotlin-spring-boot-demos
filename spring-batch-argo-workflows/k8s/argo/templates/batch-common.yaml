@@ -57,7 +57,7 @@ spec:
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
-        successCondition: "response.body.status == 'COMPLETED' || response.body.status == 'FAILED'"
+        successCondition: "response.statusCode == 200"
 
     # ──────────────────────────────────────────────
     # long-poll-job-completion: GET /api/batch/jobs/executions/{id}
@@ -79,7 +79,7 @@ spec:
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
-        successCondition: "response.body.status == 'COMPLETED' || response.body.status == 'FAILED'"
+        successCondition: "response.statusCode == 200"
 
     # ──────────────────────────────────────────────
     # restart-job: POST /api/batch/jobs/executions/{id}/restart

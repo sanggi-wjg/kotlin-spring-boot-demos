@@ -31,7 +31,7 @@ spec:
                     value: '{"period": "MINUTELY_1", "params": {"message": "Hello World!", "count": 10} }'
             - name: poll
               depends: trigger
-              when: "{{tasks.trigger.outputs.result}} =~ STARTING"
+              when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"
               templateRef:
                 name: batch-common
                 template: poll-job-completion

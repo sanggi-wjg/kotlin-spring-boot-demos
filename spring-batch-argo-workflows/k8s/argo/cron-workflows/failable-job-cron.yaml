@@ -30,7 +30,7 @@ spec:
                     value: '{"period": "MINUTELY_5", "params": {"message": "Hello FailableJob", "shouldFail": "true"} }'
             - name: poll
               depends: trigger
-              when: "{{tasks.trigger.outputs.result}} =~ STARTING"
+              when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"
               templateRef:
                 name: batch-common
                 template: poll-job-completion
@@ -42,7 +42,7 @@ spec:
             # FAILED인 경우에만 재시작
             - name: restart
               depends: poll
-              when: "{{tasks.poll.outputs.result}} =~ FAILED || {{tasks.poll.outputs.result}} =~ STOPPED"
+              when: "{{= jsonpath(tasks.poll.outputs.result, '$.exitCode') == 'FAILED' || jsonpath(tasks.poll.outputs.result, '$.exitCode') == 'STOPPED' }}"
               templateRef:
                 name: batch-common
                 template: restart-job

@@ -15,8 +15,19 @@ Content-Type: application/json
   }
 }
 
+### Job 실행
+POST http://localhost:8080/api/batch/jobs/longRunningJob
+Content-Type: application/json
+
+{
+  "period": "MINUTELY_15",
+  "params": {
+    "abc": "123"
+  }
+}
+
 ### 실행 상태 조회
-GET http://localhost:8080/api/batch/jobs/executions/1
+GET http://localhost:8080/api/batch/jobs/executions/6
 
 ### 실행 중인 Job 중지
 POST http://localhost:8080/api/batch/jobs/executions/1/stop

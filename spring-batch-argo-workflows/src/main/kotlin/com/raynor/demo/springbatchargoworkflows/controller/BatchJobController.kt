@@ -87,18 +87,19 @@ class BatchJobController(
             failedSteps
         )
 
-        return ResponseEntity.ok(
-            JobExecutionResponseDto(
-                executionId = execution.id,
-                jobName = execution.jobInstance.jobName,
-                status = execution.status.name,
-                exitCode = execution.exitStatus.exitCode,
-                exitDescription = execution.exitStatus.exitDescription,
-                startTime = execution.startTime,
-                endTime = execution.endTime,
-                failedSteps = failedSteps,
-            )
+        val dto = JobExecutionResponseDto(
+            executionId = execution.id,
+            jobName = execution.jobInstance.jobName,
+            status = execution.status.name,
+            exitCode = execution.exitStatus.exitCode,
+            exitDescription = execution.exitStatus.exitDescription,
+            startTime = execution.startTime,
+            endTime = execution.endTime,
+            failedSteps = failedSteps,
         )
+
+        val httpStatus = if (execution.isRunning) HttpStatus.ACCEPTED else HttpStatus.OK
+        return ResponseEntity.status(httpStatus).body(dto)
     }
 
     @PostMapping("/jobs/executions/{executionId}/stop")
