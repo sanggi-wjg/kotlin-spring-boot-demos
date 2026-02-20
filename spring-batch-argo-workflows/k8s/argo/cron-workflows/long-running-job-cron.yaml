@@ -24,17 +24,17 @@ spec:
                 template: trigger-job
               arguments:
                 parameters:
-                  - name: job-name
+                  - name: jobName
                     value: longRunningJob
                   - name: params
                     value: '{"period": "MINUTELY_5", "params": {"message": "Hello LongRunningJob"} }'
             - name: poll
               depends: trigger
-              when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"
+              when: "{{tasks.trigger.outputs.result}} =~ STARTING"
               templateRef:
                 name: batch-common
-                template: poll-job-completion
+                template: long-poll-job-completion
               arguments:
                 parameters:
-                  - name: execution-id
-                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"

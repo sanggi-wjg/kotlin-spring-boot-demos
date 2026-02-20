@@ -28,8 +28,8 @@ class LongRunningJobConfig(
     @Bean
     fun longRunningJob(): Job {
         return JobBuilder(JOB_NAME, jobRepository)
-            .start(longRunningJobStep())
             .listener(jobCompletionListener)
+            .start(longRunningJobStep())
             .build()
     }
 
@@ -39,11 +39,12 @@ class LongRunningJobConfig(
             val params = chunkContext.stepContext.jobParameters
             log.info("⏳ $STEP_NAME 실행 중. parameters: {}", params)
 
-            // 8분 슬립
-            repeat(500_000) {
-                val time = (it * 1000).toLong()
-                Thread.sleep(time)
-                log.info("⏳ $STEP_NAME 실행 중. 현재: $time second")
+            // 약 8분(500초) 슬립
+            repeat(500) { i ->
+                Thread.sleep(1_000)
+                if (i % 60 == 0) {
+                    log.info("⏳ $STEP_NAME 실행 중. 경과: ${i}초")
+                }
             }
             log.info("✅ $STEP_NAME 완료")
 

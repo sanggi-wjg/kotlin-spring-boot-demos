@@ -17,7 +17,7 @@ spec:
     - name: trigger-job
       inputs:
         parameters:
-          - name: job-name
+          - name: jobName
           - name: params
             default: "{}"
       retryStrategy: # https://argo-workflows.readthedocs.io/en/latest/retries/
@@ -28,25 +28,17 @@ spec:
           maxDuration: "30s" # 최대 대기시간
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/{{inputs.parameters.job-name}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/{{inputs.parameters.jobName}}"
         method: POST
         headers:
           - name: Content-Type
             value: application/json
         body: "{{inputs.parameters.params}}"
         successCondition: "response.statusCode == 202 || response.statusCode == 409"
-      outputs:
-        parameters:
-          - name: execution-id
-            valueFrom:
-              expression: "response.statusCode == 409 ? 'SKIPPED' : string(response.body.executionId)"
-          - name: status-code
-            valueFrom:
-              expression: "string(response.statusCode)"
 
     # ──────────────────────────────────────────────
     # poll-job-completion: GET /api/batch/jobs/executions/{id}
-    # - COMPLETED 또는 FAILED가 될 때까지 10초 간격 폴링
+    # - COMPLETED 또는 FAILED가 될 때까지 15초 간격 폴링
     # - successCondition 미충족 시 retryStrategy가 재시도
     #   → 사실상 polling loop 역할
     # 최대 15분
@@ -54,7 +46,7 @@ spec:
     - name: poll-job-completion
       inputs:
         parameters:
-          - name: execution-id
+          - name: executionId
       retryStrategy:
         limit: "60"
         backoff:
@@ -63,17 +55,9 @@ spec:
           maxDuration: "15s"
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.execution-id}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
         successCondition: "response.body.status == 'COMPLETED' || response.body.status == 'FAILED'"
-      outputs:
-        parameters:
-          - name: status
-            valueFrom:
-              expression: "string(response.body.status)"
-          - name: exit-code
-            valueFrom:
-              expression: "string(response.body.exitCode)"
 
     # ──────────────────────────────────────────────
     # long-poll-job-completion: GET /api/batch/jobs/executions/{id}
@@ -84,7 +68,7 @@ spec:
     - name: long-poll-job-completion
       inputs:
         parameters:
-          - name: execution-id
+          - name: executionId
       retryStrategy:
         retryPolicy: Always
         limit: "240"
@@ -93,17 +77,9 @@ spec:
           factor: 1
           maxDuration: "30s"
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.execution-id}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
         successCondition: "response.body.status == 'COMPLETED' || response.body.status == 'FAILED'"
-      outputs:
-        parameters:
-          - name: status
-            valueFrom:
-              expression: "string(response.body.status)"
-          - name: exit-code
-            valueFrom:
-              expression: "string(response.body.exitCode)"
 
     # ──────────────────────────────────────────────
     # restart-job: POST /api/batch/jobs/executions/{id}/restart
@@ -112,23 +88,15 @@ spec:
     - name: restart-job
       inputs:
         parameters:
-          - name: execution-id
+          - name: executionId
       retryStrategy:
-        limit: "3"
+        limit: "8"
         backoff:
           duration: "5s"
           factor: 2
-          maxDuration: "1m"
+          maxDuration: "30s"
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.execution-id}}/restart"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}/restart"
         method: POST
         successCondition: "response.statusCode == 200"
-      outputs:
-        parameters:
-          - name: new-execution-id
-            valueFrom:
-              expression: "string(response.body.newExecutionId)"
-          - name: status
-            valueFrom:
-              expression: "string(response.body.status)"

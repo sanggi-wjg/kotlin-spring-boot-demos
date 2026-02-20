@@ -45,7 +45,7 @@ kubectl -n batch port-forward svc/batch-api-server 8080:8080
 kubectl rollout restart deployment/batch-api-server -n batch
 ```
 
-## Argo Workflows[simple-job-cron.yaml](k8s/argo/cron-workflows/simple-job-cron.yaml)
+## Argo Workflows
 
 - https://argo-workflows.readthedocs.io/en/latest/quick-start/
 
@@ -55,22 +55,21 @@ kubectl rollout restart deployment/batch-api-server -n batch
 brew install argo
 
 kubectl create namespace argo
-kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v4.0.1/quick-start-minimal.yaml"
+kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.7.10/quick-start-minimal.yaml"
+
+# 삭제
+kubectl delete -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.7.10/quick-start-minimal.yaml"
 ```
 
 ### 워크플로우
 
-#### Template
-
 ```shell
-# template 
+kubectl delete -f k8s/argo/templates/batch-common.yaml
+kubectl delete -f k8s/argo/cron-workflows/.
+
 kubectl apply -f k8s/argo/templates/batch-common.yaml
-```
-
-#### Cron workflow
-
-```shell
 kubectl apply -f k8s/argo/cron-workflows/.
+
 kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
 kubectl apply -f k8s/argo/cron-workflows/failable-job-cron.yaml
 
@@ -78,15 +77,6 @@ argo cron list -n batch
 
 argo cron get simple-job-cron -n batch
 (or kubectl get cronworkflows -n batch)
-```
-
-#### Manual workflow
-
-```shell
-argo submit k8s/argo/workflows/simple-job-workflow.yaml -n batch --watch
-
-argo submit k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch
-argo submit k8s/argo/workflows/failable-job-workflow.yaml -n batch --watch -p shouldFail=False
 ```
 
 #### Delete workflow
@@ -102,3 +92,5 @@ argo delete --all -n batch
 ```shell
 kubectl -n argo port-forward svc/argo-server 2746:2746
 ```
+
+https://localhost:2746/

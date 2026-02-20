@@ -69,7 +69,7 @@ class FailableJobConfig(
         @Value("#{jobParameters['shouldFail']}") shouldFail: String?,
     ): ItemProcessor<String, String> {
         return ItemProcessor { item ->
-            if (shouldFail.toBoolean() || Random.nextInt() % 2 == 0) {
+            if (shouldFail.toBoolean() || Random.nextBoolean()) {
                 log.error("💥 FailableJob 프로세서 - shouldFail=true, 의도적 예외 발생. item: {}", item)
                 throw RuntimeException("의도한 실패: $item")
             }

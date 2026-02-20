@@ -24,32 +24,32 @@ spec:
                 template: trigger-job
               arguments:
                 parameters:
-                  - name: job-name
+                  - name: jobName
                     value: failableJob
                   - name: params
                     value: '{"period": "MINUTELY_5", "params": {"message": "Hello FailableJob", "shouldFail": "true"} }'
             - name: poll
               depends: trigger
-              when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"
+              when: "{{tasks.trigger.outputs.result}} =~ STARTING"
               templateRef:
                 name: batch-common
                 template: poll-job-completion
               arguments:
                 parameters:
-                  - name: execution-id
-                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"
 
             # FAILED인 경우에만 재시작
             - name: restart
               depends: poll
-              when: "'{{tasks.poll.outputs.parameters.status}}' == 'FAILED'"
+              when: "{{tasks.poll.outputs.result}} =~ FAILED || {{tasks.poll.outputs.result}} =~ STOPPED"
               templateRef:
                 name: batch-common
                 template: restart-job
               arguments:
                 parameters:
-                  - name: execution-id
-                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"
 
             # 재시작된 Job 완료 대기
             - name: poll-restarted
@@ -59,5 +59,5 @@ spec:
                 template: poll-job-completion
               arguments:
                 parameters:
-                  - name: execution-id
-                    value: "{{tasks.restart.outputs.parameters.new-execution-id}}"
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.restart.outputs.result, '$.newExecutionId')}}"

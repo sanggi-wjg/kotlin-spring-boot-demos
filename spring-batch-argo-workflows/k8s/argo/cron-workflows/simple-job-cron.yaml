@@ -25,17 +25,17 @@ spec:
                 template: trigger-job
               arguments:
                 parameters:
-                  - name: job-name
+                  - name: jobName
                     value: simpleJob
                   - name: params
-                    value: '{"period": "MINUTELY_5", "params": {"message": "Hello World!", "count": 10} }'
+                    value: '{"period": "MINUTELY_1", "params": {"message": "Hello World!", "count": 10} }'
             - name: poll
               depends: trigger
-              when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"
+              when: "{{tasks.trigger.outputs.result}} =~ STARTING"
               templateRef:
                 name: batch-common
                 template: poll-job-completion
               arguments:
                 parameters:
-                  - name: execution-id
-                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"

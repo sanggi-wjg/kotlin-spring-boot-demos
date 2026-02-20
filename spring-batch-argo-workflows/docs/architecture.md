@@ -282,7 +282,7 @@ flowchart TB
 | 중복 실행           | API 서버 (ExceptionHandler) | Spring → 409, Argo → poll 생략   | Workflow 정상 종료                        |
 | 비즈니스 예외 (chunk) | Spring Batch (Step 내부)    | Batch faultTolerant            | chunk 내부 retry (retryLimit=3)         |
 | Step 최종 실패      | Spring Batch (retry 소진)   | Batch → FAILED, Argo → restart | DAG 분기로 restart                       |
-| Poll 타임아웃       | Argo (poll 단계)            | Argo retryStrategy             | 60회 × 10초 = 10분, 초과 시 Workflow Failed |
+| Poll 타임아웃       | Argo (poll 단계)            | Argo retryStrategy             | 60회 × 15초 = 15분, 초과 시 Workflow Failed |
 | API 서버 500      | API 서버 (예기치 못한 에러)        | Argo retryStrategy             | trigger 8회 재시도 / poll 1회 소모           |
 
 ---
@@ -293,7 +293,7 @@ flowchart TB
 |-------------------------------|--------------------------------------------------------|
 | **batch-common**              | 재사용 WorkflowTemplate. trigger/poll/restart 3개 HTTP 템플릿 |
 | **trigger-job**               | Job 실행 → 202(성공) or 409(중복 스킵)                         |
-| **poll-job-completion**       | 10초 간격 폴링, `retryStrategy`로 polling loop 구현            |
+| **poll-job-completion**       | 15초 간격 폴링, `retryStrategy`로 polling loop 구현            |
 | **restart-job**               | FAILED 시 재시작, 새 executionId 반환                         |
 | **JobOperatorResolver**       | `@HeavyJob` 어노테이션 기반으로 heavy/light 스레드풀 분기             |
 | **concurrencyPolicy: Forbid** | 모든 CronWorkflow에서 이전 실행 중이면 새 실행 건너뜀                   |
