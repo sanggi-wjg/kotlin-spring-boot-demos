@@ -27,8 +27,7 @@ spec:
                   - name: job-name
                     value: failableJob
                   - name: params
-                    value: '{"shouldFail": "true"}'
-
+                    value: '{"period": "MINUTELY_5", "params": {"message": "Hello FailableJob", "shouldFail": "true"} }'
             - name: poll
               depends: trigger
               when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"
@@ -39,3 +38,26 @@ spec:
                 parameters:
                   - name: execution-id
                     value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+
+            # FAILED인 경우에만 재시작
+            - name: restart
+              depends: poll
+              when: "'{{tasks.poll.outputs.parameters.status}}' == 'FAILED'"
+              templateRef:
+                name: batch-common
+                template: restart-job
+              arguments:
+                parameters:
+                  - name: execution-id
+                    value: "{{tasks.trigger.outputs.parameters.execution-id}}"
+
+            # 재시작된 Job 완료 대기
+            - name: poll-restarted
+              depends: restart
+              templateRef:
+                name: batch-common
+                template: poll-job-completion
+              arguments:
+                parameters:
+                  - name: execution-id
+                    value: "{{tasks.restart.outputs.parameters.new-execution-id}}"

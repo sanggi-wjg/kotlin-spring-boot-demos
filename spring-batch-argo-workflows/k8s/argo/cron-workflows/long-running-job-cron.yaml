@@ -27,7 +27,7 @@ spec:
                   - name: job-name
                     value: longRunningJob
                   - name: params
-                    value: '{}'
+                    value: '{"period": "MINUTELY_5", "params": {"message": "Hello LongRunningJob"} }'
             - name: poll
               depends: trigger
               when: "{{tasks.trigger.outputs.parameters.status-code}} == 202"

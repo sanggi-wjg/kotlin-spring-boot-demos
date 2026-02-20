@@ -79,6 +79,14 @@ class BatchJobController(
             .filter { it.status == BatchStatus.FAILED }
             .map { it.stepName }
 
+        log.info(
+            "📊 [{}] Job 실행 상태 조회. executionId={}, status={}, failedSteps={}",
+            execution.jobInstance.jobName,
+            executionId,
+            execution.status.name,
+            failedSteps
+        )
+
         return ResponseEntity.ok(
             JobExecutionResponseDto(
                 executionId = execution.id,

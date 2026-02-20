@@ -19,20 +19,24 @@
 
 ---
 
+## Local (optional)
+
+```bash
+cd docker 
+docker-compose up -d
+```
+
 ## Kubernetes
 
 ```shell
-cd docker 
-docker-compose up -d
-
 # build
 ./gradlew build
 docker build . -t sbaw-batch-app:latest
 
 # k3d
 k3d cluster create batch-argo
-k3d image import sbaw-batch-app:latest -c batch-argo 
 kubectl-ctx-switch batch-argo
+k3d image import sbaw-batch-app:latest -c batch-argo 
 
 kubectl apply -f k8s/base/.
 kubectl -n batch port-forward svc/batch-api-server 8080:8080
