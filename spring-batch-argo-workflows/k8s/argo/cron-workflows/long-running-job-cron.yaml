@@ -27,7 +27,7 @@ spec:
                   - name: jobName
                     value: longRunningJob
                   - name: params
-                    value: '{"period": "MINUTELY_5", "params": {"message": "Hello LongRunningJob"} }'
+                    value: '{"period": "MINUTELY_1", "params": {"message": "Hello LongRunningJob"} }'
             - name: poll
               depends: trigger
               when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"

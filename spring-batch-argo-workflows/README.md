@@ -47,18 +47,27 @@ kubectl rollout restart deployment/batch-api-server -n batch
 
 ## Argo Workflows
 
+- https://github.com/argoproj/argo-workflows
 - https://argo-workflows.readthedocs.io/en/latest/quick-start/
 
 ### 설치
+
+(상용은 아래처럼 설치하면 안됨, 공식문서에 방법 나와있음)
 
 ```shell
 brew install argo
 
 kubectl create namespace argo
-kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.7.10/quick-start-minimal.yaml"
+kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.6.19/quick-start-minimal.yaml"
 
 # 삭제
-kubectl delete -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.7.10/quick-start-minimal.yaml"
+kubectl delete -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.6.19/quick-start-minimal.yaml"
+
+# https://github.com/argoproj/argo-workflows/issues/9195
+kubectl get clusterrole argo-cluster-role -o yaml | grep -A 10 workflowtasksets
+kubectl patch clusterrole argo-cluster-role --type='json' -p='[
+    {"op": "add", "path": "/rules/3/resources/-", "value": "workflowtasksets/status"}
+  ]'
 ```
 
 ### 워크플로우
@@ -72,6 +81,7 @@ kubectl apply -f k8s/argo/cron-workflows/.
 
 kubectl apply -f k8s/argo/cron-workflows/simple-job-cron.yaml
 kubectl apply -f k8s/argo/cron-workflows/failable-job-cron.yaml
+kubectl apply -f k8s/argo/cron-workflows/long-running-job-cron.yaml
 
 argo cron list -n batch
 

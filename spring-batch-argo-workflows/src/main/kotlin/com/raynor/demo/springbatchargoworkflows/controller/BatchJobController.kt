@@ -16,12 +16,7 @@ import org.springframework.batch.core.launch.JobExecutionNotRunningException
 import org.springframework.batch.core.repository.JobRepository
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/batch")
@@ -78,7 +73,6 @@ class BatchJobController(
         val failedSteps = execution.stepExecutions
             .filter { it.status == BatchStatus.FAILED }
             .map { it.stepName }
-
         log.info(
             "📊 [{}] Job 실행 상태 조회. executionId={}, status={}, failedSteps={}",
             execution.jobInstance.jobName,
@@ -87,19 +81,19 @@ class BatchJobController(
             failedSteps
         )
 
-        val dto = JobExecutionResponseDto(
-            executionId = execution.id,
-            jobName = execution.jobInstance.jobName,
-            status = execution.status.name,
-            exitCode = execution.exitStatus.exitCode,
-            exitDescription = execution.exitStatus.exitDescription,
-            startTime = execution.startTime,
-            endTime = execution.endTime,
-            failedSteps = failedSteps,
-        )
-
         val httpStatus = if (execution.isRunning) HttpStatus.ACCEPTED else HttpStatus.OK
-        return ResponseEntity.status(httpStatus).body(dto)
+        return ResponseEntity.status(httpStatus).body(
+            JobExecutionResponseDto(
+                executionId = execution.id,
+                jobName = execution.jobInstance.jobName,
+                status = execution.status.name,
+                exitCode = execution.exitStatus.exitCode,
+                exitDescription = execution.exitStatus.exitDescription,
+                startTime = execution.startTime,
+                endTime = execution.endTime,
+                failedSteps = failedSteps,
+            )
+        )
     }
 
     @PostMapping("/jobs/executions/{executionId}/stop")
