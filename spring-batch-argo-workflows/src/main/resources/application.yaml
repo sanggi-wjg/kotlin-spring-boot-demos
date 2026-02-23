@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: spring-batch-argo-workflows
+
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: ${DATABASE_URL:jdbc:mysql://localhost:10001/demo}
+      username: ${DATABASE_USER:general_user}
+      password: ${DATABASE_PASSWORD:passw0rd}
+      maximum-pool-size: 20
+      validation-timeout: 1000
+      connection-timeout: 2000
+      keepalive-time: 30000
+      max-lifetime: 600000
+      pool-name: sbaw-pool
+
+  lifecycle:
+    timeout-per-shutdown-phase: 300s
+
+server:
+  port: 8080
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

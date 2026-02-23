@@ -1,0 +1,36 @@
+### Health
+GET http://localhost:8080/actuator/health
+
+### 등록된 배치 Job 목록 조회
+GET http://localhost:8080/api/batch/jobs
+
+### Job 실행
+POST http://localhost:8080/api/batch/jobs/simpleJob
+Content-Type: application/json
+
+{
+  "period": "MINUTELY_1",
+  "params": {
+    "abc": "123"
+  }
+}
+
+### Job 실행
+POST http://localhost:8080/api/batch/jobs/longRunningJob
+Content-Type: application/json
+
+{
+  "period": "MINUTELY_15",
+  "params": {
+    "abc": "123"
+  }
+}
+
+### 실행 상태 조회
+GET http://localhost:8080/api/batch/jobs/executions/6
+
+### 실행 중인 Job 중지
+POST http://localhost:8080/api/batch/jobs/executions/1/stop
+
+### 실패한 Job 재시작
+POST http://localhost:8080/api/batch/jobs/executions/1/restart

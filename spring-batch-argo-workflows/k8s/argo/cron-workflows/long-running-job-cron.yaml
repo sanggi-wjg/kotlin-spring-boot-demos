@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: long-running-job-cron
+  namespace: batch
+  labels:
+    workflows.argoproj.io/type: batch-job
+spec:
+  schedules:
+    - "*/10 * * * *"
+  timezone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  workflowSpec:
+    entrypoint: run-long-running-job
+    templates:
+      - name: run-long-running-job
+        dag:
+          tasks:
+            - name: trigger
+              templateRef:
+                name: batch-common
+                template: trigger-job
+              arguments:
+                parameters:
+                  - name: jobName
+                    value: longRunningJob
+                  - name: params
+                    value: '{"period": "MINUTELY_1", "params": {"message": "Hello LongRunningJob"} }'
+            - name: poll
+              depends: trigger
+              when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"
+              templateRef:
+                name: batch-common
+                template: long-poll-job-completion
+              arguments:
+                parameters:
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"

@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+# https://argo-workflows.readthedocs.io/en/latest/cron-workflows/
+metadata:
+  name: simple-job-cron
+  namespace: batch
+  labels:
+    workflows.argoproj.io/type: batch-job
+spec:
+  schedules:
+    - "*/2 * * * *"
+  timezone: UTC
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  workflowSpec:
+    entrypoint: run-simple-job
+    templates:
+      - name: run-simple-job
+        dag:
+          tasks:
+            - name: trigger
+              templateRef:
+                name: batch-common
+                template: trigger-job
+              arguments:
+                parameters:
+                  - name: jobName
+                    value: simpleJob
+                  - name: params
+                    value: '{"period": "MINUTELY_1", "params": {"message": "Hello World!", "count": 10} }'
+            - name: poll
+              depends: trigger
+              when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"
+              templateRef:
+                name: batch-common
+                template: poll-job-completion
+              arguments:
+                parameters:
+                  - name: executionId
+                    value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"

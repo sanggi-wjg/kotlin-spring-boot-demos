@@ -1,0 +1,232 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init-sql
+  namespace: batch
+data:
+  init.sql: |
+    -- Spring Batch 6 MySQL Schema
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_INSTANCE
+    (
+        JOB_INSTANCE_ID BIGINT       NOT NULL PRIMARY KEY,
+        VERSION         BIGINT,
+        JOB_NAME        VARCHAR(100) NOT NULL,
+        JOB_KEY         VARCHAR(32)  NOT NULL,
+        constraint JOB_INST_UN unique (JOB_NAME, JOB_KEY)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION
+    (
+        JOB_EXECUTION_ID BIGINT      NOT NULL PRIMARY KEY,
+        VERSION          BIGINT,
+        JOB_INSTANCE_ID  BIGINT      NOT NULL,
+        CREATE_TIME      DATETIME(6) NOT NULL,
+        START_TIME       DATETIME(6) DEFAULT NULL,
+        END_TIME         DATETIME(6) DEFAULT NULL,
+        STATUS           VARCHAR(10),
+        EXIT_CODE        VARCHAR(2500),
+        EXIT_MESSAGE     VARCHAR(2500),
+        LAST_UPDATED     DATETIME(6),
+        constraint JOB_INST_EXEC_FK foreign key (JOB_INSTANCE_ID)
+            references BATCH_JOB_INSTANCE (JOB_INSTANCE_ID)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION_PARAMS
+    (
+        JOB_EXECUTION_ID BIGINT       NOT NULL,
+        PARAMETER_NAME   VARCHAR(100) NOT NULL,
+        PARAMETER_TYPE   VARCHAR(100) NOT NULL,
+        PARAMETER_VALUE  VARCHAR(2500),
+        IDENTIFYING      CHAR(1)      NOT NULL,
+        constraint JOB_EXEC_PARAMS_FK foreign key (JOB_EXECUTION_ID)
+            references BATCH_JOB_EXECUTION (JOB_EXECUTION_ID)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_STEP_EXECUTION
+    (
+        STEP_EXECUTION_ID  BIGINT       NOT NULL PRIMARY KEY,
+        VERSION            BIGINT       NOT NULL,
+        STEP_NAME          VARCHAR(100) NOT NULL,
+        JOB_EXECUTION_ID   BIGINT       NOT NULL,
+        CREATE_TIME        DATETIME(6)  NOT NULL,
+        START_TIME         DATETIME(6) DEFAULT NULL,
+        END_TIME           DATETIME(6) DEFAULT NULL,
+        STATUS             VARCHAR(10),
+        COMMIT_COUNT       BIGINT,
+        READ_COUNT         BIGINT,
+        FILTER_COUNT       BIGINT,
+        WRITE_COUNT        BIGINT,
+        READ_SKIP_COUNT    BIGINT,
+        WRITE_SKIP_COUNT   BIGINT,
+        PROCESS_SKIP_COUNT BIGINT,
+        ROLLBACK_COUNT     BIGINT,
+        EXIT_CODE          VARCHAR(2500),
+        EXIT_MESSAGE       VARCHAR(2500),
+        LAST_UPDATED       DATETIME(6),
+        constraint JOB_EXEC_STEP_FK foreign key (JOB_EXECUTION_ID)
+            references BATCH_JOB_EXECUTION (JOB_EXECUTION_ID)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_STEP_EXECUTION_CONTEXT
+    (
+        STEP_EXECUTION_ID  BIGINT        NOT NULL PRIMARY KEY,
+        SHORT_CONTEXT      VARCHAR(2500) NOT NULL,
+        SERIALIZED_CONTEXT TEXT,
+        constraint STEP_EXEC_CTX_FK foreign key (STEP_EXECUTION_ID)
+            references BATCH_STEP_EXECUTION (STEP_EXECUTION_ID)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION_CONTEXT
+    (
+        JOB_EXECUTION_ID   BIGINT        NOT NULL PRIMARY KEY,
+        SHORT_CONTEXT      VARCHAR(2500) NOT NULL,
+        SERIALIZED_CONTEXT TEXT,
+        constraint JOB_EXEC_CTX_FK foreign key (JOB_EXECUTION_ID)
+            references BATCH_JOB_EXECUTION (JOB_EXECUTION_ID)
+    ) ENGINE = InnoDB;
+
+    CREATE TABLE IF NOT EXISTS BATCH_STEP_EXECUTION_SEQ
+    (
+        ID         BIGINT  NOT NULL,
+        UNIQUE_KEY CHAR(1) NOT NULL,
+        constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    ) ENGINE = InnoDB;
+
+    INSERT INTO BATCH_STEP_EXECUTION_SEQ (ID, UNIQUE_KEY)
+    SELECT * FROM (SELECT 0 AS ID, '0' AS UNIQUE_KEY) AS tmp
+    WHERE NOT EXISTS(SELECT * FROM BATCH_STEP_EXECUTION_SEQ);
+
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_EXECUTION_SEQ
+    (
+        ID         BIGINT  NOT NULL,
+        UNIQUE_KEY CHAR(1) NOT NULL,
+        constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    ) ENGINE = InnoDB;
+
+    INSERT INTO BATCH_JOB_EXECUTION_SEQ (ID, UNIQUE_KEY)
+    SELECT * FROM (SELECT 0 AS ID, '0' AS UNIQUE_KEY) AS tmp
+    WHERE NOT EXISTS(SELECT * FROM BATCH_JOB_EXECUTION_SEQ);
+
+    CREATE TABLE IF NOT EXISTS BATCH_JOB_INSTANCE_SEQ
+    (
+        ID         BIGINT  NOT NULL,
+        UNIQUE_KEY CHAR(1) NOT NULL,
+        constraint UNIQUE_KEY_UN unique (UNIQUE_KEY)
+    ) ENGINE = InnoDB;
+
+    INSERT INTO BATCH_JOB_INSTANCE_SEQ (ID, UNIQUE_KEY)
+    SELECT * FROM (SELECT 0 AS ID, '0' AS UNIQUE_KEY) AS tmp
+    WHERE NOT EXISTS(SELECT * FROM BATCH_JOB_INSTANCE_SEQ);
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysql-secret
+  namespace: batch
+type: Opaque
+stringData:
+  MYSQL_ROOT_PASSWORD: rootroot
+  MYSQL_PASSWORD: passw0rd
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: batch
+  labels:
+    app: mysql
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: mysql
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: batch
+  labels:
+    app: mysql
+spec:
+  serviceName: mysql
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              value: demo
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+            - name: MYSQL_USER
+              value: general_user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: MYSQL_PASSWORD
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            exec:
+              command:
+                - mysql
+                - -u
+                - general_user
+                - -ppassw0rd
+                - -e
+                - SELECT 1
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -u
+                - root
+                - -prootroot
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+      volumes:
+        - name: init-sql
+          configMap:
+            name: mysql-init-sql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
