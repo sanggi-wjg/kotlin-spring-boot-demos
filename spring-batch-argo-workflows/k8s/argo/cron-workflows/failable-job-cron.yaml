@@ -18,6 +18,7 @@ spec:
       - name: run-failable-job
         dag:
           tasks:
+            # Trigger Job
             - name: trigger
               templateRef:
                 name: batch-common
@@ -28,6 +29,7 @@ spec:
                     value: failableJob
                   - name: params
                     value: '{"period": "MINUTELY_5", "params": {"message": "Hello FailableJob", "shouldFail": "true"} }'
+            # Poll Job Completion
             - name: poll
               depends: trigger
               when: "{{= jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTING' || jsonpath(tasks.trigger.outputs.result, '$.status') == 'STARTED' }}"
@@ -38,7 +40,6 @@ spec:
                 parameters:
                   - name: executionId
                     value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"
-
             # FAILED인 경우에만 재시작
             - name: restart
               depends: poll
@@ -50,10 +51,9 @@ spec:
                 parameters:
                   - name: executionId
                     value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"
-
             # 재시작된 Job 완료 대기
             - name: poll-restarted
-              depends: restart
+              depends: restart.Succeeded
               templateRef:
                 name: batch-common
                 template: poll-job-completion

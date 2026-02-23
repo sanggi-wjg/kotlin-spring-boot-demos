@@ -19,7 +19,7 @@ spec:
           - name: params
             default: "{}"
       retryStrategy: # https://argo-workflows.readthedocs.io/en/latest/retries/
-        limit: "100" # maxDuration 설정으로 시간 초과시 무시됨
+        limit: "100" # maxDuration 설정으로 재시도 시간이 maxDuration 시간을 초과한다면 무시되는 설정이다.
         backoff: # https://raw.githubusercontent.com/argoproj/argo-workflows/main/examples/retry-backoff.yaml
           duration: "10s" # 초기 대기 시간
           factor: 1 # 배수
@@ -35,7 +35,7 @@ spec:
         successCondition: "response.statusCode == 202 || response.statusCode == 409"
     # ──────────────────────────────────────────────
     # poll-job-completion: GET /api/batch/jobs/executions/{id}
-    # - COMPLETED 또는 FAILED가 될 때까지 15초 간격 폴링
+    # - COMPLETED 또는 FAILED가 될 때까지 10초 간격 폴링
     # - successCondition 미충족 시 retryStrategy가 재시도
     #   → 사실상 polling loop 역할
     # ──────────────────────────────────────────────
@@ -58,7 +58,7 @@ spec:
     # ──────────────────────────────────────────────
     # long-poll-job-completion: GET /api/batch/jobs/executions/{id}
     # - 장시간 Job 전용 (최대 2시간)
-    # - 30초 간격으로 최대 240회 폴링
+    # - 30초 간격 폴링 (최대 2시간)
     # 오래 걸리는 잡 전용
     # ──────────────────────────────────────────────
     - name: long-poll-job-completion

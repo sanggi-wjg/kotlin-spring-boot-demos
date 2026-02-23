@@ -17,7 +17,7 @@
 │  │  ┌──────────────┐  ┌────────────────────┐  ┌──────────────┐     │    │
 │  │  │ trigger-job  │  │ poll-job-completion│  │ restart-job  │     │    │
 │  │  │ POST /jobs/* │  │ GET /executions/*  │  │ POST restart │     │    │
-│  │  │ retry: 8     │  │ retry: 60 (poll)   │  │ retry: 3     │     │    │
+│  │  │ 10s/max 2m   │  │ 10s/max 15m (poll) │  │ 10s/max 2m   │     │    │
 │  │  └──────────────┘  └────────────────────┘  └──────────────┘     │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                            │  HTTP                                      │
@@ -29,7 +29,7 @@
 │  ┌─────────────────────────────────────────────────────────────────┐    │
 │  │                    BatchJobController                           │    │
 │  │  POST /api/batch/jobs/{jobName}         → 202 (launch)          │    │
-│  │  GET  /api/batch/jobs/executions/{id}   → 200 (status)          │    │
+│  │  GET  /api/batch/jobs/executions/{id}   → 202/200 (status)      │    │
 │  │  POST /api/batch/jobs/executions/{id}/stop    → 200             │    │
 │  │  POST /api/batch/jobs/executions/{id}/restart → 200             │    │
 │  └──────────────────────────┬──────────────────────────────────────┘    │
@@ -114,13 +114,13 @@ sequenceDiagram
 
     rect rgb(230, 245, 255)
         Note right of Argo: Argo 레이어 — poll-job-completion
-        loop 15초 간격 폴링 (최대 60회, 최대 15분)
+        loop 10초 간격 폴링 (maxDuration 15분)
             Argo ->>+ API: GET /api/batch/jobs/executions/{id}
-            API -->>- Argo: {status: "STARTED"}
+            API -->>- Argo: 202 {status: "STARTED"}
             Note over Argo: successCondition 미충족 → retry
         end
         Argo ->>+ API: GET /api/batch/jobs/executions/{id}
-        API -->>- Argo: {status: "COMPLETED"}
+        API -->>- Argo: 200 {status: "COMPLETED"}
     end
 
     Note over Argo: Workflow 성공 종료
@@ -164,15 +164,15 @@ sequenceDiagram
 
     rect rgb(230, 245, 255)
         Note right of Argo: Argo 레이어 — poll-restarted
-        loop 15초 간격 폴링
+        loop 10초 간격 폴링
             Argo ->>+ API: GET /api/batch/jobs/executions/{newId}
-            API -->>- Argo: {status: "STARTED"}
+            API -->>- Argo: 202 {status: "STARTED"}
         end
         Argo ->>+ API: GET /api/batch/jobs/executions/{newId}
-        API -->>- Argo: {status: "COMPLETED"}
+        API -->>- Argo: 200 {status: "COMPLETED"}
     end
 
-    Note over Argo: Workflow 성공 종료
+    Note over Argo: Workflow 성공 종료![img.png](img.png)
 ```
 
 ### C. 네트워크/인프라 장애 (trigger 실패 → Argo 재시도)
@@ -184,17 +184,17 @@ sequenceDiagram
     Note over Argo: CronWorkflow 스케줄 트리거
 
     rect rgb(255, 230, 230)
-        Note right of Argo: Argo 레이어 — retryStrategy (backoff 5s×2, max 30s, limit 8)
+        Note right of Argo: Argo 레이어 — retryStrategy (10s 간격, maxDuration 2m)
         Argo ->> API: POST /api/batch/jobs/{jobName}
         API --x Argo: Connection Refused (Pod 미응답)
-        Note over Argo: successCondition 미충족 → 5초 후 재시도 (factor 적용)
-        Argo ->> API: POST (재시도 1/8)
+        Note over Argo: successCondition 미충족 → 10초 후 재시도
+        Argo ->> API: POST (재시도)
         API --x Argo: Timeout
         Note over Argo: 10초 후 재시도
-        Argo ->> API: POST (재시도 2/8)
+        Argo ->> API: POST (재시도)
         API --x Argo: Timeout
-        Note over Argo: 20초 후 재시도
-        Argo ->>+ API: POST (재시도 3/8)
+        Note over Argo: 10초 후 재시도
+        Argo ->>+ API: POST (재시도)
         Note over API: Pod 복구됨
         API -->>- Argo: 202 Accepted {executionId}
     end
@@ -235,9 +235,9 @@ sequenceDiagram
 flowchart TB
     subgraph argo["Argo Workflows (스케줄러/오케스트레이션)"]
         cron["CronWorkflow<br/>스케줄 트리거"]
-        trigger["trigger-job<br/>POST /jobs/*<br/>retry: 8회, backoff 5s×2 (max 30s)"]
-        poll["poll-job-completion<br/>GET /executions/*<br/>retry: 60회 × 15초"]
-        restart["restart-job<br/>POST /restart<br/>retry: 3회"]
+        trigger["trigger-job<br/>POST /jobs/*<br/>10s 간격, maxDuration 2m"]
+        poll["poll-job-completion<br/>GET /executions/*<br/>10s 간격, maxDuration 15m"]
+        restart["restart-job<br/>POST /restart<br/>10s 간격, maxDuration 2m"]
         poll2["poll-restarted<br/>GET /executions/*"]
         cron --> trigger
         trigger -->|" 202 "| poll
@@ -276,14 +276,14 @@ flowchart TB
 
 ### 레이어별 재시도/장애 전달 요약표
 
-| 장애 유형           | 발생 위치                     | 처리 주체                          | 동작                                    |
-|-----------------|---------------------------|--------------------------------|---------------------------------------|
-| 네트워크 장애         | Argo → API 서버 (trigger)   | Argo retryStrategy             | 최대 8회, backoff 5s×2 (max 30s, ~185s)  |
-| 중복 실행           | API 서버 (ExceptionHandler) | Spring → 409, Argo → poll 생략   | Workflow 정상 종료                        |
-| 비즈니스 예외 (chunk) | Spring Batch (Step 내부)    | Batch faultTolerant            | chunk 내부 retry (retryLimit=3)         |
-| Step 최종 실패      | Spring Batch (retry 소진)   | Batch → FAILED, Argo → restart | DAG 분기로 restart                       |
-| Poll 타임아웃       | Argo (poll 단계)            | Argo retryStrategy             | 60회 × 15초 = 15분, 초과 시 Workflow Failed |
-| API 서버 500      | API 서버 (예기치 못한 에러)        | Argo retryStrategy             | trigger 8회 재시도 / poll 1회 소모           |
+| 장애 유형           | 발생 위치                     | 처리 주체                          | 동작                                           |
+|-----------------|---------------------------|--------------------------------|----------------------------------------------|
+| 네트워크 장애         | Argo → API 서버 (trigger)   | Argo retryStrategy             | 10s 간격, maxDuration 2m 내 재시도                 |
+| 중복 실행           | API 서버 (ExceptionHandler) | Spring → 409, Argo → poll 생략   | Workflow 정상 종료                               |
+| 비즈니스 예외 (chunk) | Spring Batch (Step 내부)    | Batch faultTolerant            | chunk 내부 retry (retryLimit=3)                |
+| Step 최종 실패      | Spring Batch (retry 소진)   | Batch → FAILED, Argo → restart | DAG 분기로 restart                              |
+| Poll 타임아웃       | Argo (poll 단계)            | Argo retryStrategy             | 10s 간격, maxDuration 15분 초과 시 Workflow Failed |
+| API 서버 500      | API 서버 (예기치 못한 에러)        | Argo retryStrategy             | 각 템플릿의 maxDuration 내 재시도                     |
 
 ---
 
@@ -293,17 +293,17 @@ flowchart TB
 |-------------------------------|--------------------------------------------------------|
 | **batch-common**              | 재사용 WorkflowTemplate. trigger/poll/restart 3개 HTTP 템플릿 |
 | **trigger-job**               | Job 실행 → 202(성공) or 409(중복 스킵)                         |
-| **poll-job-completion**       | 15초 간격 폴링, `retryStrategy`로 polling loop 구현            |
+| **poll-job-completion**       | 10초 간격 폴링, `retryStrategy`로 polling loop 구현            |
 | **restart-job**               | FAILED 시 재시작, 새 executionId 반환                         |
 | **JobOperatorResolver**       | `@HeavyJob` 어노테이션 기반으로 heavy/light 스레드풀 분기             |
 | **concurrencyPolicy: Forbid** | 모든 CronWorkflow에서 이전 실행 중이면 새 실행 건너뜀                   |
 
 ## API 엔드포인트
 
-| Method | Path                                      | 응답  | 설명            |
-|--------|-------------------------------------------|-----|---------------|
-| GET    | `/api/batch/jobs`                         | 200 | 등록된 Job 목록 조회 |
-| POST   | `/api/batch/jobs/{jobName}`               | 202 | Job 비동기 실행    |
-| GET    | `/api/batch/jobs/executions/{id}`         | 200 | 실행 상태 조회      |
-| POST   | `/api/batch/jobs/executions/{id}/stop`    | 200 | 실행 중지 요청      |
-| POST   | `/api/batch/jobs/executions/{id}/restart` | 200 | 실패한 Job 재시작   |
+| Method | Path                                      | 응답      | 설명                          |
+|--------|-------------------------------------------|---------|-----------------------------|
+| GET    | `/api/batch/jobs`                         | 200     | 등록된 Job 목록 조회               |
+| POST   | `/api/batch/jobs/{jobName}`               | 202     | Job 비동기 실행                  |
+| GET    | `/api/batch/jobs/executions/{id}`         | 202/200 | 실행 상태 조회 (실행 중 202, 완료 200) |
+| POST   | `/api/batch/jobs/executions/{id}/stop`    | 200     | 실행 중지 요청                    |
+| POST   | `/api/batch/jobs/executions/{id}/restart` | 200     | 실패한 Job 재시작                 |

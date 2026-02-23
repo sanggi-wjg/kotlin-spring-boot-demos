@@ -63,6 +63,7 @@ kubectl apply -n argo -f "https://github.com/argoproj/argo-workflows/releases/do
 # 삭제
 kubectl delete -n argo -f "https://github.com/argoproj/argo-workflows/releases/download/v3.6.19/quick-start-minimal.yaml"
 
+# 권한 관련해서 이슈가 있는듯?
 # https://github.com/argoproj/argo-workflows/issues/9195
 kubectl get clusterrole argo-cluster-role -o yaml | grep -A 10 workflowtasksets
 kubectl patch clusterrole argo-cluster-role --type='json' -p='[
