@@ -10,8 +10,6 @@ spec:
     # ──────────────────────────────────────────────
     # trigger-job: POST /api/batch/jobs/{jobName}
     # - Job을 비동기 실행하고 executionId를 반환
-    # - 네트워크/서버 오류 시 최대 8회 재시도 (Pod 재기동 ~1분 대응)
-    # - 재시도 타임라인: 5s → 10s → 20s → 30s → 30s → 30s → 30s → 30s (총 ~185s)
     # 팟 재기동까지 고려하여 분단위로 재시도 하도록
     # ──────────────────────────────────────────────
     - name: trigger-job
@@ -21,11 +19,11 @@ spec:
           - name: params
             default: "{}"
       retryStrategy: # https://argo-workflows.readthedocs.io/en/latest/retries/
-        limit: "8"
+        limit: "100" # maxDuration 설정으로 시간 초과시 무시됨
         backoff: # https://raw.githubusercontent.com/argoproj/argo-workflows/main/examples/retry-backoff.yaml
-          duration: "5s" # 초기 대기 시간
-          factor: 2 # 배수 (5s → 10s → 20s → 30s cap)
-          maxDuration: "30s" # 최대 대기시간
+          duration: "10s" # 초기 대기 시간
+          factor: 1 # 배수
+          maxDuration: "2m" # 최대 대기시간
         retryPolicy: Always
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/{{inputs.parameters.jobName}}"
@@ -46,11 +44,11 @@ spec:
         parameters:
           - name: executionId
       retryStrategy:
-        limit: "60" # 15분
+        limit: "100"
         backoff:
-          duration: "15s"
+          duration: "10s"
           factor: 1
-          maxDuration: "15s"
+          maxDuration: "15m"
         retryPolicy: Always
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
@@ -69,11 +67,11 @@ spec:
           - name: executionId
       retryStrategy:
         retryPolicy: Always
-        limit: "240"
+        limit: "100"
         backoff:
           duration: "30s"
           factor: 1
-          maxDuration: "30s"
+          maxDuration: "2h"
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
@@ -89,11 +87,11 @@ spec:
         parameters:
           - name: executionId
       retryStrategy:
-        limit: "8"
+        limit: "100"
         backoff:
-          duration: "5s"
-          factor: 2
-          maxDuration: "30s"
+          duration: "10s"
+          factor: 1
+          maxDuration: "2m"
         retryPolicy: Always
       http:
         url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}/restart"
