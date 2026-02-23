@@ -15,6 +15,7 @@ spec:
       labels:
         app: batch-api-server
     spec:
+      terminationGracePeriodSeconds: 350
       containers:
         - name: batch-api-server
           image: sbaw-batch-app:latest
