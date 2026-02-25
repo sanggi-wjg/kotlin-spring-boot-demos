@@ -1,10 +1,7 @@
 package com.raynor.demo.springbatchargoworkflows.controller
 
 import com.raynor.demo.springbatchargoworkflows.config.JobOperatorResolver
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobExecutionResponseDto
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobLaunchRequestDto
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobLaunchResponseDto
-import com.raynor.demo.springbatchargoworkflows.controller.dto.JobRestartResponseDto
+import com.raynor.demo.springbatchargoworkflows.controller.dto.*
 import com.raynor.demo.springbatchargoworkflows.exceptions.JobExecutionNotFoundException
 import com.raynor.demo.springbatchargoworkflows.exceptions.JobExecutionStillRunningException
 import com.raynor.demo.springbatchargoworkflows.exceptions.JobNotFoundException
@@ -49,10 +46,9 @@ class BatchJobController(
                 }
             }
             .toJobParameters()
-        log.info("🚀 [{}] Job 실행 요청. parameters={}", jobName, jobParameters)
-
         val operator = jobOperatorResolver.resolve(jobName)
         val execution = operator.start(job, jobParameters)
+        log.info("🚀 [{}] Job 실행 요청. parameters={}", jobName, jobParameters)
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(
             JobLaunchResponseDto(
@@ -99,7 +95,7 @@ class BatchJobController(
     @PostMapping("/jobs/executions/{executionId}/stop")
     fun stopExecution(
         @PathVariable executionId: Long,
-    ): ResponseEntity<Map<String, String>> {
+    ): ResponseEntity<JobStopResponseDto> {
         val execution = jobRepository.getJobExecution(executionId)
             ?: throw JobExecutionNotFoundException(executionId)
 
@@ -111,7 +107,13 @@ class BatchJobController(
         operator.stop(execution)
         log.info("🛑 [{}] Job 중지 요청. executionId={}", execution.jobInstance.jobName, executionId)
 
-        return ResponseEntity.ok(mapOf("message" to "Stop requested for execution $executionId"))
+        return ResponseEntity.ok(
+            JobStopResponseDto(
+                executionId = execution.id,
+                jobName = execution.jobInstance.jobName,
+                status = execution.status.name,
+            )
+        )
     }
 
     @PostMapping("/jobs/executions/{executionId}/restart")

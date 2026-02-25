@@ -19,6 +19,12 @@ data class JobExecutionResponseDto(
     val failedSteps: List<String>,
 )
 
+data class JobStopResponseDto(
+    val executionId: Long,
+    val jobName: String,
+    val status: String,
+)
+
 data class JobRestartResponseDto(
     val originalExecutionId: Long,
     val newExecutionId: Long,
