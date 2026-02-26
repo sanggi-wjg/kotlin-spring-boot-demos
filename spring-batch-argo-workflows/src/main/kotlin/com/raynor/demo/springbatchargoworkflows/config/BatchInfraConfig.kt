@@ -22,6 +22,7 @@ class BatchInfraConfig {
     companion object {
         const val JOB_EXECUTOR_HEAVY = "heavyTaskExecutor"
         const val JOB_EXECUTOR_LIGHT = "lightTaskExecutor"
+        const val LOCAL_CHUNK_EXECUTOR = "localChunkExecutor"
 
         const val JOB_OPERATOR_HEAVY = "heavyJobOperator"
         const val JOB_OPERATOR_LIGHT = "lightJobOperator"
@@ -49,6 +50,19 @@ class BatchInfraConfig {
             setWaitForTasksToCompleteOnShutdown(true)
             setAwaitTerminationSeconds(300)
             setThreadNamePrefix("light-")
+            setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
+        }
+    }
+
+    @Bean(LOCAL_CHUNK_EXECUTOR)
+    fun localChunkTaskExecutor(): ThreadPoolTaskExecutor {
+        return ThreadPoolTaskExecutor().apply {
+            corePoolSize = 5
+            maxPoolSize = 5
+            queueCapacity = 0
+            setWaitForTasksToCompleteOnShutdown(true)
+            setAwaitTerminationSeconds(300)
+            setThreadNamePrefix("async-")
             setRejectedExecutionHandler(ThreadPoolExecutor.CallerRunsPolicy())
         }
     }

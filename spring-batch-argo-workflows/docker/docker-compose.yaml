@@ -12,6 +12,7 @@ services:
       MYSQL_PASSWORD: passw0rd
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./my.cnf:/etc/mysql/my.cnf
     deploy:
       resources:
         limits:

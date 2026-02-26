@@ -22,9 +22,18 @@ Content-Type: application/json
 {
   "period": "MINUTELY_15",
   "params": {
-    "abc": "123"
+    "abc": "def"
   }
 }
+
+### Job 실행
+POST http://localhost:8080/api/batch/jobs/localChunkJob
+Content-Type: application/json
+
+{
+  "period": "MINUTELY_1"
+}
+
 
 ### 실행 상태 조회
 GET http://localhost:8080/api/batch/jobs/executions/6
