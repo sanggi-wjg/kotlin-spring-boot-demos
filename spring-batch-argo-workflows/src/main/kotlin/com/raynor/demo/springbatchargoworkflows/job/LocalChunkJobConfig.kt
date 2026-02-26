@@ -38,7 +38,7 @@ class LocalChunkJobConfig(
         const val READER_NAME = "${JOB_NAME}Reader"
         const val WRITER_NAME = "${JOB_NAME}Writer"
         const val CHUNK_PROCESSOR_NAME = "${JOB_NAME}ChunkProcessor"
-        const val CHUNK_SIZE = 50
+        const val CHUNK_SIZE = 10
     }
 
     @HeavyJob
@@ -93,8 +93,8 @@ class LocalChunkJobConfig(
         return ChunkProcessor { chunk, contribution ->
             transactionTemplate.executeWithoutResult { transactionStatus ->
                 try {
-                    Thread.sleep(1000)
                     logger.info("Writing {}", chunk.items.map { it })
+                    Thread.sleep(5_000)
 
                     contribution.incrementWriteCount(chunk.size().toLong())
                     contribution.exitStatus = ExitStatus.COMPLETED

@@ -58,8 +58,8 @@ class BatchInfraConfig {
     fun localChunkTaskExecutor(): ThreadPoolTaskExecutor {
         return ThreadPoolTaskExecutor().apply {
             corePoolSize = 5
-            maxPoolSize = 5
-            queueCapacity = 0
+            maxPoolSize = 10
+            queueCapacity = 20
             setWaitForTasksToCompleteOnShutdown(true)
             setAwaitTerminationSeconds(300)
             setThreadNamePrefix("async-")
