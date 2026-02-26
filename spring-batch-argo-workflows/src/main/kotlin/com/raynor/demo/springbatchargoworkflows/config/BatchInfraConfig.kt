@@ -59,7 +59,7 @@ class BatchInfraConfig {
         return ThreadPoolTaskExecutor().apply {
             corePoolSize = 5
             maxPoolSize = 10
-            queueCapacity = 20
+            queueCapacity = 0
             setWaitForTasksToCompleteOnShutdown(true)
             setAwaitTerminationSeconds(300)
             setThreadNamePrefix("async-")
