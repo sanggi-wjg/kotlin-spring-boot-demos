@@ -14,6 +14,7 @@ spec:
   failedJobsHistoryLimit: 5
   workflowSpec:
     entrypoint: run-long-running-job
+    onExit: exit-handler
     templates:
       - name: run-long-running-job
         dag:
@@ -38,3 +39,16 @@ spec:
                 parameters:
                   - name: executionId
                     value: "{{=jsonpath(tasks.trigger.outputs.result, '$.executionId')}}"
+
+      - name: exit-handler
+        steps:
+          - - name: notify
+              templateRef:
+                name: batch-common
+                template: notify-slack-on-failure
+              arguments:
+                parameters:
+                  - name: workflowName
+                    value: "{{workflow.name}}"
+                  - name: workflowStatus
+                    value: "{{workflow.status}}"

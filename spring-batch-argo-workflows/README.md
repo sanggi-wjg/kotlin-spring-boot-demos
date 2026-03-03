@@ -52,7 +52,7 @@ kubectl rollout restart deployment/batch-api-server -n batch
 
 ### 설치
 
-(상용은 아래처럼 설치하면 안됨, 공식문서에 방법 나와있음)
+(상용은 아래처럼 quick-start로 설치하면 안됨, 공식 문서 페이지에 상용 설치 방법 정리 되어 있으니 해당 문서 확인 필요)
 
 ```shell
 brew install argo

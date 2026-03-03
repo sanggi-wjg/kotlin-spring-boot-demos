@@ -14,6 +14,7 @@ spec:
   failedJobsHistoryLimit: 5
   workflowSpec:
     entrypoint: run-failable-job
+    onExit: exit-handler
     templates:
       - name: run-failable-job
         dag:
@@ -61,3 +62,16 @@ spec:
                 parameters:
                   - name: executionId
                     value: "{{=jsonpath(tasks.restart.outputs.result, '$.newExecutionId')}}"
+
+      - name: exit-handler
+        steps:
+          - - name: notify
+              templateRef:
+                name: batch-common
+                template: notify-slack-on-failure
+              arguments:
+                parameters:
+                  - name: workflowName
+                    value: "{{workflow.name}}"
+                  - name: workflowStatus
+                    value: "{{workflow.status}}"

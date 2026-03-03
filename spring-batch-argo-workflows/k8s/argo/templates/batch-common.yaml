@@ -4,13 +4,14 @@ metadata:
   name: batch-common
   namespace: batch
   labels:
-    app.kubernetes.io/part-of: spring-batch-argo-workflows
+    app.kubernetes.io/part-of: mall-v4-batch
 spec:
   templates:
     # ──────────────────────────────────────────────
-    # trigger-job: POST /api/batch/jobs/{jobName}
-    # - Job을 비동기 실행하고 executionId를 반환
-    # 팟 재기동까지 고려하여 분단위로 재시도 하도록
+    # https://argo-workflows.readthedocs.io/en/latest/http-template/
+    # trigger-job: POST /api/v1/batch/jobs/{jobName}
+    # - Job을 API 호출하고 API에서 받은 executionId를 반환
+    # - 팟 전체 다운 및 재기동까지 고려하여 최대 2분 까지 재시도
     # ──────────────────────────────────────────────
     - name: trigger-job
       inputs:
@@ -26,20 +27,20 @@ spec:
           maxDuration: "2m" # 최대 대기시간
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/{{inputs.parameters.jobName}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/v1/batch/jobs/{{inputs.parameters.jobName}}"
         method: POST
         headers:
           - name: Content-Type
             value: application/json
         body: "{{inputs.parameters.params}}"
         successCondition: "response.statusCode == 202 || response.statusCode == 409"
+
     # ──────────────────────────────────────────────
-    # poll-job-completion: GET /api/batch/jobs/executions/{id}
-    # - COMPLETED 또는 FAILED가 될 때까지 10초 간격 폴링
-    # - successCondition 미충족 시 retryStrategy가 재시도
-    #   → 사실상 polling loop 역할
+    # poll-job-until-done: GET /api/v1/batch/jobs/executions/{id}
+    # - 10초 간격 폴링, 최대 15분
+    # - 실행 완료(200) 시 성공 (COMPLETED/FAILED 무관)
     # ──────────────────────────────────────────────
-    - name: poll-job-completion
+    - name: poll-job-until-done
       inputs:
         parameters:
           - name: executionId
@@ -51,17 +52,16 @@ spec:
           maxDuration: "15m"
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/v1/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
         successCondition: "response.statusCode == 200"
 
     # ──────────────────────────────────────────────
-    # long-poll-job-completion: GET /api/batch/jobs/executions/{id}
-    # - 장시간 Job 전용 (최대 2시간)
-    # - 30초 간격 폴링 (최대 2시간)
-    # 오래 걸리는 잡 전용
+    # long-poll-job-until-done: GET /api/v1/batch/jobs/executions/{id}
+    # - 30초 간격 폴링, 최대 3시간
+    # - 장시간 Job 전용
     # ──────────────────────────────────────────────
-    - name: long-poll-job-completion
+    - name: long-poll-job-until-done
       inputs:
         parameters:
           - name: executionId
@@ -71,15 +71,76 @@ spec:
         backoff:
           duration: "30s"
           factor: 1
-          maxDuration: "2h"
+          maxDuration: "3h"
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/v1/batch/jobs/executions/{{inputs.parameters.executionId}}"
         method: GET
         successCondition: "response.statusCode == 200"
-        # https://sourcegraph.com/github.com/argoproj/argo-workflows/-/blob/examples/http-success-condition.yaml
 
     # ──────────────────────────────────────────────
-    # restart-job: POST /api/batch/jobs/executions/{id}/restart
+    # verify-job-result: Job 실행 결과 검증
+    # - COMPLETED 상태일 때만 성공
+    # - FAILED 등 다른 상태는 즉시 실패 처리
+    # ──────────────────────────────────────────────
+    - name: verify-job-result
+      inputs:
+        parameters:
+          - name: executionId
+      http:
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/v1/batch/jobs/executions/{{inputs.parameters.executionId}}"
+        method: GET
+        successCondition: "response.statusCode == 200 && response.body contains \"COMPLETED\""
+
+    # ──────────────────────────────────────────────
+    # poll-job-completion: Job 완료까지 폴링 + 결과 검증
+    # - poll-job-until-done으로 실행 완료를 대기한 뒤
+    #   verify-job-result로 COMPLETED 여부를 검증
+    # - FAILED 시 즉시 워크플로우 실패 처리
+    # ──────────────────────────────────────────────
+    - name: poll-job-completion
+      inputs:
+        parameters:
+          - name: executionId
+      steps:
+        - - name: poll
+            template: poll-job-until-done
+            arguments:
+              parameters:
+                - name: executionId
+                  value: "{{inputs.parameters.executionId}}"
+        - - name: verify
+            template: verify-job-result
+            arguments:
+              parameters:
+                - name: executionId
+                  value: "{{inputs.parameters.executionId}}"
+
+    # ──────────────────────────────────────────────
+    # long-poll-job-completion: 장시간 Job 완료까지 폴링 + 결과 검증
+    # - long-poll-job-until-done으로 실행 완료를 대기한 뒤
+    #   verify-job-result로 COMPLETED 여부를 검증
+    # - FAILED 시 즉시 워크플로우 실패 처리
+    # ──────────────────────────────────────────────
+    - name: long-poll-job-completion
+      inputs:
+        parameters:
+          - name: executionId
+      steps:
+        - - name: poll
+            template: long-poll-job-until-done
+            arguments:
+              parameters:
+                - name: executionId
+                  value: "{{inputs.parameters.executionId}}"
+        - - name: verify
+            template: verify-job-result
+            arguments:
+              parameters:
+                - name: executionId
+                  value: "{{inputs.parameters.executionId}}"
+
+    # ──────────────────────────────────────────────
+    # restart-job: POST /api/v1/batch/jobs/executions/{id}/restart
     # - 실패한 Job을 재시작하고 새 executionId를 반환
     # ──────────────────────────────────────────────
     - name: restart-job
@@ -94,6 +155,39 @@ spec:
           maxDuration: "2m"
         retryPolicy: Always
       http:
-        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/batch/jobs/executions/{{inputs.parameters.executionId}}/restart"
+        url: "http://batch-api-server.batch.svc.cluster.local:8080/api/v1/batch/jobs/executions/{{inputs.parameters.executionId}}/restart"
         method: POST
-        successCondition: "response.statusCode == 200"
+        successCondition: "response.statusCode == 200 || response.statusCode == 409"
+
+    # ──────────────────────────────────────────────
+    # notify-slack-on-failure: 워크플로우 실패 시 Slack Webhook 알림 전송
+    # - onExit handler에서 호출
+    # - 워크플로우 상태가 Succeeded가 아닐 때만 전송
+    # - when 조건은 step 레벨에서만 동작하므로 steps 템플릿으로 감싸서 처리
+    # ──────────────────────────────────────────────
+    - name: notify-slack-on-failure
+      inputs:
+        parameters:
+          - name: workflowName
+          - name: workflowStatus
+      steps:
+        - - name: send
+            when: "{{inputs.parameters.workflowStatus}} != Succeeded"
+            template: send-slack-on-failure
+            arguments:
+              parameters:
+                - name: workflowName
+                  value: "{{inputs.parameters.workflowName}}"
+                - name: workflowStatus
+                  value: "{{inputs.parameters.workflowStatus}}"
+
+    - name: send-slack-on-failure
+      inputs:
+        parameters:
+          - name: workflowName
+          - name: workflowStatus
+      container:
+        image: alpine:3.19
+        command: [echo]
+        args:
+          - "🚨 *[Batch 실패]* {{inputs.parameters.workflowName}} (status: {{inputs.parameters.workflowStatus}})"

@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/batch")
+@RequestMapping("/api/v1/batch")
 class BatchJobController(
     private val jobs: Map<String, Job>,
     private val jobRepository: JobRepository,
