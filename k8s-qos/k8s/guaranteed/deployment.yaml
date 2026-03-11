@@ -6,7 +6,7 @@ metadata:
   labels:
     app: qos-guaranteed
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: qos-guaranteed
@@ -27,10 +27,10 @@ spec:
           resources:
             requests:
               cpu: 500m
-              memory: 2048Mi
+              memory: 1024Mi
             limits:
               cpu: 500m
-              memory: 2048Mi
+              memory: 1024Mi
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

@@ -7,8 +7,10 @@ GET http://localhost:8201/actuator/health
 ### Prometheus Metrics
 GET http://localhost:8201/actuator/prometheus
 
-### Stress OOM (1MB chunks, 100ms delay)
-GET http://localhost:8201/stress/oom?sizeInMB=1&delayMs=100
+##########################################
+
+### Stress OOM (1MB chunks, 500ms delay)
+GET http://localhost:8211/stress/oom?sizeInMB=1&delayMs=500
 
 ### Clear Memory
-GET http://localhost:8201/stress/clear
+GET http://localhost:8205/stress/clear
