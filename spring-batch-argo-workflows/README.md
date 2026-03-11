@@ -35,7 +35,7 @@ docker build . -t sbaw-batch-app:latest
 
 # k3d
 k3d cluster create batch-argo
-kubectl-ctx-switch batch-argo
+kubectx k3d-batch-argo
 k3d image import sbaw-batch-app:latest -c batch-argo 
 
 kubectl apply -f k8s/base/.

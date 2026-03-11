@@ -1,0 +1,48 @@
+### Health Check
+GET http://localhost:8201/iam
+
+### Actuator Health
+GET http://localhost:8201/actuator/health
+
+### Prometheus Metrics
+GET http://localhost:8201/actuator/prometheus
+
+##########################################
+
+### Stress
+GET http://localhost:8201/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8202/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8203/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8204/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8210/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8211/stress/oom?sizeInMB=1&delayMs=500
+
+##########################################
+
+### Clear Memory
+GET http://localhost:8201/stress/clear
+
+### Clear Memory
+GET http://localhost:8202/stress/clear
+
+### Clear Memory
+GET http://localhost:8203/stress/clear
+
+### Clear Memory
+GET http://localhost:8204/stress/clear
+
+### Clear Memory
+GET http://localhost:8210/stress/clear
+
+### Clear Memory
+GET http://localhost:8211/stress/clear
