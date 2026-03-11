@@ -9,8 +9,40 @@ GET http://localhost:8201/actuator/prometheus
 
 ##########################################
 
-### Stress OOM (1MB chunks, 500ms delay)
+### Stress
+GET http://localhost:8201/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8202/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8203/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8204/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
+GET http://localhost:8210/stress/oom?sizeInMB=1&delayMs=500
+
+### Stress
 GET http://localhost:8211/stress/oom?sizeInMB=1&delayMs=500
 
+##########################################
+
 ### Clear Memory
-GET http://localhost:8205/stress/clear
+GET http://localhost:8201/stress/clear
+
+### Clear Memory
+GET http://localhost:8202/stress/clear
+
+### Clear Memory
+GET http://localhost:8203/stress/clear
+
+### Clear Memory
+GET http://localhost:8204/stress/clear
+
+### Clear Memory
+GET http://localhost:8210/stress/clear
+
+### Clear Memory
+GET http://localhost:8211/stress/clear

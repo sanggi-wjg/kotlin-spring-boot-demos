@@ -40,7 +40,7 @@ kubectl port-forward -n qos-demo qos-burstable-7dcb64bb8b-v5qbm 8204:8080
 kubectl port-forward -n qos-demo qos-guaranteed-7895bcb76c-4l9q5 8210:8080
 kubectl port-forward -n qos-demo qos-guaranteed-7895bcb76c-rllfd 8211:8080
 
-kubectl port-forward -n qos-demo prometheus 9090:9090
+kubectl port-forward -n qos-demo svc/prometheus 9090:9090
 kubectl port-forward -n qos-demo svc/grafana 3000:3000
 ```
 
@@ -50,10 +50,3 @@ kubectl port-forward -n qos-demo svc/grafana 3000:3000
 2. prometheus datasource 생성 `http://prometheus:9090` (자동 설정 되어 있음)
 3. 대시보드 생성
     - https://grafana.com/grafana/dashboards/4701-jvm-micrometer/
-
-
-## Stress
-
-```sh
-GET http://localhost:8080/stress/oom?sizeInMB=1&delayMs=100
-```

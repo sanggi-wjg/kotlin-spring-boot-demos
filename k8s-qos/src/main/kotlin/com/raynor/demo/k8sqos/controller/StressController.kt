@@ -12,16 +12,20 @@ class StressController {
 
     private val allocatedChunks: MutableList<ByteArray> = mutableListOf()
 
+    @Volatile
+    private var running = false
+
     @GetMapping("/oom")
     fun heapOom(
-        @RequestParam(defaultValue = "10") sizeInMB: Int,
+        @RequestParam(defaultValue = "1") sizeInMB: Int,
         @RequestParam(defaultValue = "100") delayMs: Long,
     ): String {
+        running = true
         val chunkSize = sizeInMB * 1024 * 1024
         var count = 0
 
         try {
-            while (true) {
+            while (running) {
                 allocatedChunks.add(ByteArray(chunkSize))
                 count++
                 Thread.sleep(delayMs)
@@ -29,10 +33,13 @@ class StressController {
         } catch (e: OutOfMemoryError) {
             return "OOM after allocating $count chunks (${count * sizeInMB} MB). Total held: ${allocatedChunks.size} chunks"
         }
+
+        return "Stopped after allocating $count chunks (${count * sizeInMB} MB)"
     }
 
     @GetMapping("/clear")
     fun clear(): String {
+        running = false
         val count = allocatedChunks.size
         allocatedChunks.clear()
         System.gc()

@@ -11,13 +11,51 @@ data:
     scrape_configs:
       - job_name: 'spring-boot'
         metrics_path: '/actuator/prometheus'
-        static_configs:
-          - targets: ['qos-guaranteed:8080']
-            labels:
-              group: 'spring-boot-application'
-          - targets: ['qos-burstable:8080']
-            labels:
-              group: 'spring-boot-application'
+        kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - qos-demo
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            regex: qos-(guaranteed|burstable)
+            action: keep
+          - source_labels: [__meta_kubernetes_pod_label_app]
+            target_label: app
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__address__]
+            regex: (.+):.*
+            replacement: ${1}:8080
+            target_label: __address__
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: qos-demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: qos-demo
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -36,6 +74,7 @@ spec:
       labels:
         app: prometheus
     spec:
+      serviceAccountName: prometheus
       containers:
         - name: prometheus
           image: prom/prometheus:latest
