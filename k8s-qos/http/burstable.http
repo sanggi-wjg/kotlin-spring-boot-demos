@@ -1,14 +1,14 @@
 ### Health Check
-GET http://localhost:8201/iam
+GET http://localhost:8202/iam
 
 ### Actuator Health
-GET http://localhost:8201/actuator/health
+GET http://localhost:8202/actuator/health
 
 ### Prometheus Metrics
-GET http://localhost:8201/actuator/prometheus
+GET http://localhost:8202/actuator/prometheus
 
 ### Stress OOM (1MB chunks, 100ms delay)
-GET http://localhost:8201/stress/oom?sizeInMB=1&delayMs=100
+GET http://localhost:8202/stress/oom?sizeInMB=1&delayMs=100
 
 ### Clear Memory
-GET http://localhost:8201/stress/clear
+GET http://localhost:8202/stress/clear
