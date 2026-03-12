@@ -6,7 +6,7 @@ metadata:
   labels:
     app: qos-burstable
 spec:
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels:
       app: qos-burstable
@@ -30,7 +30,7 @@ spec:
               memory: 128Mi
             limits:
               cpu: 500m
-              memory: 1024Mi
+              memory: 2048Mi
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness

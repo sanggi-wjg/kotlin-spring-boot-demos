@@ -1,5 +1,5 @@
 ### Health Check
-GET http://localhost:8201/iam
+GET http://localhost:8210/iam
 
 ### Actuator Health
 GET http://localhost:8201/actuator/health
@@ -7,42 +7,22 @@ GET http://localhost:8201/actuator/health
 ### Prometheus Metrics
 GET http://localhost:8201/actuator/prometheus
 
-##########################################
+###############################################################
 
-### Stress
-GET http://localhost:8201/stress/oom?sizeInMB=1&delayMs=500
+### Heap Stress
+GET http://localhost:8210/stress/heap?sizeInMB=1&delayMs=100&repeat=100
 
-### Stress
-GET http://localhost:8202/stress/oom?sizeInMB=1&delayMs=500
+### Direct Stress
+GET http://localhost:8211/stress/direct?sizeInMB=1&delayMs=100&repeat=100
 
-### Stress
-GET http://localhost:8203/stress/oom?sizeInMB=1&delayMs=500
+### Native Stress
+GET http://localhost:8212/stress/native?sizeInMB=1&delayMs=100&repeat=100
 
-### Stress
-GET http://localhost:8204/stress/oom?sizeInMB=1&delayMs=500
-
-### Stress
-GET http://localhost:8210/stress/oom?sizeInMB=1&delayMs=500
-
-### Stress
-GET http://localhost:8211/stress/oom?sizeInMB=1&delayMs=500
-
-##########################################
-
-### Clear Memory
-GET http://localhost:8201/stress/clear
-
-### Clear Memory
-GET http://localhost:8202/stress/clear
-
-### Clear Memory
-GET http://localhost:8203/stress/clear
-
-### Clear Memory
-GET http://localhost:8204/stress/clear
-
-### Clear Memory
+### Clear - Pod
 GET http://localhost:8210/stress/clear
 
-### Clear Memory
+### Clear - Pod
 GET http://localhost:8211/stress/clear
+
+### Clear - Pod
+GET http://localhost:8212/stress/clear
