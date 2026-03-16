@@ -19,7 +19,7 @@
 
 ---
 
-## Local (optional)
+## Local
 
 ```bash
 cd docker 
