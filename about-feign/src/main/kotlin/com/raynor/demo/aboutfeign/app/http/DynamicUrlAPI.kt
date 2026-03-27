@@ -4,11 +4,8 @@ import org.springframework.cloud.openfeign.FeignClient
 import org.springframework.web.bind.annotation.GetMapping
 import java.net.URI
 
-@FeignClient(name = "dynamicUrlClient", url = "USE_DYNAMIC_URL_HERE")
+@FeignClient(name = "dynamicUrlAPI", url = "USE_DYNAMIC_URL_HERE")
 interface DynamicUrlAPI {
-
     @GetMapping
-    fun getSomething(
-        uri: URI
-    ): Any
+    fun getSomething(uri: URI): Any
 }
