@@ -1,7 +1,7 @@
 plugins {
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
-    id("org.springframework.boot") version "3.3.2"
+    id("org.springframework.boot") version "3.5.12"
     id("io.spring.dependency-management") version "1.1.6"
 }
 
@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2023.0.3"
+extra["springCloudVersion"] = "2025.0.1"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -32,9 +32,9 @@ dependencies {
 }
 
 dependencyManagement {
-  imports {
-    mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-  }
+    imports {
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+    }
 }
 
 kotlin {

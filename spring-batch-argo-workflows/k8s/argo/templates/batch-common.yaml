@@ -67,7 +67,7 @@ spec:
           - name: executionId
       retryStrategy:
         retryPolicy: Always
-        limit: "100"
+        limit: "360"
         backoff:
           duration: "30s"
           factor: 1
