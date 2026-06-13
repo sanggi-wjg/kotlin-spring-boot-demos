@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: batch-bulk-excel
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate # 스키마는 Flyway 가 소유. Hibernate 는 엔티티-스키마 일치 검증만
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_batch_fetch_size: 100
+
+storage:
+  local:
+    base-dir: ./.local-storage
+  datasource:
+    core:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:10000/batch_bulk_excel
+      username: batch
+      password: batch1234
+      maximum-pool-size: 10
+      connection-timeout: 1100
+      keepalive-time: 30000
+      validation-timeout: 1000
+      max-lifetime: 600000
+      pool-name: core-db-pool
+      data-source-properties:
+        allowPublicKeyRetrieval: true
+        useSSL: false
+        socketTimeout: 3000
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+        useLocalSessionState: true
+        rewriteBatchedStatements: true
+        cacheResultSetMetadata: true
+        cacheServerConfiguration: true
+        elideSetAutoCommits: true
+        maintainTimeStats: false
+
+app:
+  excel:
+    import:
+      max-file-size: 10MB
+      allowed-extension: xlsx
