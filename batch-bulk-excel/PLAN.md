@@ -7,30 +7,30 @@
 
 ## 1. 핵심 설계 결정 (확정 사항)
 
-| 항목             | 결정                                                                      | 비고                                                                                           |
-|----------------|-------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
-| 엑셀 라이브러리       | **FastExcel**                                                           | streaming read/write, xlsx 단일 포맷                                                             |
-| 파일 포맷          | `.xlsx`, 시트 1개, 컬럼 ~10개                                                 | 일반 케이스                                                                                       |
-| 처리 엔진          | **Spring Batch** chunk-oriented processing                              | 청크 단위 트랜잭션                                                                                   |
-| 잡 트리거          | **Argo Workflow 가정**, batch의 동기 트리거 엔드포인트 호출                            | Argo 자체는 본 프로젝트 범위 밖, 수동 호출로 검증                                                              |
-| 모듈 분리          | shared / producer / storage:rds / storage:file / api / batch / consumer | batch가 별도 배포 단위 → OOM 격리                                                                     |
-| 검증 실패 정책       | **부분 커밋**                                                               | 성공 행 적재, 실패 행은 에러 리포트                                                                        |
-| staging / undo | **사용 안 함**                                                              | 복잡도 제거                                                                                       |
-| 익스포트 페이징       | **id 기반 cursor pagination**                                             | `WHERE id > ? ORDER BY id LIMIT N`                                                           |
-| Kafka 역할       | **완료 알림 전용** (`excel.job.completed`)                                    | batch 발행 → consumer 구독 → 메일/Slack                                                            |
-| 결과 조회          | 어드민 페이지 + `GET /excel/jobs/{jobId}`                                     | 상태/결과 조회 API                                                                                 |
-| JVM 힙          | 2~4GB                                                                   | k8s 환경                                                                                       |
-| 데이터베이스         | **MySQL**                                                               | JDBC URL에 `rewriteBatchedStatements=true` 필수                                                 |
-| 스키마 관리         | **Flyway 단일 소스** (`storage:rds`의 `db/migration`)                        | `V1`=`BATCH_*` 메타, `V2`=도메인. 적용은 `batch`만(`api`는 OFF). Hibernate `ddl-auto`=`validate` (3.4) |
-| 파일 저장소         | **로컬 파일 (S3 인터페이스로 추상화)**                                               | 실제 S3/AWS SDK 미사용. S3처럼 보이는 인터페이스 뒤를 로컬 파일로 구현(9절). 추후 실 S3로 교체 가능                           |
-| 재시작 / 멱등성      | **MVP 제외, 후속 작업**                                                       | 13절 참조. 초기엔 재시작 없이 단방향 처리                                                                    |
+| 항목             | 결정                                                           | 비고                                                                                    |
+|----------------|--------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| 엑셀 라이브러리       | **FastExcel**                                                | streaming read/write, xlsx 단일 포맷                                                      |
+| 파일 포맷          | `.xlsx`, 시트 1개, 컬럼 ~10개                                      | 일반 케이스                                                                                |
+| 처리 엔진          | **Spring Batch** chunk-oriented processing                   | 청크 단위 트랜잭션                                                                            |
+| 잡 트리거          | **Argo Workflow 가정**, batch의 동기 트리거 엔드포인트 호출                 | Argo 자체는 본 프로젝트 범위 밖, 수동 호출로 검증                                                       |
+| 프로젝트 구성        | **단일 모듈** (책임은 패키지로 분리: `api`/`batch`/`storage`/`message` …) | 데모 단순화. 메모리 안전은 streaming+chunk(축 A) 중심, 잡 격리는 실행 인스턴스 분리(축 B)                        |
+| 검증 실패 정책       | **부분 커밋**                                                    | 성공 행 적재, 실패 행은 에러 리포트                                                                 |
+| staging / undo | **사용 안 함**                                                   | 복잡도 제거                                                                                |
+| 익스포트 페이징       | **id 기반 cursor pagination**                                  | `WHERE id > ? ORDER BY id LIMIT N`                                                    |
+| Kafka 역할       | **완료 알림 전용** (`excel.job.completed`)                         | batch 발행 → consumer 구독 → 메일/Slack                                                     |
+| 결과 조회          | 어드민 페이지 + `GET /excel/jobs/{jobId}`                          | 상태/결과 조회 API                                                                          |
+| JVM 힙          | 2~4GB                                                        | k8s 환경                                                                                |
+| 데이터베이스         | **MySQL**                                                    | JDBC URL에 `rewriteBatchedStatements=true` 필수                                          |
+| 스키마 관리         | **Flyway 단일 소스** (`src/main/resources/db/migration`)         | `V1`=`BATCH_*` 메타, `V2`=도메인. 단일 앱이라 기동 시 1회 적용. Hibernate `ddl-auto`=`validate` (3.4) |
+| 파일 저장소         | **로컬 파일 (S3 인터페이스로 추상화)**                                    | 실제 S3/AWS SDK 미사용. S3처럼 보이는 인터페이스 뒤를 로컬 파일로 구현(9절). 추후 실 S3로 교체 가능                    |
+| 재시작 / 멱등성      | **MVP 제외, 후속 작업**                                            | 13절 참조. 초기엔 재시작 없이 단방향 처리                                                             |
 
 ### 메모리 안전의 핵심 원리
 
 어떤 아키텍처든 OOM의 진짜 원인은 "엑셀을 통째로 메모리에 올리는 것". 두 축으로 해결한다.
 
 - **(A) 처리 자체의 메모리 상한 고정**: streaming reader/writer + 청크 단위 처리 + DB 룩업은 청크 단위 배치 조회.
-- **(B) 다른 잡과의 격리**: batch를 별도 배포 단위로 분리 + Argo가 잡 단위 리소스/동시성 관리.
+- **(B) 다른 잡과의 격리**: 배치 잡 실행은 별도 실행 인스턴스(동일 아티팩트를 전용 프로파일/Pod로 기동)로 띄워 Argo가 잡 단위 리소스/동시성을 관리한다고 가정. 단일 모듈이지만 실행 단위는 분리 가능.
 
 ---
 
@@ -40,52 +40,53 @@
 [Admin Client]
    │ 업로드 / 상태 조회
    ▼
-[api]  ── 잡 접수 + 상태 조회만. 무거운 작업 없음
-   │  ├─ 파일 → S3
+[REST 접수/조회]  ── 잡 접수 + 상태 조회만. 무거운 작업 없음
+   │  ├─ 파일 → 파일 저장소(S3 추상화)
    │  └─ ExcelRequest 저장 (PENDING) → jobId 반환
    │
    │ (외부 오케스트레이터 = Argo Workflow 가정. 본 프로젝트에서는 구성하지 않고
    │  트리거 엔드포인트를 수동/가정 호출. Argo YAML·재시도 전략 등은 범위 밖.)
    ▼
-[batch]  ── 동기 트리거 엔드포인트: POST /internal/jobs/{jobId}/run (내부 전용)
+[배치 트리거 + Spring Batch Job]  ── 동기 트리거 엔드포인트: POST /internal/jobs/{jobId}/run (내부 전용)
    ├─ ExcelRequest RUNNING 전환
    ├─ Spring Batch Job 실행 (FastExcel + 청크) — 완료까지 동기 처리
    ├─ 결과 정리 → ExcelRequest 업데이트 (SUCCESS/PARTIAL/FAILED)
-   └─ 완료 시 producer로 "excel.job.completed" 발행
+   └─ 완료 시 Kafka 발행 래퍼로 "excel.job.completed" 발행
    ▼
 [Kafka: excel.job.completed]   ── Kafka는 "알림 전용". 가볍고 짧은 메시지.
    ▼
-[consumer]  ── job.completed 구독 → 메일/Slack 알림
+[Kafka 리스너]  ── job.completed 구독 → 메일/Slack 알림
 
 [공유 DB(MySQL)] : 비즈니스 테이블 + Spring Batch 메타 + ExcelRequest
 [S3(추상화)] : 입력 파일 / 익스포트 결과 / 에러 리포트. 본 프로젝트는 실제 S3가 아니라 로컬 파일로 구현
               (S3 형태 인터페이스 뒤를 로컬 파일이 구현). prefix/키 레이아웃·lifecycle은 S3 가정으로 설계만 유지 → 9절
 ```
 
+> 위 컴포넌트는 모두 **단일 모듈(단일 Spring Boot 앱)** 안의 패키지다. 다만 배치 잡 실행은 OOM 격리를 위해
+> 동일 아티팩트를 전용 프로파일로 별도 프로세스로 띄울 수 있다(1절 축 B).
+
 ### 트리거 설계 (Argo 가정)
 
 - 잡 실행 트리거는 외부 오케스트레이터(Argo Workflow)가 batch의 내부 엔드포인트를 호출하는 것으로 **가정**한다. 본 프로젝트에서는 Argo 자체를 구성하지 않고, 엔드포인트만 구현하여 수동 호출(curl/Postman)로 검증한다.
 - 엔드포인트는 **동기**: 잡을 완료까지 실행하고 결과를 반환. Argo step의 완료 대기/재시도/상태추적 모델과 일치. 동기라 Kafka의 `max.poll.interval` 같은 처리시간 제약이 없다.
 - 엔드포인트는 **내부 전용**: 외부 노출 금지(네트워크 정책 또는 내부 인증). 범위상 인증은 단순 토큰/헤더 수준으로 가정.
-- 트리거가 Kafka가 아니므로 **Outbox·이중 쓰기 문제가 발생하지 않는다**(api는 ExcelRequest만 저장). 동시성/재시도/타임아웃은 Argo가 선언적으로 담당한다고 가정.
+- 트리거가 Kafka가 아니므로 **Outbox·이중 쓰기 문제가 발생하지 않는다**(접수 컨트롤러는 ExcelRequest만 저장). 동시성/재시도/타임아웃은 Argo가 선언적으로 담당한다고 가정.
 
-### 모듈 구성 (멀티 모듈)
+### 패키지 구성 (단일 모듈)
 
-의존은 단방향(순환 없음).
+모든 패키지 루트는 `com.raynor.demo.batchbulkexcel`. 패키지 의존은 단방향(순환 없음)을 권장한다.
 
-| 모듈             | 책임                                                    | 의존                                          |
-|----------------|-------------------------------------------------------|---------------------------------------------|
-| `shared`       | `message/event`(이벤트 DTO) 공통 계약                        | —                                           |
-| `producer`     | Kafka 발행 래퍼(KafkaTemplate)                            | shared                                      |
-| `storage:rds`  | JPA(MySQL): ExcelRequest·도메인 엔티티 + repository         | shared                                      |
-| `storage:file` | 파일 저장소 추상화(`FileStorage`) + 로컬 구현(`LocalFileStorage`) | —                                           |
-| `api`          | REST 잡 접수/상태 조회 (ExcelRequest 저장)                     | shared, storage:rds, storage:file           |
-| `batch`        | Spring Batch 잡 + 동기 트리거 엔드포인트 + 완료 시 producer로 발행     | shared, storage:rds, storage:file, producer |
-| `consumer`     | job.completed 구독 + 알림(메일/Slack)                       | shared, producer*                           |
+| 패키지            | 책임                                                    |
+|----------------|-------------------------------------------------------|
+| `message`      | `message/event`(이벤트 DTO) 공통 계약                        |
+| `producer`     | Kafka 발행 래퍼(KafkaTemplate)                            |
+| `storage.rds`  | JPA(MySQL): ExcelRequest·도메인 엔티티 + repository         |
+| `storage.file` | 파일 저장소 추상화(`FileStorage`) + 로컬 구현(`LocalFileStorage`) |
+| `api`          | REST 잡 접수/상태 조회 (ExcelRequest 저장)                     |
+| `batch`        | Spring Batch 잡 + 동기 트리거 엔드포인트 + 완료 시 발행               |
+| `consumer`     | job.completed 구독 + 알림(메일/Slack)                       |
 
-\* consumer는 수신만 하므로 이벤트 DTO가 `shared`에 있어 `shared`만 의존해도 됨. 재발행이 없으면 producer 의존 불필요.
-
-이벤트 DTO 위치: **`shared/message/event`** — 발행자(batch)와 구독자(consumer)의 공유 계약이므로 중립 위치인 shared에 둔다.
+이벤트 DTO 위치: **`message/event`** — 발행자(batch)와 구독자(consumer)가 공유하는 계약이므로 중립 패키지에 둔다.
 
 ---
 
@@ -176,10 +177,10 @@ CREATE TABLE order_item
 
 ### 3.4 Spring Batch 메타 테이블
 
-- **스키마는 Flyway 단일 소스**로 관리한다. 마이그레이션은 엔티티 옆 `storage:rds`의 `src/main/resources/db/migration`에 둔다:
+- **스키마는 Flyway 단일 소스**로 관리한다. 마이그레이션은 `src/main/resources/db/migration`에 둔다:
     - `V1__batch_metadata.sql`: `spring-batch-core`의 `schema-mysql.sql`(Spring Batch 6.0.3) 원본(`BATCH_*` 메타).
     - `V2__domain_tables.sql`: 도메인 테이블(`users`·`excel_request`·`user_mileage`·`user_mileage_history`·`orders`·`order_item`). DDL은 엔티티 매핑과 정확히 일치(`ddl-auto=validate`가 검증).
-- **마이그레이션 적용 주체는 `batch` 모듈만**(`JobRepository`/`JobLauncher`·시드 데이터의 자연스러운 소유자). Flyway는 한 곳에서만 실행해야 충돌이 없으므로 **`api`는 `spring.flyway.enabled=false`** 로 끈다(둘 다 같은 DB를 보지만 적용은 batch 단일화). `storage:rds`는 라이브러리라 스스로 실행되지 않고, 이를 의존하는 앱 기동 시 Flyway 자동설정이 마이그레이션을 적용한다.
+- **단일 앱이므로 앱 기동 시 Flyway 자동설정이 `V1`·`V2`를 1회 적용**한다. (멀티모듈처럼 적용 주체를 한 모듈로 한정할 필요가 없다.)
 - `BATCH_*` 테이블은 **공유 DB(MySQL)에 함께** 둔다. Spring Batch 자동 스키마 초기화는 `spring.batch.jdbc.initialize-schema=never`(Flyway가 소유).
 - JPA 엔티티 테이블은 Hibernate `ddl-auto=validate`(생성 안 함, 일치 검증만). **스키마 변경은 새 `V*` 마이그레이션 추가로 처리** — `docker compose down -v` 불필요.
 
@@ -195,7 +196,7 @@ CREATE TABLE order_item
 | GET    | `/excel/jobs`                | 어드민 목록 (필터: type, status, user, 기간)              | 페이지 목록           |
 | POST   | `/internal/jobs/{jobId}/run` | **트리거(동기)**. Argo/오케스트레이터가 호출, 잡 완료까지 실행 후 결과 반환 | 최종 상태/요약         |
 
-- 접수용 엔드포인트(`/excel/*`)는 `api` 모듈, 트리거 엔드포인트(`/internal/*`)는 `batch` 모듈.
+- 접수/조회 엔드포인트(`/excel/*`)는 `api` 패키지 컨트롤러, 트리거 엔드포인트(`/internal/*`)는 `batch` 패키지 컨트롤러. 단일 앱 내에서 패키지로 분리.
 - 트리거 엔드포인트는 **내부 전용**(외부 노출 금지). 본 프로젝트에서는 수동 호출(curl/Postman)로 검증하며 Argo 자체는 구성하지 않는다.
 - 다운로드 URL은 **조회 시점에 presigned URL 발급(15분 유효)**. ExcelRequest에 영구 URL 저장 금지.
     - 본 프로젝트는 실제 S3를 쓰지 않으므로 presigned URL을 **모사**한다: 로컬 파일을 가리키는 단기 다운로드 URL(또는 파일 경로)을 발급. 인터페이스(`FileStorage`)는 동일하게 두어 실 S3 구현체로 교체 가능(9절).
@@ -206,17 +207,17 @@ CREATE TABLE order_item
 ## 5. 임포트 처리 흐름
 
 ```
-1. 업로드        클라이언트가 xlsx 전송 (api)
-2. 잡 접수        S3 저장 → ExcelRequest(PENDING) → jobId 반환 (api)
-3. 트리거         오케스트레이터(Argo 가정)가 POST /internal/jobs/{jobId}/run 호출 (batch)
-4. 실행 시작      batch가 ExcelRequest RUNNING 전환 → Spring Batch Job 동기 실행
+1. 업로드        클라이언트가 xlsx 전송 (접수)
+2. 잡 접수        S3 저장 → ExcelRequest(PENDING) → jobId 반환 (접수)
+3. 트리거         오케스트레이터(Argo 가정)가 POST /internal/jobs/{jobId}/run 호출 (배치)
+4. 실행 시작      배치가 ExcelRequest RUNNING 전환 → Spring Batch Job 동기 실행
 5. 청크 읽기      FastExcel로 N행씩 스트리밍 read
 6. 행 검증        Processor: 형식/범위/blank 등 단건 검증 (DB 불필요)
 7. 청크 검증+적재  사전 검증(트랜잭션 밖): IN 조회로 존재/잔액 → 통과 행만 Writer 진입.
                  적재(트랜잭션 안): bulk insert + (적립금이면 FOR UPDATE 차감).
                  트랜잭션 안 예외는 Skip 정책으로 흡수
 8. 결과 정리      에러 리포트 xlsx 생성 → S3 업로드 → ExcelRequest SUCCESS/PARTIAL
-9. 완료 통지      producer로 "excel.job.completed" 발행 → consumer가 메일/Slack
+9. 완료 통지      Kafka 발행 래퍼로 "excel.job.completed" 발행 → consumer가 메일/Slack
                  (엔드포인트는 최종 상태를 응답으로 반환 — 호출자가 결과 인지)
 ```
 
@@ -260,13 +261,13 @@ CREATE TABLE order_item
 ## 6. 익스포트 처리 흐름
 
 ```
-1. 잡 접수        조건 검증 → ExcelRequest(PENDING) → jobId 반환 (api)
-2. 트리거         오케스트레이터가 POST /internal/jobs/{jobId}/run 호출 (batch)
+1. 잡 접수        조건 검증 → ExcelRequest(PENDING) → jobId 반환 (접수)
+2. 트리거         오케스트레이터가 POST /internal/jobs/{jobId}/run 호출 (배치)
 3. 실행 시작      RUNNING 전환 → Spring Batch Job 동기 실행
 4. 커서 읽기      JdbcPagingItemReader, id 기준 정렬 (WHERE id > ? ORDER BY id LIMIT N)
 5. 엑셀 쓰기      FastExcel writer로 청크 단위 append
 6. 결과 정리      완성 xlsx S3 업로드 → ExcelRequest SUCCESS
-7. 완료 통지      producer로 "excel.job.completed" 발행 → consumer 알림
+7. 완료 통지      Kafka 발행 래퍼로 "excel.job.completed" 발행 → consumer 알림
 ```
 
 - `JdbcCursorItemReader`(서버 커서, 커넥션 장기 점유) 대신 **`JdbcPagingItemReader`** 사용.
@@ -304,17 +305,17 @@ CREATE TABLE order_item
 
 ### 장애 처리
 
-- 트리거 엔드포인트 실행 중 batch Pod가 죽으면 ExcelRequest가 RUNNING에 잔류.
+- 트리거 엔드포인트 실행 중 배치 프로세스가 죽으면 ExcelRequest가 RUNNING에 잔류.
 - 오케스트레이터(Argo) 재시도가 같은 엔드포인트를 다시 호출하는 것으로 가정하되, MVP에서는 자동 재처리를 하지 않으므로 **운영자가 상태 확인 후 수동 재요청**(파일 재업로드 = 새 jobId)으로 대응.
 
 ---
 
 ## 8. 완료 통지 (Kafka)
 
-- batch가 잡 종료 시 producer를 통해 `excel.job.completed` 발행 (페이로드: jobId, status, requesterId, 요약 통계 — PII/대용량 금지).
-- `consumer` 모듈이 수신 → 메일/Slack 발송.
+- 배치가 잡 종료 시 Kafka 발행 래퍼(`producer` 패키지)를 통해 `excel.job.completed` 발행 (페이로드: jobId, status, requesterId, 요약 통계 — PII/대용량 금지).
+- `consumer` 패키지의 Kafka 리스너가 수신 → 메일/Slack 발송.
 - **본 프로젝트 범위**: 보일러플레이트/스켈레톤이므로 **실제 발송은 하지 않는다**. consumer는 이벤트 수신 → 로그 출력 또는 모킹된 sender 호출까지만. 메일/Slack 클라이언트 통합은 후속. 검증 데이터는 소수면 충분.
-- 실제 발송을 구현하게 되면 수신자 이메일 등은 consumer가 storage:rds에서 requesterId로 조회. (PII를 Kafka 페이로드에 싣지 않기 위함.)
+- 실제 발송을 구현하게 되면 수신자 이메일 등은 consumer가 `storage.rds`에서 requesterId로 조회. (PII를 Kafka 페이로드에 싣지 않기 위함.)
 - Kafka는 이 알림 흐름에만 사용. 메시지가 짧아 컨슈머 처리시간 제약(max.poll.interval) 무관.
 
 ---
@@ -327,7 +328,7 @@ CREATE TABLE order_item
 
 ### 추상화
 
-- `storage:file`에 S3 형태의 인터페이스 `FileStorage`를 둔다(1-7).
+- `storage.file` 패키지에 S3 형태의 인터페이스 `FileStorage`를 둔다(1-7).
     - `store(key, content)` : 키(=경로)에 바이트/스트림 저장.
     - `presignedUrl(key, ttl)` : 다운로드용 단기 URL **발급(모사)**. 로컬 구현은 파일을 가리키는
       단기 다운로드 URL(예: api의 임시 다운로드 엔드포인트) 또는 파일 경로를 반환.
@@ -352,40 +353,40 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
 
 > 원칙: 각 스텝은 **반나절~하루 단위**로 작게 쪼갬. 스텝마다 "완료 기준(DoD)"을 두고, 빌드·테스트 통과 후 다음으로. 앞 스텝의 산출물에만 의존하도록 순서 배치.
 > MVP 범위: 임포트/익스포트 단방향 처리 + 동기 트리거 엔드포인트 + 완료 알림. **Argo 자체 구성·재시작·멱등성·자동 재처리는 제외**(13절 후속). 트리거는 수동 호출로 검증.
-> 모듈: `shared` / `producer` / `storage:rds` / `storage:file` / `api` / `batch` / `consumer`.
+> 패키지: `api` / `batch` / `storage.rds` / `storage.file` / `message` / `producer` / `consumer` (단일 모듈).
 
 ### Phase 0 — 프로젝트 골격 & 로컬 환경
 
-- [x] **0-1** 멀티 모듈 스캐폴딩: `shared`, `producer`, `storage:rds`, `storage:file`, `api`, `batch`, `consumer` 빈 모듈 + 루트 빌드 설정. 모듈 간 의존 방향 설정(순환 금지) *(storage 는 이후 rds/file 로 분리)*
-    - DoD: `./gradlew build` 전 모듈 통과 (빈 모듈)
-- [x] **0-2** 공통 의존성 정리: Spring Boot, Spring Batch, FastExcel, Spring Kafka, JDBC, MySQL 드라이버, AWS S3 SDK 버전 핀 (FastExcel은 Phase 3/4 보류, AWS S3 SDK는 제외 — 로컬 파일)
+- [x] **0-1** 단일 모듈 스캐폴딩: 단일 Spring Boot 앱 + 패키지 골격(`api`, `batch`, `storage`, `message`, `config` …). 패키지 간 의존 방향 설정(순환 금지) *(storage 는 이후 rds/file 로 분리)*
+    - DoD: `./gradlew build` 통과 (빈 골격)
+- [x] **0-2** 공통 의존성 정리: Spring Boot, Spring Batch, FastExcel, Spring Kafka, JDBC, MySQL 드라이버 버전 핀 (FastExcel은 Phase 3/4 보류, AWS S3 SDK는 제외 — 로컬 파일)
     - DoD: 의존성 충돌 없이 컴파일
 - [x] **0-3** 로컬 docker-compose: MySQL 8, Kafka(KRaft)
     - DoD: `docker-compose up` 후 두 컨테이너 헬스체크 통과
     - 파일 저장소는 로컬 파일로 구현하므로 S3/LocalStack 컨테이너는 두지 않는다(9절).
-- [x] **0-4** Flyway 셋업: `storage:rds`에 `spring-boot-starter-flyway` + `flyway-mysql`(Spring Boot 4.0.6 BOM 버전) 추가, `db/migration`에 `V1`(BATCH_*)·`V2`(도메인) 작성. 적용은 `batch`만(`api` OFF), `ddl-auto=validate`. *(데모 간소화로 한 번 제거했다가 재도입 — 스키마 단일 소스화 + 클린 부팅 버그 수정)*
-    - DoD: `docker compose down -v && up` 후 `:batch:bootRun` 시 Flyway 가 V1·V2 적용, `flyway_schema_history`·전 테이블 생성, `validate` 통과
+- [x] **0-4** Flyway 셋업: `spring-boot-starter-flyway` + `flyway-mysql`(Spring Boot 4.0.6 BOM 버전) 추가, `db/migration`에 `V1`(BATCH_*)·`V2`(도메인) 작성. 단일 앱 기동 시 1회 적용, `ddl-auto=validate`. *(데모 간소화로 한 번 제거했다가 재도입 — 스키마 단일 소스화 + 클린 부팅 버그 수정)*
+    - DoD: `docker compose down -v && up` 후 `:bootRun` 시 Flyway 가 V1·V2 적용, `flyway_schema_history`·전 테이블 생성, `validate` 통과
 
-### Phase 1 — 데이터 모델 & 공통 (shared, storage:rds, storage:file)
+### Phase 1 — 데이터 모델 & 공통 (storage.rds, storage.file, message)
 
 - [x] **1-1** Spring Batch 메타 스키마: `schema-mysql.sql`(6.0.3) → Flyway `V1__batch_metadata.sql` 로 `BATCH_*` 생성 (~~docker-compose init.sql~~ 0-4 에서 Flyway 로 이관). (검증: 볼륨 재생성 후 `SHOW TABLES`)
 - [x] **1-2** `excel_request` 테이블: JPA 엔티티 + Flyway `V2` 로 생성, `ddl-auto=validate` 로 검증 (인덱스 `idx_status_created` 포함)
     - DoD: 테이블/인덱스 생성 확인 ✅ (V2 생성 + validate 통과)
 - [x] **1-3** 임포트 예제 도메인 테이블(`users`, `user_mileage`, `user_mileage_history`): JPA 엔티티 + Flyway `V2`(validate)
-- [x] **1-4** 익스포트 예제 도메인 테이블(`orders`, `order_item`) + 시드: batch `ApplicationReadyEvent` 리스너(`ApplicationEventListener`)가 `users`/`user_mileage`/`orders`/`order_item` 을 각 10만으로 top-up. 독립 테이블(`users`·`orders`)은 카운트 후 부족분 `JdbcTemplate.batchUpdate`, 참조 테이블(`user_mileage`·`order_item`)은 `INSERT ... SELECT`(실제 PK 기반, `WHERE NOT EXISTS` 멱등)
+- [x] **1-4** 익스포트 예제 도메인 테이블(`orders`, `order_item`) + 시드: `ApplicationReadyEvent` 리스너(`ApplicationEventListener`)가 `users`/`user_mileage`/`orders`/`order_item` 을 각 10만으로 top-up. 독립 테이블(`users`·`orders`)은 카운트 후 부족분 `JdbcTemplate.batchUpdate`, 참조 테이블(`user_mileage`·`order_item`)은 `INSERT ... SELECT`(실제 PK 기반, `WHERE NOT EXISTS` 멱등)
     - DoD: 각 10만 건 생성 확인 ✅ (재실행 시 멱등 — 중복 없음)
-- [x] **1-5** (storage:rds) `ExcelRequest` 엔티티 + repository + 상태 enum(`ExcelRequestStatus`) + `ExcelRequestType` enum
-- [x] **1-6** (shared) `message/event` 이벤트 DTO: `JobCompletedEvent` data class (jobId/status/requesterId/`Summary`(total·success·failed)). status 는 storage:rds enum 의존을 피해 String
+- [x] **1-5** (storage.rds) `ExcelRequest` 엔티티 + repository + 상태 enum(`ExcelRequestStatus`) + `ExcelRequestType` enum
+- [x] **1-6** (message) `message/event` 이벤트 DTO: `JobCompletedEvent` data class (jobId/status/requesterId/`Summary`(total·success·failed)). status 는 storage.rds enum 의존을 피해 String
     - DoD: 직렬화/역직렬화 단위 테스트 통과 ✅ (`JobCompletedEventTest`, Jackson 3 `jacksonObjectMapper()`)
-- [x] **1-7** (storage:file) 파일 저장소 추상화: S3 형태의 인터페이스(`FileStorage`: `store`, `presignedUrl`) + **로컬 파일 구현체**(`LocalFileStorage`, base-dir 주입). 실제 S3/AWS SDK는 쓰지 않는다(9절)
+- [x] **1-7** (storage.file) 파일 저장소 추상화: S3 형태의 인터페이스(`FileStorage`: `store`, `presignedUrl`) + **로컬 파일 구현체**(`LocalFileStorage`, base-dir 주입). 실제 S3/AWS SDK는 쓰지 않는다(9절)
     - DoD: 테스트에서 로컬 파일로 업로드 후 발급된 (모사) `file://` URL 로 다운로드 성공 ✅ (`LocalFileStorageTest`)
 
-### Phase 2 — 잡 접수 API (api)
+### Phase 2 — 잡 접수 API (api 패키지)
 
 - [x] **2-1** `POST /excel/import`: 파일 사전 검증(확장자, 크기 상한, 시트 수) → S3 업로드 → ExcelRequest(PENDING) → jobId 반환
     - 사전 검증은 **가벼운 수준만**: 확장자/크기는 메타로 확인, 시트 수는 zip 엔트리(`xl/worksheets/`) 개수만 확인하고 셀 데이터는 파싱하지 않음(전체 로딩 금지 원칙 유지). 행 단위 검증은 batch에서.
     - DoD: 통합 테스트로 jobId 반환 + DB/S3 상태 확인 ✅ (`ExcelImportControllerIntegrationTest` — Testcontainers MySQL, PENDING 행+로컬 파일 확인. 단위/서비스: `ExcelFileValidatorTest`·`ExcelImportServiceTest`(Kotest/MockK))
-    - 부수: `storage:file` `FileStorage` 빈 등록(`FileStorageConfig`/`app.storage.local.base-dir`), `ExcelRequestEntity`에 `id` 생성자 파라미터 추가, `storage:rds`를 `java-library`로 전환해 repository(JpaRepository) 전이 노출, 루트에 Kotest/MockK 공통 테스트 의존성 추가
+    - 부수: `storage.file` `FileStorage` 빈 등록(`FileStorageConfig`/`app.storage.local.base-dir`), `ExcelRequestEntity`에 `id` 생성자 파라미터 추가, 루트에 Kotest/MockK 공통 테스트 의존성 추가
 - [x] **2-2** `POST /excel/export`: 파라미터 검증 → ExcelRequest(PENDING) → jobId 반환
     - 필터는 MVP로 **status 단일**(`ExportRequestDto`). 조건을 JSON 직렬화해 `params`에 저장, `EXPORT_ORDER`/`PENDING` 적재 후 201+Location+jobId. 잘못된 status/바디는 `HttpMessageNotReadableException` 핸들러로 400(`ErrorResponseDto`).
     - DoD: 통합 테스트로 jobId 반환 + DB 상태 확인 ✅ (`ExcelExportControllerTest` — `IntegrationTestSpec` 상속, EXPORT_ORDER/PENDING/params 확인. 단위: `ExcelExportServiceTest`(Kotest/MockK, params 직렬화))
@@ -393,11 +394,12 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
     - `ExcelJobQueryService`가 조회→`result_summary` JSON 파싱(`SummaryDto`)→다운로드 키를 조회 시점 presigned 변환. 없는 jobId는 `JobNotFoundException`→404. 현재 데이터는 전부 PENDING이라 summary·downloadUrl은 null이지만 Phase 3/4 대비 구조 완성.
     - DoD: 단건 상태/요약/다운로드URL 응답 ✅ (`ExcelJobControllerTest` 200/404, `ExcelJobQueryServiceTest`(MockK+실제 `LocalFileStorage`) — export/import/PENDING/404 4케이스)
 - [x] **2-4** `GET /excel/jobs`: 어드민 목록(필터: type/status/기간, 페이징)
-    - `ExcelRequestRepository.search`(JPQL `(:param IS NULL OR ...)` 동적 필터) + `Pageable`. 정렬은 **createdAt desc 고정**(MVP). 기간은 `from`/`to` **Instant**(ISO-8601, `InstantFormatter` 기본 바인딩, `createdAt` 양끝 포함). 응답은 `JobListResponseDto`(content/page/size/totalElements/totalPages) — 목록 행(`JobSummaryDto`)은 단건보다 가볍게, 다운로드 URL은 행마다 발급하지 않음. OFFSET 페이징은 잡당 1행짜리 작은 테이블이라 무방(6절 OFFSET 금지는 익스포트 배치 리더 전용).
+    - `ExcelRequestRepository.search`(JPQL `(:param IS NULL OR ...)` 동적 필터) + `Pageable`. 정렬은 **createdAt desc 고정**(MVP). 기간은 `from`/`to` **Instant**(ISO-8601, `InstantFormatter` 기본 바인딩, `createdAt` 양끝 포함). 응답은 `JobListResponseDto`(content/page/size/totalElements/totalPages) — 목록 행(`JobSummaryDto`)은 단건보다 가볍게, 다운로드 URL은 행마다 발급하지 않음. OFFSET 페이징은 잡당 1행짜리 작은
+      테이블이라 무방(6절 OFFSET 금지는 익스포트 배치 리더 전용).
     - **user 필터 보류**: `excel_request`에 사용자 컬럼이 없고 데모에 인증/식별 소스가 없음(YAGNI). 인증 도입 시 `requested_by` 컬럼(V3) + 접수 시 캡처로 확장.
     - DoD: 통합 테스트로 전체/type/status/기간 필터 + 페이징 확인 ✅ (`ExcelJobControllerTest` 7케이스, 단위 `ExcelJobQueryServiceTest`(MockK, 정렬·매핑) +2)
 
-### Phase 3 — 임포트 잡 (batch, 핵심)
+### Phase 3 — 임포트 잡 (batch 패키지, 핵심)
 
 - [ ] **3-1** FastExcel streaming `ItemReader`: S3에서 스트림으로 받아 행 단위 read (전체 로딩 금지)
     - DoD: 50만 건 테스트 파일을 일정 메모리로 읽는 것 확인
@@ -413,7 +415,7 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
 - [ ] **3-7** 잡 완료 후 ExcelRequest 결과 업데이트: SUCCESS/PARTIAL/FAILED + result_summary(total/success/failed) + 에러 리포트가 있으면 `error_report_url` 저장
     - DoD: 부분 실패 케이스가 PARTIAL로 기록 + error_report_url 저장
 
-### Phase 4 — 익스포트 잡 (batch)
+### Phase 4 — 익스포트 잡 (batch 패키지)
 
 - [ ] **4-1** `JdbcPagingItemReader`: id keyset 페이징, `orders`+`order_item` 조인 쿼리 (OFFSET 금지)
     - DoD: 100만 건을 일정 메모리로 읽는 것 확인
@@ -421,7 +423,7 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
 - [ ] **4-3** 완성 xlsx S3 업로드 → `result_file_url` 저장 + ExcelRequest SUCCESS 업데이트
     - DoD: 결과 파일 다운로드해 행 수/내용 검증
 
-### Phase 5 — 트리거 엔드포인트 (batch)
+### Phase 5 — 트리거 엔드포인트 (batch 패키지)
 
 - [ ] **5-1** `POST /internal/jobs/{jobId}/run` 동기 엔드포인트: ExcelRequest 조회 → RUNNING 전환 → excel_request_type → Spring Batch Job 빈 라우팅 → `JobLauncher`로 동기 실행 → 최종 상태 반환
     - excel_request_type → Job 빈 매핑은 `Map<ExcelRequestType, Job>`(Spring이 주입) 또는 빈 이름 규약으로 해결.
@@ -431,10 +433,10 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
 - [ ] **5-3** 엔드포인트 내부 전용 보호: 단순 토큰/헤더 검증(범위상 최소 수준)
 - [ ] **5-4** stale job 처리(선택): `status=RUNNING` + `started_at`이 임계시간 경과한 잡을 FAILED로 마킹하는 수동/스케줄 유틸 (자동 재처리는 13절 후속)
 
-### Phase 6 — 완료 통지 (producer, consumer)
+### Phase 6 — 완료 통지 (producer/consumer 패키지)
 
 - [ ] **6-1** (producer) Kafka 발행 래퍼(KafkaTemplate) — `excel.job.completed` 발행
-- [ ] **6-2** (batch) 잡 종료 시 producer로 `JobCompletedEvent` 발행 연결
+- [ ] **6-2** (batch) 잡 종료 시 발행 래퍼로 `JobCompletedEvent` 발행 연결
 - [ ] **6-3** (consumer) `excel.job.completed` 구독 → **로그 출력 또는 모킹된 sender 호출**(실발송 없음, 스켈레톤)
 - [ ] **6-4** (consumer) 메일/Slack용 sender 인터페이스만 정의해두고 구현체는 stub. 후속 통합 시 교체 가능하도록
     - DoD: 이벤트 수신 로그가 찍히고, sender 인터페이스가 빈 구현으로 호출되는지 확인
@@ -443,26 +445,26 @@ excel/export/output/{yyyy-MM-dd}/{jobId}.xlsx    익스포트 결과
 
 - [ ] **7-1** 50만/100만 건 임포트 메모리 프로파일링(힙 일정 유지 확인)
 - [ ] **7-2** 100만 건 익스포트 메모리/시간 측정
-- [ ] **7-3** OOM 격리 테스트: batch가 큰 잡 처리 중에도 api/consumer 영향 없는지(별도 프로세스 분리 확인)
-- [ ] **7-4** 트리거 실행 중 batch 강제 종료 시 RUNNING 잔류 → 수동 FAILED 처리 확인
+- [ ] **7-3** OOM 격리 테스트: 배치 잡을 별도 프로세스로 띄웠을 때 큰 잡 처리 중에도 api/consumer 영향 없는지(실행 인스턴스 분리 확인)
+- [ ] **7-4** 트리거 실행 중 배치 프로세스 강제 종료 시 RUNNING 잔류 → 수동 FAILED 처리 확인
 - [ ] **7-5** 청크 사이즈 튜닝(1,000~5,000) 비교
 
 ---
 
 ## 11. 주요 리스크 / 체크포인트
 
-| 리스크                         | 대응                                                       |
-|-----------------------------|----------------------------------------------------------|
-| 행 단위 DB 조회 → N+1            | 사전 필터링(3-3)에서 청크 단위 IN 조회 (Writer 트랜잭션 밖)                |
-| bulk insert가 실제 배치 안 됨      | `rewriteBatchedStatements=true`, batch_size 확인           |
-| batch 죽으면 잡이 RUNNING에 영구 잔류 | MVP: 수동 FAILED 처리 + 재요청. 자동 재처리는 13절 후속                  |
-| 재시작 시 중복 적재                 | **MVP 범위 외** — 13절 후속 작업에서 멱등성과 함께 처리                    |
-| 적립금 잔액 부족/음수                | 검증(3-3)에서 차단 + 차감 시점 FOR UPDATE 재확인(3-5). 부분 차감 안 함      |
-| FOR UPDATE 데드락              | 청크 내 user_id 오름차순 정렬 후 락 획득 (전역 락 순서 통일)                 |
-| 익스포트 OFFSET 페이징 성능 저하       | id keyset 페이징                                            |
-| 큰 잡 하나가 메모리 독점              | batch 별도 배포 단위 분리 + 청크 streaming + (Argo 잡 단위 리소스 제한 가정) |
-| 중복 트리거 호출                   | 2단 방어: 진입부 ExcelRequest 상태 체크 + JobParameters(5-2)       |
-| 트리거 엔드포인트 외부 노출             | 내부 전용 + 토큰/헤더 검증(5-3)                                    |
+| 리스크                      | 대응                                                                            |
+|--------------------------|-------------------------------------------------------------------------------|
+| 행 단위 DB 조회 → N+1         | 사전 필터링(3-3)에서 청크 단위 IN 조회 (Writer 트랜잭션 밖)                                     |
+| bulk insert가 실제 배치 안 됨   | `rewriteBatchedStatements=true`, batch_size 확인                                |
+| 배치 죽으면 잡이 RUNNING에 영구 잔류 | MVP: 수동 FAILED 처리 + 재요청. 자동 재처리는 13절 후속                                       |
+| 재시작 시 중복 적재              | **MVP 범위 외** — 13절 후속 작업에서 멱등성과 함께 처리                                         |
+| 적립금 잔액 부족/음수             | 검증(3-3)에서 차단 + 차감 시점 FOR UPDATE 재확인(3-5). 부분 차감 안 함                           |
+| FOR UPDATE 데드락           | 청크 내 user_id 오름차순 정렬 후 락 획득 (전역 락 순서 통일)                                      |
+| 익스포트 OFFSET 페이징 성능 저하    | id keyset 페이징                                                                 |
+| 큰 잡 하나가 메모리 독점           | 배치 잡을 별도 실행 인스턴스로 분리(동일 아티팩트, 전용 프로파일) + 청크 streaming + (Argo 잡 단위 리소스 제한 가정) |
+| 중복 트리거 호출                | 2단 방어: 진입부 ExcelRequest 상태 체크 + JobParameters(5-2)                            |
+| 트리거 엔드포인트 외부 노출          | 내부 전용 + 토큰/헤더 검증(5-3)                                                         |
 
 ---
 
