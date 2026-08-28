@@ -3,7 +3,7 @@ name: springboot-boiler
 services:
   mysql:
     image: mysql:8.0
-    container_name: springboot-boiler-mysql
+    container_name: boiler-mysql
     ports:
       - "6500:3306"
     environment:
