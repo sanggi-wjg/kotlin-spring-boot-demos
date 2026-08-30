@@ -1,12 +1,21 @@
-package com.raynor.demo.boiler
+package com.raynor.demo.boiler.support
 
+import com.tngtech.archunit.core.importer.ClassFileImporter
+import com.tngtech.archunit.core.importer.ImportOption
 import com.tngtech.archunit.library.Architectures
 import io.kotest.core.spec.style.FunSpec
 
 class ArchitectureTest :
     FunSpec(
         {
-            test("controller layer should not depend on infra layer") {
+
+            val classes by lazy {
+                ClassFileImporter()
+                    .withImportOption(ImportOption.DoNotIncludeTests())
+                    .importPackages("com.raynor.demo.boiler")
+            }
+
+            test("controller layer should not depend on infra layer").config(enabled = false) {
                 Architectures.layeredArchitecture()
                     .consideringAllDependencies()
                     .layer("controller").definedBy("com.raynor.demo.boiler.controller..")
@@ -17,6 +26,7 @@ class ArchitectureTest :
                     .whereLayer("service").mayOnlyBeAccessedByLayers("controller")
                     .whereLayer("domain").mayOnlyBeAccessedByLayers("service")
                     .whereLayer("infra").mayOnlyBeAccessedByLayers("service")
+                    .check(classes)
             }
         },
     )

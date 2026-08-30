@@ -34,12 +34,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-mysql")
 
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
     // test containers
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-mysql")
     implementation("com.redis:testcontainers-redis")
@@ -48,6 +49,10 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-extensions-spring:$kotestVersion")
+
+    // mock
+    testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("com.ninja-squad:springmockk:5.0.1")
 
     // archunit
     testImplementation("com.tngtech.archunit:archunit:1.5.0")

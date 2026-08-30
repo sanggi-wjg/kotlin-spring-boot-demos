@@ -1,13 +1,10 @@
 package com.raynor.demo.boiler
 
-import org.junit.jupiter.api.Test
+import io.kotest.core.spec.style.FunSpec
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 
-@Import(TestcontainersConfiguration::class)
 @SpringBootTest
-class BoilerApplicationTests {
-    @Test
-    fun contextLoads() {
-    }
-}
+class BoilerApplicationTests :
+    FunSpec({
+        test("context loads") { }
+    })

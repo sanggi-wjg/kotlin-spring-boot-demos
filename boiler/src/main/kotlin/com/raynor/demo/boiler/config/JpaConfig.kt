@@ -8,5 +8,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement
 @Configuration
 @EnableTransactionManagement
 @EntityScan(basePackages = ["com.raynor.demo.boiler.domain"])
-@EnableJpaRepositories(basePackages = ["com.raynor.demo.boiler.domain"])
+@EnableJpaRepositories(basePackages = ["com.raynor.demo.boiler.repository"])
 class JpaConfig
