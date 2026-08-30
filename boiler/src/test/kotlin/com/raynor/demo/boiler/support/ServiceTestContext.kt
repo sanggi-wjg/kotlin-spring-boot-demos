@@ -18,7 +18,6 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerA
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.transaction.autoconfigure.TransactionAutoConfiguration
 import org.springframework.context.annotation.Import
-import org.springframework.data.jpa.repository.support.Querydsl
 
 @SpringBootTest(
     classes = [
@@ -44,7 +43,7 @@ import org.springframework.data.jpa.repository.support.Querydsl
     ],
 )
 @ApplyExtension(SpringExtension::class)
-open class ServiceTestContext(
+abstract class ServiceTestContext(
     body: FunSpec.() -> Unit = {},
 ) : FunSpec(
         {

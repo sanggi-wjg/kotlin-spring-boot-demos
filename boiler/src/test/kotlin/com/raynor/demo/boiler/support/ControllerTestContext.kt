@@ -1,7 +1,6 @@
 package com.raynor.demo.boiler.support
 
 import com.ninjasquad.springmockk.MockkBean
-import com.raynor.demo.boiler.controller.ProductControllerTest
 import com.raynor.demo.boiler.controller.product.ProductController
 import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Import
 )
 @Import()
 @ApplyExtension(SpringExtension::class)
-open class ControllerTestContext(
+abstract class ControllerTestContext(
     body: FunSpec.() -> Unit = {},
 ) : FunSpec(
         {
