@@ -5,6 +5,7 @@ plugins {
     id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
+    id("com.google.devtools.ksp") version "2.3.11"
 }
 
 group = "com.raynor.demo"
@@ -12,6 +13,7 @@ version = "0.0.1-SNAPSHOT"
 description = "boiler"
 
 val kotestVersion = "6.2.4"
+val querydslVersion = "7.6"
 
 java {
     toolchain {
@@ -33,6 +35,10 @@ dependencies {
     // flyway
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-mysql")
+
+    // querydsl
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:$querydslVersion")
+    ksp("io.github.openfeign.querydsl:querydsl-ksp-codegen:$querydslVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -62,6 +68,10 @@ dependencies {
 
 ktlint {
     version = "1.8.0"
+    filter {
+        // ksp 가 만들어내는 Q 클래스는 린트 대상에서 제외
+        exclude { it.file.path.contains(layout.buildDirectory.get().asFile.path) }
+    }
 }
 
 kotlin {

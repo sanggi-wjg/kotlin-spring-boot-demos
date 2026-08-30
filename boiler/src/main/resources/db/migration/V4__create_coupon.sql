@@ -10,7 +10,11 @@ CREATE TABLE `coupon_scheme`
     using_started_at    DATETIME(6)    NOT NULL COMMENT '사용 시작일',
     using_expired_at    DATETIME(6)    NOT NULL COMMENT '사용 만료일',
     max_issue_count     INT            NOT NULL COMMENT '최대 발급 수량',
-    current_issue_count INT            NOT NULL DEFAULT 0 COMMENT '현재 발급 수량'
+    current_issue_count INT            NOT NULL DEFAULT 0 COMMENT '현재 발급 수량',
+
+    created_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
+    updated_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
+    deleted_at          DATETIME(6)    NULL COMMENT '삭제일'
 
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -26,6 +30,10 @@ CREATE TABLE `coupon`
     expired_at       DATETIME(6) NOT NULL COMMENT '사용 만료일',
     used_at          DATETIME(6) NULL COMMENT '사용일',
     order_id         BIGINT      NULL COMMENT '사용 주문 FK',
+
+    created_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
+    updated_at       DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
+    deleted_at       DATETIME(6) NULL COMMENT '삭제일',
 
     UNIQUE KEY `uq_coupon_001` (`coupon_scheme_id`, `user_id`),
 

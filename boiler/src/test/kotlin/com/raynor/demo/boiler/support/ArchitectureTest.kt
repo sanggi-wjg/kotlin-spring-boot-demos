@@ -15,16 +15,18 @@ class ArchitectureTest :
                     .importPackages("com.raynor.demo.boiler")
             }
 
-            test("controller layer should not depend on infra layer").config(enabled = false) {
+            test("layer dependency") {
                 Architectures.layeredArchitecture()
                     .consideringAllDependencies()
                     .layer("controller").definedBy("com.raynor.demo.boiler.controller..")
                     .layer("service").definedBy("com.raynor.demo.boiler.service..")
+                    .layer("repository").definedBy("com.raynor.demo.boiler.repository..")
                     .layer("domain").definedBy("com.raynor.demo.boiler.domain..")
                     .layer("infra").definedBy("com.raynor.demo.boiler.infra..")
                     .whereLayer("controller").mayNotBeAccessedByAnyLayer()
                     .whereLayer("service").mayOnlyBeAccessedByLayers("controller")
-                    .whereLayer("domain").mayOnlyBeAccessedByLayers("service")
+                    .whereLayer("repository").mayOnlyBeAccessedByLayers("service")
+                    .whereLayer("domain").mayOnlyBeAccessedByLayers("service", "repository")
                     .whereLayer("infra").mayOnlyBeAccessedByLayers("service")
                     .check(classes)
             }

@@ -2,7 +2,8 @@ package com.raynor.demo.boiler.support
 
 import com.raynor.demo.boiler.config.DatabaseConfig
 import com.raynor.demo.boiler.config.JpaConfig
-import com.raynor.demo.boiler.service.ProductService
+import com.raynor.demo.boiler.config.QueryDslConfig
+import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
@@ -17,6 +18,7 @@ import org.springframework.boot.jdbc.autoconfigure.DataSourceTransactionManagerA
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.transaction.autoconfigure.TransactionAutoConfiguration
 import org.springframework.context.annotation.Import
+import org.springframework.data.jpa.repository.support.Querydsl
 
 @SpringBootTest(
     classes = [
@@ -38,6 +40,7 @@ import org.springframework.context.annotation.Import
         TestContainersConfig::class,
         DatabaseConfig::class,
         JpaConfig::class,
+        QueryDslConfig::class,
     ],
 )
 @ApplyExtension(SpringExtension::class)

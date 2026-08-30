@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.transaction.annotation.EnableTransactionManagement
 
 @Configuration
-@EnableTransactionManagement
-@EntityScan(basePackages = ["com.raynor.demo.boiler.domain"])
-@EnableJpaRepositories(basePackages = ["com.raynor.demo.boiler.repository"])
-class JpaConfig
+class QueryDslConfig {
+    @Bean
+    fun jpaQueryFactory(entityManager: EntityManager) = JPAQueryFactory(entityManager)
+}
