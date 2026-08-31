@@ -2,6 +2,7 @@ package com.raynor.demo.boiler.repository
 
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.raynor.demo.boiler.domain.product.Product
+import com.raynor.demo.boiler.domain.product.ProductStatus
 import com.raynor.demo.boiler.domain.product.QProduct
 import org.springframework.data.jpa.repository.JpaRepository
 
@@ -28,6 +29,8 @@ class ProductQueryDslRepositoryImpl(
         return jpaQueryFactory
             .selectFrom(product)
             .where(
+                product.stock.quantity.gt(0),
+                product.status.eq(ProductStatus.ON_SALE),
                 cursorId?.let { product.id.lt(it) },
             )
             .limit(size)

@@ -9,6 +9,7 @@ import jakarta.persistence.*
 open class Product(
     name: String,
     price: Money,
+    status: ProductStatus = ProductStatus.ON_SALE,
     stock: Stock = Stock(0L),
 ) : BaseEntity() {
     @Id
@@ -26,15 +27,20 @@ open class Product(
     var price: Money = price
         protected set
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 64)
+    var status: ProductStatus = status
+        protected set
+
     @Embedded
     var stock: Stock = stock
         protected set
 
     fun getStockStatus(): StockStatus {
-        return stock.getStatus()
+        return this.stock.getStatus()
     }
 
     fun isSale(): Boolean {
-        return getStockStatus() == StockStatus.IN_STOCK
+        return getStockStatus() == StockStatus.IN_STOCK && this.status == ProductStatus.ON_SALE
     }
 }

@@ -3,6 +3,7 @@ CREATE TABLE `product`
     id             INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name           VARCHAR(64)    NOT NULL COMMENT '이름',
     price          DECIMAL(15, 0) NOT NULL COMMENT '가격 (원)',
+    status         VARCHAR(64)    NOT NULL COMMENT '상태',
     stock_quantity BIGINT         NOT NULL DEFAULT 0 COMMENT '재고 수량',
 
     created_at     DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
