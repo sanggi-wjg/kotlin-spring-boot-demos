@@ -8,6 +8,7 @@ data class ProductResponseDto(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
+    val isSoldOut: Boolean,
     val isSale: Boolean,
 ) {
     companion object {
@@ -17,6 +18,7 @@ data class ProductResponseDto(
                 name = model.name,
                 price = model.price,
                 stockQuantity = model.stockQuantity,
+                isSoldOut = model.isSoldOut,
                 isSale = model.isSale,
             )
     }

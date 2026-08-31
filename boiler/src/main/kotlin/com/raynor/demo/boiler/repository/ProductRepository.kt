@@ -29,7 +29,6 @@ class ProductQueryDslRepositoryImpl(
         return jpaQueryFactory
             .selectFrom(product)
             .where(
-                product.stock.quantity.gt(0),
                 product.status.eq(ProductStatus.ON_SALE),
                 cursorId?.let { product.id.lt(it) },
             )

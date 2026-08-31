@@ -36,11 +36,11 @@ open class Product(
     var stock: Stock = stock
         protected set
 
-    fun getStockStatus(): StockStatus {
-        return this.stock.getStatus()
+    fun isStockStatusOutOfStock(): Boolean {
+        return this.stock.getStatus() == StockStatus.OUT_OF_STOCK
     }
 
     fun isSale(): Boolean {
-        return getStockStatus() == StockStatus.IN_STOCK && this.status == ProductStatus.ON_SALE
+        return this.stock.getStatus() == StockStatus.IN_STOCK && this.status == ProductStatus.ON_SALE
     }
 }
