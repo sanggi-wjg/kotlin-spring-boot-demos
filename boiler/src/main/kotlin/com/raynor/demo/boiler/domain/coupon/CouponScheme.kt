@@ -1,7 +1,10 @@
 package com.raynor.demo.boiler.domain.coupon
 
 import com.raynor.demo.boiler.domain.support.BaseEntity
+import com.raynor.demo.boiler.domain.support.Money
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
@@ -16,10 +19,10 @@ import java.time.LocalDateTime
 @Table(name = "coupon_scheme")
 open class CouponScheme(
     discountType: DiscountType,
-    discountAmount: BigDecimal? = null,
+    discountAmount: Money? = null,
     discountRate: BigDecimal? = null,
-    maxDiscountAmount: BigDecimal? = null,
-    minOrderAmount: BigDecimal = BigDecimal.ZERO,
+    maxDiscountAmount: Money? = null,
+    minOrderAmount: Money = Money(BigDecimal.ZERO),
     usingStartedAt: LocalDateTime,
     usingExpiredAt: LocalDateTime,
     maxIssueCount: Int,
@@ -36,20 +39,27 @@ open class CouponScheme(
     var discountType: DiscountType = discountType
         protected set
 
-    @Column(name = "discount_amount", precision = 15, scale = 0)
-    var discountAmount: BigDecimal? = discountAmount
+    @Embedded
+    @AttributeOverride(name = "amount", column = Column(name = "discount_amount", precision = 15, scale = 0))
+    var discountAmount: Money? = discountAmount
         protected set
 
+    // 할인율은 금액이 아니므로 Money 로 감싸지 않는다
     @Column(name = "discount_rate", precision = 5, scale = 2)
     var discountRate: BigDecimal? = discountRate
         protected set
 
-    @Column(name = "max_discount_amount", precision = 15, scale = 0)
-    var maxDiscountAmount: BigDecimal? = maxDiscountAmount
+    @Embedded
+    @AttributeOverride(name = "amount", column = Column(name = "max_discount_amount", precision = 15, scale = 0))
+    var maxDiscountAmount: Money? = maxDiscountAmount
         protected set
 
-    @Column(name = "min_order_amount", nullable = false, precision = 15, scale = 0)
-    var minOrderAmount: BigDecimal = minOrderAmount
+    @Embedded
+    @AttributeOverride(
+        name = "amount",
+        column = Column(name = "min_order_amount", nullable = false, precision = 15, scale = 0),
+    )
+    var minOrderAmount: Money = minOrderAmount
         protected set
 
     @Column(name = "using_started_at", nullable = false)

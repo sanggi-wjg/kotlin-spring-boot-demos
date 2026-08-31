@@ -15,8 +15,8 @@ data class ProductModel(
             return ProductModel(
                 id = entity.id!!,
                 name = entity.name,
-                price = entity.price,
-                stockQuantity = entity.stockQuantity,
+                price = entity.price.amount,
+                stockQuantity = entity.stock.quantity,
                 isSale = entity.isSale(),
             )
         }

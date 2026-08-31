@@ -14,7 +14,12 @@ CREATE TABLE `coupon_scheme`
 
     created_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
     updated_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
-    deleted_at          DATETIME(6)    NULL COMMENT '삭제일'
+    deleted_at          DATETIME(6)    NULL COMMENT '삭제일',
+
+    CONSTRAINT `ck_coupon_scheme_001` CHECK (discount_rate BETWEEN 0.00 AND 100.00),
+    CONSTRAINT `ck_coupon_scheme_002` CHECK (discount_amount >= 0),
+    CONSTRAINT `ck_coupon_scheme_003` CHECK (max_discount_amount >= 0),
+    CONSTRAINT `ck_coupon_scheme_004` CHECK (min_order_amount >= 0)
 
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -26,8 +31,6 @@ CREATE TABLE `coupon`
     id               BIGINT      NOT NULL AUTO_INCREMENT PRIMARY KEY,
     coupon_scheme_id INT         NOT NULL COMMENT '쿠폰 스킴 FK',
     user_id          INT         NULL COMMENT '유저 FK',
-    started_at       DATETIME(6) NOT NULL COMMENT '사용 시작일',
-    expired_at       DATETIME(6) NOT NULL COMMENT '사용 만료일',
     used_at          DATETIME(6) NULL COMMENT '사용일',
     order_id         BIGINT      NULL COMMENT '사용 주문 FK',
 

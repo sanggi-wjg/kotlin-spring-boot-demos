@@ -46,14 +46,6 @@ open class Coupon(
     var user: User? = user
         protected set
 
-    @Column(name = "started_at", nullable = false)
-    var startedAt: LocalDateTime = startedAt
-        protected set
-
-    @Column(name = "expired_at", nullable = false)
-    var expiredAt: LocalDateTime = expiredAt
-        protected set
-
     @Column(name = "used_at")
     var usedAt: LocalDateTime? = usedAt
         protected set

@@ -1,6 +1,6 @@
 package com.raynor.demo.boiler.domain.product
 
-enum class ProductStockStatus {
+enum class StockStatus {
     IN_STOCK,
     OUT_OF_STOCK,
 }

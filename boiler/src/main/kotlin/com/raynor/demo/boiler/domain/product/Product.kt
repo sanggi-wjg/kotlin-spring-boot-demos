@@ -1,20 +1,15 @@
 package com.raynor.demo.boiler.domain.product
 
 import com.raynor.demo.boiler.domain.support.BaseEntity
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
-import java.math.BigDecimal
+import com.raynor.demo.boiler.domain.support.Money
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "product")
 open class Product(
     name: String,
-    price: BigDecimal,
-    stockQuantity: Long = 0L,
+    price: Money,
+    stock: Stock = Stock(0L),
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,23 +21,20 @@ open class Product(
     var name: String = name
         protected set
 
-    @Column(name = "price", nullable = false, precision = 15, scale = 0)
-    var price: BigDecimal = price
+    @Embedded
+    @AttributeOverride(name = "amount", column = Column(name = "price", nullable = false, precision = 15, scale = 0))
+    var price: Money = price
         protected set
 
-    @Column(name = "stock_quantity", nullable = false)
-    var stockQuantity: Long = stockQuantity
+    @Embedded
+    var stock: Stock = stock
         protected set
 
-    fun getStockStatus(): ProductStockStatus {
-        return if (stockQuantity > 0) {
-            ProductStockStatus.IN_STOCK
-        } else {
-            ProductStockStatus.OUT_OF_STOCK
-        }
+    fun getStockStatus(): StockStatus {
+        return stock.getStatus()
     }
 
     fun isSale(): Boolean {
-        return getStockStatus() == ProductStockStatus.IN_STOCK
+        return getStockStatus() == StockStatus.IN_STOCK
     }
 }

@@ -7,7 +7,10 @@ CREATE TABLE `order`
 
     created_at             DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
     updated_at             DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
-    deleted_at             DATETIME(6)    NULL COMMENT '삭제일'
+    deleted_at             DATETIME(6)    NULL COMMENT '삭제일',
+
+    CONSTRAINT `ck_order_001` CHECK ( amount >= 0 ),
+    CONSTRAINT `ck_order_002` CHECK ( coupon_discount_amount >= 0 )
 
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -23,6 +26,9 @@ CREATE TABLE `order_item`
     created_at             DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
     updated_at             DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
     deleted_at             DATETIME(6)    NULL COMMENT '삭제일',
+
+    CONSTRAINT `ck_order_item_001` CHECK ( amount >= 0 ),
+    CONSTRAINT `ck_order_item_002` CHECK ( coupon_discount_amount >= 0 ),
 
     CONSTRAINT `fk_order_item_001` FOREIGN KEY (product_id) REFERENCES `product` (id) ON DELETE RESTRICT
 

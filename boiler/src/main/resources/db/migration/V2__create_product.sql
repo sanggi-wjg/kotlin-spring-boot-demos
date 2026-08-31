@@ -7,7 +7,9 @@ CREATE TABLE `product`
 
     created_at     DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
     updated_at     DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
-    deleted_at     DATETIME(6)    NULL COMMENT '삭제일'
+    deleted_at     DATETIME(6)    NULL COMMENT '삭제일',
+
+    CONSTRAINT `ck_product_001` CHECK ( price >= 0 )
 
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

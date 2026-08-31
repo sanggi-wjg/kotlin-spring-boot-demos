@@ -2,7 +2,10 @@ package com.raynor.demo.boiler.domain.order
 
 import com.raynor.demo.boiler.domain.product.Product
 import com.raynor.demo.boiler.domain.support.BaseEntity
+import com.raynor.demo.boiler.domain.support.Money
+import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
+import jakarta.persistence.Embedded
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -11,14 +14,13 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import java.math.BigDecimal
 
 @Entity
 @Table(name = "order_item")
 open class OrderItem(
     product: Product,
-    amount: BigDecimal,
-    couponDiscountAmount: BigDecimal,
+    amount: Money,
+    couponDiscountAmount: Money,
 ) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +33,16 @@ open class OrderItem(
     var product: Product = product
         protected set
 
-    @Column(name = "amount", nullable = false, precision = 15, scale = 0)
-    var amount: BigDecimal = amount
+    @Embedded
+    @AttributeOverride(name = "amount", column = Column(name = "amount", nullable = false, precision = 15, scale = 0))
+    var amount: Money = amount
         protected set
 
-    @Column(name = "coupon_discount_amount", nullable = false, precision = 15, scale = 0)
-    var couponDiscountAmount: BigDecimal = couponDiscountAmount
+    @Embedded
+    @AttributeOverride(
+        name = "amount",
+        column = Column(name = "coupon_discount_amount", nullable = false, precision = 15, scale = 0),
+    )
+    var couponDiscountAmount: Money = couponDiscountAmount
         protected set
 }
