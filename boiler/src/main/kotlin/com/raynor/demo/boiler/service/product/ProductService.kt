@@ -3,6 +3,8 @@ package com.raynor.demo.boiler.service.product
 import com.raynor.demo.boiler.repository.ProductRepository
 import com.raynor.demo.boiler.service.product.model.ProductModel
 import com.raynor.demo.boiler.service.support.CursorSlice
+import jakarta.persistence.EntityNotFoundException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -12,15 +14,22 @@ class ProductService(
 ) {
     @Transactional(readOnly = true)
     fun getProducts(
-        perPage: Long,
+        size: Long,
         cursor: Int?,
     ): CursorSlice<Int, ProductModel> {
-        val products = productRepository.findAllByCursor(perPage + 1, cursor)
-        val items = products.take(perPage.toInt()).map { ProductModel.fromEntity(it) }
+        val products = productRepository.findAllByCursor(size + 1, cursor)
+        val items = products.take(size.toInt()).map { ProductModel.fromEntity(it) }
         return CursorSlice(
-            hasNext = products.size > perPage,
+            hasNext = products.size > size,
             nextCursor = items.lastOrNull()?.id,
             items = items,
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getProduct(productId: Int): ProductModel {
+        val product = productRepository.findByIdOrNull(productId)
+            ?: throw EntityNotFoundException("")
+        return ProductModel.fromEntity(product)
     }
 }

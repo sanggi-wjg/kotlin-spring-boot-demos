@@ -8,6 +8,7 @@ data class ProductModel(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
+    val isSale: Boolean,
 ) {
     companion object {
         fun fromEntity(entity: Product): ProductModel {
@@ -16,6 +17,7 @@ data class ProductModel(
                 name = entity.name,
                 price = entity.price,
                 stockQuantity = entity.stockQuantity,
+                isSale = entity.isSale(),
             )
         }
     }

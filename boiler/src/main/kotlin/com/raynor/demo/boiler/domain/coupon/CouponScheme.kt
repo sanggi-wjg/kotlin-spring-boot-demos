@@ -1,5 +1,6 @@
 package com.raynor.demo.boiler.domain.coupon
 
+import com.raynor.demo.boiler.domain.support.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -23,7 +24,7 @@ open class CouponScheme(
     usingExpiredAt: LocalDateTime,
     maxIssueCount: Int,
     currentIssueCount: Int = 0,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

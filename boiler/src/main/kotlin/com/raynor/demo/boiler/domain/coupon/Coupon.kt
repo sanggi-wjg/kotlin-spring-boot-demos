@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.domain.coupon
 
 import com.raynor.demo.boiler.domain.order.Order
+import com.raynor.demo.boiler.domain.support.BaseEntity
 import com.raynor.demo.boiler.domain.user.User
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -28,7 +29,7 @@ open class Coupon(
     expiredAt: LocalDateTime,
     usedAt: LocalDateTime? = null,
     order: Order? = null,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

@@ -11,7 +11,7 @@ interface ProductRepository :
 
 interface ProductQueryDslRepository {
     fun findAllByCursor(
-        perPage: Long,
+        size: Long,
         cursorId: Int?,
     ): List<Product>
 }
@@ -22,7 +22,7 @@ class ProductQueryDslRepositoryImpl(
     private val product = QProduct.product
 
     override fun findAllByCursor(
-        perPage: Long,
+        size: Long,
         cursorId: Int?,
     ): List<Product> {
         return jpaQueryFactory
@@ -30,7 +30,7 @@ class ProductQueryDslRepositoryImpl(
             .where(
                 cursorId?.let { product.id.lt(it) },
             )
-            .limit(perPage)
+            .limit(size)
             .orderBy(product.id.desc())
             .fetch()
     }

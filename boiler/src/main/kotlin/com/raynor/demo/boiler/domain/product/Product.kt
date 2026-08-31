@@ -1,5 +1,6 @@
 package com.raynor.demo.boiler.domain.product
 
+import com.raynor.demo.boiler.domain.support.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -14,7 +15,7 @@ open class Product(
     name: String,
     price: BigDecimal,
     stockQuantity: Long = 0L,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -32,4 +33,16 @@ open class Product(
     @Column(name = "stock_quantity", nullable = false)
     var stockQuantity: Long = stockQuantity
         protected set
+
+    fun getStockStatus(): ProductStockStatus {
+        return if (stockQuantity > 0) {
+            ProductStockStatus.IN_STOCK
+        } else {
+            ProductStockStatus.OUT_OF_STOCK
+        }
+    }
+
+    fun isSale(): Boolean {
+        return getStockStatus() == ProductStockStatus.IN_STOCK
+    }
 }

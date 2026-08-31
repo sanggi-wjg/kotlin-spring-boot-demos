@@ -1,5 +1,6 @@
 package com.raynor.demo.boiler.domain.user
 
+import com.raynor.demo.boiler.domain.support.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
@@ -12,7 +13,7 @@ import jakarta.persistence.Table
 open class User(
     name: String,
     isAdmin: Boolean = false,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

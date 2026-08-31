@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.domain.order
 
 import com.raynor.demo.boiler.domain.product.Product
+import com.raynor.demo.boiler.domain.support.BaseEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
@@ -18,7 +19,7 @@ open class OrderItem(
     product: Product,
     amount: BigDecimal,
     couponDiscountAmount: BigDecimal,
-) {
+) : BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

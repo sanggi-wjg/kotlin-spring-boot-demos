@@ -25,15 +25,15 @@ class ProductControllerTest(
 
             test("GET /api/v1/products - 커서 페이지를 반환한다") {
                 every {
-                    productService.getProducts(10L, null)
+                    productService.getProducts(20L, null)
                 } returns
                     CursorSlice(
                         hasNext = true,
                         nextCursor = 2,
                         items =
                             listOf(
-                                ProductModel(1, "상품A", BigDecimal("1000.00"), 10L),
-                                ProductModel(2, "상품B", BigDecimal("2000.00"), 20L),
+                                ProductModel(1, "상품A", BigDecimal("1000.00"), 10L, true),
+                                ProductModel(2, "상품B", BigDecimal("2000.00"), 20L, false),
                             ),
                     )
 
@@ -51,15 +51,15 @@ class ProductControllerTest(
                         nextCursor = 2,
                         items =
                             listOf(
-                                ProductResponseDto(1, "상품A", BigDecimal("1000.00"), 10L),
-                                ProductResponseDto(2, "상품B", BigDecimal("2000.00"), 20L),
+                                ProductResponseDto(1, "상품A", BigDecimal("1000.00"), 10L, true),
+                                ProductResponseDto(2, "상품B", BigDecimal("2000.00"), 20L, false),
                             ),
                     )
 
-                verify(exactly = 1) { productService.getProducts(10L, null) }
+                verify(exactly = 1) { productService.getProducts(20L, null) }
             }
 
-            test("GET /api/v1/products - perPage/cursor 쿼리 파라미터를 서비스로 전달한다") {
+            test("GET /api/v1/products - size/cursor 쿼리 파라미터를 서비스로 전달한다") {
                 every {
                     productService.getProducts(2L, 5)
                 } returns CursorSlice(hasNext = false, nextCursor = null, items = emptyList())
@@ -67,7 +67,7 @@ class ProductControllerTest(
                 val content =
                     mockMvc
                         .get("/api/v1/products") {
-                            param("perPage", "2")
+                            param("size", "2")
                             param("cursor", "5")
                         }.andExpect { status { isOk() } }
                         .andReturn()
