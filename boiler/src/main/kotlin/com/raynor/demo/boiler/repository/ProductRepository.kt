@@ -8,7 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ProductRepository :
     JpaRepository<Product, Int>,
-    ProductQueryDslRepository
+    ProductQueryDslRepository {
+    // JpaRepository 의 findById 는 soft delete 된 행도 그대로 돌려주므로 쓰지 않는다
+    fun findByIdAndDeletedAtIsNull(id: Int): Product?
+}
 
 interface ProductQueryDslRepository {
     fun findAllByCursor(
@@ -29,6 +32,7 @@ class ProductQueryDslRepositoryImpl(
         return jpaQueryFactory
             .selectFrom(product)
             .where(
+                product.deletedAt.isNull,
                 product.status.eq(ProductStatus.ON_SALE),
                 cursorId?.let { product.id.lt(it) },
             )

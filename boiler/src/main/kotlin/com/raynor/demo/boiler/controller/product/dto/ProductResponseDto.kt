@@ -8,6 +8,7 @@ data class ProductResponseDto(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
+    val status: String,
     val isSoldOut: Boolean,
     val isSale: Boolean,
 ) {
@@ -18,6 +19,7 @@ data class ProductResponseDto(
                 name = model.name,
                 price = model.price,
                 stockQuantity = model.stockQuantity,
+                status = model.status,
                 isSoldOut = model.isSoldOut,
                 isSale = model.isSale,
             )

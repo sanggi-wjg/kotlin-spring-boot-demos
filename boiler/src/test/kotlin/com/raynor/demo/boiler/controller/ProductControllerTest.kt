@@ -32,8 +32,24 @@ class ProductControllerTest(
                         nextCursor = 2,
                         items =
                             listOf(
-                                ProductModel(1, "상품A", BigDecimal("1000.00"), 10L, true),
-                                ProductModel(2, "상품B", BigDecimal("2000.00"), 20L, false),
+                                ProductModel(
+                                    id = 1,
+                                    name = "상품A",
+                                    price = BigDecimal("1000.00"),
+                                    stockQuantity = 10L,
+                                    status = "ON_SALE",
+                                    isSoldOut = false,
+                                    isSale = true,
+                                ),
+                                ProductModel(
+                                    id = 2,
+                                    name = "상품B",
+                                    price = BigDecimal("2000.00"),
+                                    stockQuantity = 0L,
+                                    status = "ON_SALE",
+                                    isSoldOut = true,
+                                    isSale = false,
+                                ),
                             ),
                     )
 
@@ -51,8 +67,24 @@ class ProductControllerTest(
                         nextCursor = 2,
                         items =
                             listOf(
-                                ProductResponseDto(1, "상품A", BigDecimal("1000.00"), 10L, true),
-                                ProductResponseDto(2, "상품B", BigDecimal("2000.00"), 20L, false),
+                                ProductResponseDto(
+                                    id = 1,
+                                    name = "상품A",
+                                    price = BigDecimal("1000.00"),
+                                    stockQuantity = 10L,
+                                    status = "ON_SALE",
+                                    isSoldOut = false,
+                                    isSale = true,
+                                ),
+                                ProductResponseDto(
+                                    id = 2,
+                                    name = "상품B",
+                                    price = BigDecimal("2000.00"),
+                                    stockQuantity = 0L,
+                                    status = "ON_SALE",
+                                    isSoldOut = true,
+                                    isSale = false,
+                                ),
                             ),
                     )
 

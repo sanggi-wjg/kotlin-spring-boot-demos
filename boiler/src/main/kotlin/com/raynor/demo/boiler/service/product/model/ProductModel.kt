@@ -8,6 +8,7 @@ data class ProductModel(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
+    val status: String,
     val isSoldOut: Boolean,
     val isSale: Boolean,
 ) {
@@ -18,6 +19,7 @@ data class ProductModel(
                 name = entity.name,
                 price = entity.price.amount,
                 stockQuantity = entity.stock.quantity,
+                status = entity.status.name,
                 isSoldOut = entity.isStockStatusOutOfStock(),
                 isSale = entity.isSale(),
             )
