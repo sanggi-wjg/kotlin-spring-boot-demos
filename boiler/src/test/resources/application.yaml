@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: boiler
+  flyway:
+    enabled: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        default_batch_fetch_size: 50
+
+  datasource:
+    hikari:
+      pool-name: boiler-pool
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url:
+      username:
+      password:
+      maximum-pool-size: 10
