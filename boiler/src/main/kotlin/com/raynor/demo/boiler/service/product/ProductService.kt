@@ -1,8 +1,8 @@
 package com.raynor.demo.boiler.service.product
 
 import com.raynor.demo.boiler.domain.product.Product
-import com.raynor.demo.boiler.domain.product.Stock
 import com.raynor.demo.boiler.domain.support.Money
+import com.raynor.demo.boiler.domain.support.Stock
 import com.raynor.demo.boiler.repository.ProductRepository
 import com.raynor.demo.boiler.service.product.model.ProductModel
 import com.raynor.demo.boiler.service.support.CursorSlice
@@ -17,11 +17,11 @@ class ProductService(
 ) {
     @Transactional(readOnly = true)
     fun getProducts(
-        size: Long,
+        size: Int,
         cursor: Int?,
     ): CursorSlice<Int, ProductModel> {
-        val products = productRepository.findAllByCursor(size + 1, cursor)
-        val items = products.take(size.toInt()).map { ProductModel.fromEntity(it) }
+        val products = productRepository.findAllByCursor(size.toLong() + 1, cursor)
+        val items = products.take(size).map { ProductModel.fromEntity(it) }
         return CursorSlice(
             hasNext = products.size > size,
             nextCursor = items.lastOrNull()?.id,

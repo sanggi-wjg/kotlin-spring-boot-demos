@@ -11,12 +11,13 @@ CREATE TABLE `coupon_scheme`
     using_expired_at    DATETIME(6)    NOT NULL COMMENT '사용 만료일',
     max_issue_count     INT            NOT NULL COMMENT '최대 발급 수량',
     current_issue_count INT            NOT NULL DEFAULT 0 COMMENT '현재 발급 수량',
+    version             BIGINT         NOT NULL DEFAULT 0 COMMENT '낙관적 락 버전',
 
     created_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) COMMENT '생성일',
     updated_at          DATETIME(6)    NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6) COMMENT '수정일',
     deleted_at          DATETIME(6)    NULL COMMENT '삭제일',
 
-    CONSTRAINT `ck_coupon_scheme_001` CHECK (discount_rate BETWEEN 0.00 AND 100.00),
+    CONSTRAINT `ck_coupon_scheme_001` CHECK (discount_rate BETWEEN 0.01 AND 100.00),
     CONSTRAINT `ck_coupon_scheme_002` CHECK (discount_amount >= 0),
     CONSTRAINT `ck_coupon_scheme_003` CHECK (max_discount_amount >= 0),
     CONSTRAINT `ck_coupon_scheme_004` CHECK (min_order_amount >= 0)

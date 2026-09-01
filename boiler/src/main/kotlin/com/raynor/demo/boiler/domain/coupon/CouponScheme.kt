@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
@@ -76,5 +77,10 @@ open class CouponScheme(
 
     @Column(name = "current_issue_count", nullable = false)
     var currentIssueCount: Int = currentIssueCount
+        protected set
+
+    @Version
+    @Column(name = "version", nullable = false)
+    var version: Long = 0
         protected set
 }

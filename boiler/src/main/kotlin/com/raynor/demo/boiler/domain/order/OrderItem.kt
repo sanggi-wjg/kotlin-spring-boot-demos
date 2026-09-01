@@ -18,7 +18,9 @@ import jakarta.persistence.Table
 @Entity
 @Table(name = "order_item")
 open class OrderItem(
+    order: Order,
     product: Product,
+    quantity: Long,
     amount: Money,
     couponDiscountAmount: Money,
 ) : BaseEntity() {
@@ -29,8 +31,17 @@ open class OrderItem(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
+    var order: Order = order
+        protected set
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id", nullable = false)
     var product: Product = product
+        protected set
+
+    @Column(name = "quantity", nullable = false)
+    var quantity: Long = quantity
         protected set
 
     @Embedded

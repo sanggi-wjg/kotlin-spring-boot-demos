@@ -11,7 +11,7 @@ import org.testcontainers.mysql.MySQLContainer
 class TestContainersConfig {
     @Bean
     @ServiceConnection
-    fun mysqlContainer(): MySQLContainer = MySQLContainer("mysql:8.0")
+    fun mysqlContainer(): MySQLContainer = MySQLContainer("mysql:8.0").withCommand("--default-time-zone=+00:00")
 
     @Bean
     fun redisContainer(): RedisContainer = RedisContainer("redis:latest")

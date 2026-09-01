@@ -25,7 +25,7 @@ class ProductControllerTest(
 
             test("GET /api/v1/products - 커서 페이지를 반환한다") {
                 every {
-                    productService.getProducts(20L, null)
+                    productService.getProducts(20, null)
                 } returns
                     CursorSlice(
                         hasNext = true,
@@ -88,12 +88,12 @@ class ProductControllerTest(
                             ),
                     )
 
-                verify(exactly = 1) { productService.getProducts(20L, null) }
+                verify(exactly = 1) { productService.getProducts(20, null) }
             }
 
             test("GET /api/v1/products - size/cursor 쿼리 파라미터를 서비스로 전달한다") {
                 every {
-                    productService.getProducts(2L, 5)
+                    productService.getProducts(2, 5)
                 } returns CursorSlice(hasNext = false, nextCursor = null, items = emptyList())
 
                 val content =
@@ -113,7 +113,7 @@ class ProductControllerTest(
                         items = emptyList<ProductResponseDto>(),
                     )
 
-                verify(exactly = 1) { productService.getProducts(2L, 5) }
+                verify(exactly = 1) { productService.getProducts(2, 5) }
             }
         },
     )

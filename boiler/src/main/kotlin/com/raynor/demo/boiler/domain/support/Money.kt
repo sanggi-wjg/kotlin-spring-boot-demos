@@ -19,8 +19,7 @@ open class Money(
     }
 
     @Column(name = "amount", nullable = false, precision = 15, scale = 0)
-    var amount: BigDecimal = amount.setScale(SCALE, ROUNDING_MODE)
-        protected set
+    val amount: BigDecimal = amount.setScale(SCALE, ROUNDING_MODE)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

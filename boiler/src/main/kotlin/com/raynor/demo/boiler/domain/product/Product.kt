@@ -2,6 +2,7 @@ package com.raynor.demo.boiler.domain.product
 
 import com.raynor.demo.boiler.domain.support.BaseEntity
 import com.raynor.demo.boiler.domain.support.Money
+import com.raynor.demo.boiler.domain.support.Stock
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -12,6 +13,7 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import jakarta.persistence.Version
 
 @Entity
 @Table(name = "product")
@@ -45,11 +47,24 @@ open class Product(
     var stock: Stock = stock
         protected set
 
-    fun isStockStatusOutOfStock(): Boolean {
+    @Version
+    @Column(name = "version", nullable = false)
+    var version: Long = 0
+        protected set
+
+    fun isSoldOut(): Boolean {
         return this.stock.getStatus() == StockStatus.OUT_OF_STOCK
     }
 
-    fun isSale(): Boolean {
+    fun isOnSale(): Boolean {
         return this.stock.getStatus() == StockStatus.IN_STOCK && this.status == ProductStatus.ON_SALE
+    }
+
+    fun increaseStock(amount: Long) {
+        this.stock = stock.increase(amount)
+    }
+
+    fun decreaseStock(amount: Long) {
+        this.stock = stock.decrease(amount)
     }
 }

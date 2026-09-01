@@ -24,7 +24,7 @@ class ProductController(
     @GetMapping("")
     fun getProducts(
         @Min(1) @Max(100)
-        @RequestParam("size", required = false, defaultValue = "20") size: Long,
+        @RequestParam("size", required = false, defaultValue = "20") size: Int,
         @RequestParam("cursor", required = false) cursor: Int?,
     ): ResponseEntity<CursorPageResponseDto<Int, ProductResponseDto>> {
         return productService.getProducts(size, cursor).let { cursorSlice ->

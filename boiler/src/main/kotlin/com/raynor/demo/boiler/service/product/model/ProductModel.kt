@@ -20,8 +20,8 @@ data class ProductModel(
                 price = entity.price.amount,
                 stockQuantity = entity.stock.quantity,
                 status = entity.status.name,
-                isSoldOut = entity.isStockStatusOutOfStock(),
-                isSale = entity.isSale(),
+                isSoldOut = entity.isSoldOut(),
+                isSale = entity.isOnSale(),
             )
         }
     }
