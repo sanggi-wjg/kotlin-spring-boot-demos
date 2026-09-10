@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.service.product.model
 
 import com.raynor.demo.boiler.domain.product.Product
+import com.raynor.demo.boiler.domain.product.ProductStatus
 import java.math.BigDecimal
 
 data class ProductModel(
@@ -8,7 +9,7 @@ data class ProductModel(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
-    val status: String,
+    val status: ProductStatus,
     val isSoldOut: Boolean,
     val isSale: Boolean,
 ) {
@@ -19,7 +20,7 @@ data class ProductModel(
                 name = entity.name,
                 price = entity.price.amount,
                 stockQuantity = entity.stock.quantity,
-                status = entity.status.name,
+                status = entity.status,
                 isSoldOut = entity.isSoldOut(),
                 isSale = entity.isOnSale(),
             )

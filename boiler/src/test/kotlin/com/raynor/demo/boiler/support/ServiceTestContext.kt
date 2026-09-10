@@ -3,6 +3,7 @@ package com.raynor.demo.boiler.support
 import com.raynor.demo.boiler.config.DatabaseConfig
 import com.raynor.demo.boiler.config.JpaConfig
 import com.raynor.demo.boiler.config.QueryDslConfig
+import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.FunSpec
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Import
 @SpringBootTest(
     classes = [
         ProductService::class,
+        OrderService::class,
     ],
 )
 @ImportAutoConfiguration(

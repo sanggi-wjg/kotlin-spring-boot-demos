@@ -11,10 +11,15 @@ import org.testcontainers.mysql.MySQLContainer
 class TestContainersConfig {
     @Bean
     @ServiceConnection
-    fun mysqlContainer(): MySQLContainer = MySQLContainer("mysql:8.0").withCommand("--default-time-zone=+00:00")
+    fun mysqlContainer(): MySQLContainer =
+        MySQLContainer("mysql:8.0")
+            .withCommand("--default-time-zone=+00:00")
+            .withReuse(true)
 
     @Bean
-    fun redisContainer(): RedisContainer = RedisContainer("redis:latest")
+    fun redisContainer(): RedisContainer =
+        RedisContainer("redis:latest")
+            .withReuse(true)
 
     @Bean
     fun mysqlPropertyRegistrar(container: MySQLContainer): DynamicPropertyRegistrar =

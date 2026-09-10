@@ -32,4 +32,6 @@ open class Money(
     override fun toString(): String = amount.toPlainString()
 }
 
+fun Int.toMoney() = Money(BigDecimal(this.toString()))
+
 fun String.toMoney() = Money(BigDecimal(this))

@@ -1,4 +1,4 @@
-package com.raynor.demo.boiler.domain
+package com.raynor.demo.boiler.domain.support
 
 import com.raynor.demo.boiler.repository.ProductRepository
 import com.raynor.demo.boiler.support.ServiceTestContext

@@ -1,7 +1,8 @@
-package com.raynor.demo.boiler.controller
+package com.raynor.demo.boiler.controller.product
 
 import com.raynor.demo.boiler.controller.product.dto.ProductResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
+import com.raynor.demo.boiler.domain.product.ProductStatus
 import com.raynor.demo.boiler.service.product.ProductService
 import com.raynor.demo.boiler.service.product.model.ProductModel
 import com.raynor.demo.boiler.service.support.CursorSlice
@@ -37,7 +38,7 @@ class ProductControllerTest(
                                     name = "상품A",
                                     price = BigDecimal("1000.00"),
                                     stockQuantity = 10L,
-                                    status = "ON_SALE",
+                                    status = ProductStatus.ON_SALE,
                                     isSoldOut = false,
                                     isSale = true,
                                 ),
@@ -46,7 +47,7 @@ class ProductControllerTest(
                                     name = "상품B",
                                     price = BigDecimal("2000.00"),
                                     stockQuantity = 0L,
-                                    status = "ON_SALE",
+                                    status = ProductStatus.ON_SALE,
                                     isSoldOut = true,
                                     isSale = false,
                                 ),
@@ -72,7 +73,7 @@ class ProductControllerTest(
                                     name = "상품A",
                                     price = BigDecimal("1000.00"),
                                     stockQuantity = 10L,
-                                    status = "ON_SALE",
+                                    status = ProductStatus.ON_SALE,
                                     isSoldOut = false,
                                     isSale = true,
                                 ),
@@ -81,7 +82,7 @@ class ProductControllerTest(
                                     name = "상품B",
                                     price = BigDecimal("2000.00"),
                                     stockQuantity = 0L,
-                                    status = "ON_SALE",
+                                    status = ProductStatus.ON_SALE,
                                     isSoldOut = true,
                                     isSale = false,
                                 ),
