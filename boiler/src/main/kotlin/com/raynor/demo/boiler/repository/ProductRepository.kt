@@ -36,8 +36,8 @@ class ProductQueryDslRepositoryImpl(
                 product.status.eq(ProductStatus.ON_SALE),
                 cursorId?.let { product.id.lt(it) },
             )
-            .limit(size)
             .orderBy(product.id.desc())
+            .limit(size)
             .fetch()
     }
 }
