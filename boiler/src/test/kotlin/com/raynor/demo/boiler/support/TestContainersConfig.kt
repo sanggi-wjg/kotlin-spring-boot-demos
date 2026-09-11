@@ -28,4 +28,11 @@ class TestContainersConfig {
             registry.add("spring.datasource.hikari.username", container::getUsername)
             registry.add("spring.datasource.hikari.password", container::getPassword)
         }
+
+    @Bean
+    fun redisPropertyRegistrar(container: RedisContainer): DynamicPropertyRegistrar =
+        DynamicPropertyRegistrar { registry ->
+            registry.add("spring.data.redis.host", container::getHost)
+            registry.add("spring.data.redis.port", container::getFirstMappedPort)
+        }
 }
