@@ -4,8 +4,6 @@ import com.raynor.demo.boiler.config.DatabaseConfig
 import com.raynor.demo.boiler.config.JpaConfig
 import com.raynor.demo.boiler.config.QueryDslConfig
 import com.raynor.demo.boiler.infra.redis.DistributedLockExecutor
-import com.raynor.demo.boiler.infra.redis.config.CacheTtlFunction
-import com.raynor.demo.boiler.infra.redis.config.RedisConfig
 import com.raynor.demo.boiler.infra.redis.config.RedissonConfig
 import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.product.ProductService
@@ -14,6 +12,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.clearAllMocks
 import io.mockk.unmockkAll
+import org.redisson.spring.starter.RedissonAutoConfigurationV4
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
 import org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
@@ -28,6 +27,7 @@ import org.springframework.context.annotation.Import
     classes = [
         ProductService::class,
         OrderService::class,
+        DistributedLockExecutor::class,
     ],
 )
 @ImportAutoConfiguration(
@@ -38,6 +38,7 @@ import org.springframework.context.annotation.Import
         HibernateJpaAutoConfiguration::class,
         DataJpaRepositoriesAutoConfiguration::class,
         FlywayAutoConfiguration::class,
+        RedissonAutoConfigurationV4::class,
     ],
 )
 @Import(
@@ -46,10 +47,7 @@ import org.springframework.context.annotation.Import
         DatabaseConfig::class,
         JpaConfig::class,
         QueryDslConfig::class,
-        RedisConfig::class,
-        CacheTtlFunction::class,
         RedissonConfig::class,
-        DistributedLockExecutor::class,
     ],
 )
 @ApplyExtension(SpringExtension::class)
