@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.infra.redis
 
 import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
+import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -36,11 +37,11 @@ class DistributedLockExecutor(
             log.debug("분산락 획득: $lockKey")
             return action()
         } finally {
-            if (lock.isHeldByCurrentThread) {
+            try {
                 lock.unlock()
                 log.debug("분산락 해제: $lockKey")
-            } else {
-                log.warn("분산락 소유권 유실 또는 이미 해제: $lockKey")
+            } catch (exception: IllegalMonitorStateException) {
+                log.warn("분산락 소유권 이미 해제: $lockKey")
             }
         }
     }
