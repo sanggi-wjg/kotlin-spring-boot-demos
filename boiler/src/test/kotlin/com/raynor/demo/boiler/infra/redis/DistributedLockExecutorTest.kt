@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.infra.redis
 
 import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
+import com.raynor.demo.boiler.infra.redis.lock.DistributedLockExecutor
 import com.raynor.demo.boiler.support.ServiceTestContext
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe

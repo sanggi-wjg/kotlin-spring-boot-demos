@@ -1,7 +1,6 @@
-package com.raynor.demo.boiler.infra.redis
+package com.raynor.demo.boiler.infra.redis.lock
 
 import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
-import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component

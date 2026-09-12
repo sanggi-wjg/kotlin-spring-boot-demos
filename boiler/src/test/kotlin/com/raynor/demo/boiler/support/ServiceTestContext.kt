@@ -3,8 +3,8 @@ package com.raynor.demo.boiler.support
 import com.raynor.demo.boiler.config.DatabaseConfig
 import com.raynor.demo.boiler.config.JpaConfig
 import com.raynor.demo.boiler.config.QueryDslConfig
-import com.raynor.demo.boiler.infra.redis.DistributedLockExecutor
 import com.raynor.demo.boiler.infra.redis.config.RedissonConfig
+import com.raynor.demo.boiler.infra.redis.lock.DistributedLockExecutor
 import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
