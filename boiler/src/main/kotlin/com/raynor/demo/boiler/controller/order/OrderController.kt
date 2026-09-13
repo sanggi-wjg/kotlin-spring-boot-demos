@@ -1,14 +1,17 @@
 package com.raynor.demo.boiler.controller.order
 
+import com.raynor.demo.boiler.controller.order.dto.CreateOrderRequestDto
 import com.raynor.demo.boiler.controller.order.dto.OrderResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
 import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.service.order.OrderService
+import com.raynor.demo.boiler.support.idempotency.Idempotent
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -38,8 +41,12 @@ class OrderController(
         }
     }
 
+    @Idempotent
     @PostMapping("")
-    fun createOrder(): ResponseEntity<String> {
+    fun createOrder(
+        @RequestHeader("Idempotency-Key") idempotencyKey: String,
+        @RequestBody request: CreateOrderRequestDto,
+    ): ResponseEntity<String> {
         return ResponseEntity.ok("주문 생성 완료")
     }
 }

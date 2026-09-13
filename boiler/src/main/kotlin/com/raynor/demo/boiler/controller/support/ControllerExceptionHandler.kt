@@ -1,5 +1,6 @@
 package com.raynor.demo.boiler.controller.support
 
+import com.raynor.demo.boiler.support.idempotency.IdempotencyKeyMissingException
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -104,6 +105,19 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
                 ErrorResponseDto(
                     status = HttpStatus.NOT_FOUND.value(),
                     statusText = HttpStatus.NOT_FOUND.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    @ExceptionHandler(IdempotencyKeyMissingException::class)
+    fun handleIdempotencyKeyMissingException(e: IdempotencyKeyMissingException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.BAD_REQUEST.value(),
+                    statusText = HttpStatus.BAD_REQUEST.reasonPhrase,
                     message = e.message,
                 ),
             )
