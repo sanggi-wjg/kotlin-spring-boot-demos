@@ -1,6 +1,6 @@
 package com.raynor.demo.boiler.controller.support
 
-import com.raynor.demo.boiler.support.idempotency.IdempotencyKeyMissingException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus

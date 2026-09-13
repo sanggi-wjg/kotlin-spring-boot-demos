@@ -5,7 +5,8 @@ import com.raynor.demo.boiler.controller.order.dto.OrderResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
 import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.service.order.OrderService
-import com.raynor.demo.boiler.support.idempotency.Idempotent
+import com.raynor.demo.boiler.shared.http.ApiHeaders
+import com.raynor.demo.boiler.shared.idempotency.Idempotent
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.http.ResponseEntity
@@ -28,7 +29,7 @@ class OrderController(
         @RequestParam("size", required = false, defaultValue = "20") size: Int,
         @RequestParam("cursor", required = false) cursor: Long?,
         @RequestParam("orderStatus", required = false) orderStatus: List<OrderStatus>?,
-        @RequestHeader("X-User-Id") userId: Int,
+        @RequestHeader(ApiHeaders.USER_ID) userId: Int,
     ): ResponseEntity<CursorPageResponseDto<Long, OrderResponseDto>> {
         return orderService.getUserOrders(size, cursor, userId, orderStatus).let { cursorSlice ->
             ResponseEntity.ok(
@@ -44,7 +45,8 @@ class OrderController(
     @Idempotent
     @PostMapping("")
     fun createOrder(
-        @RequestHeader("Idempotency-Key") idempotencyKey: String,
+        @RequestHeader(ApiHeaders.IDEMPOTENCY_KEY) idempotencyKey: String,
+        @RequestHeader(ApiHeaders.USER_ID) userId: Int,
         @RequestBody request: CreateOrderRequestDto,
     ): ResponseEntity<String> {
         return ResponseEntity.ok("주문 생성 완료")

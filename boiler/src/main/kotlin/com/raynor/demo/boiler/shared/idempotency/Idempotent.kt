@@ -1,4 +1,4 @@
-package com.raynor.demo.boiler.support.idempotency
+package com.raynor.demo.boiler.shared.idempotency
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

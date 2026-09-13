@@ -2,8 +2,9 @@ package com.raynor.demo.boiler.infra.redis.idempotency
 
 import com.raynor.demo.boiler.infra.redis.idempotency.record.IdempotencyRecord
 import com.raynor.demo.boiler.infra.redis.idempotency.record.IdempotencyStatus
-import com.raynor.demo.boiler.support.idempotency.IdempotencyKeyMissingException
-import com.raynor.demo.boiler.support.idempotency.Idempotent
+import com.raynor.demo.boiler.shared.http.ApiHeaders
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
+import com.raynor.demo.boiler.shared.idempotency.Idempotent
 import jakarta.servlet.http.HttpServletRequest
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import tools.jackson.databind.ObjectMapper
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.HexFormat
+import java.util.*
 
 @Aspect
 @Component
@@ -75,7 +76,7 @@ class IdempotencyAspect(
         val record = objectMapper.readValue(bucketValue, IdempotencyRecord::class.java)
         if (record.requestBodyHash != requestBodyHash) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body("Idempotency-Key was used with a different request body")
+                .body("${ApiHeaders.IDEMPOTENCY_KEY} was used with a different request body")
         }
 
         return when (record.status) {
@@ -90,14 +91,14 @@ class IdempotencyAspect(
     }
 
     private fun getIdempotencyKeyOrThrow(): String {
-        return request.getHeader("Idempotency-Key")
+        return request.getHeader(ApiHeaders.IDEMPOTENCY_KEY)
             ?.trim()
             ?.takeIf { it.isNotBlank() }
-            ?: throw IdempotencyKeyMissingException("Idempotency-Key header is missing")
+            ?: throw IdempotencyKeyMissingException("${ApiHeaders.IDEMPOTENCY_KEY} header is missing")
     }
 
     private fun getUserId(): String? {
-        return request.getHeader("X-User-Id")?.trim()
+        return request.getHeader(ApiHeaders.USER_ID)?.trim()
     }
 
     private fun buildRedisKey(

@@ -6,6 +6,7 @@ import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.order.model.OrderModel
 import com.raynor.demo.boiler.service.support.CursorSlice
+import com.raynor.demo.boiler.shared.http.ApiHeaders
 import com.raynor.demo.boiler.support.ControllerTestContext
 import io.kotest.matchers.shouldBe
 import io.mockk.every
@@ -40,7 +41,7 @@ class OrderControllerTest(
                 val content =
                     mockMvc
                         .get("/api/v1/orders") {
-                            header("X-User-Id", "1")
+                            header(ApiHeaders.USER_ID, "1")
                         }.andExpect { status { isOk() } }
                         .andReturn()
                         .response
@@ -68,7 +69,7 @@ class OrderControllerTest(
                 val content =
                     mockMvc
                         .get("/api/v1/orders") {
-                            header("X-User-Id", "7")
+                            header(ApiHeaders.USER_ID, "7")
                             param("size", "2")
                             param("cursor", "5")
                             param("orderStatus", "PAID", "CANCELED")
@@ -103,7 +104,7 @@ class OrderControllerTest(
             test("GET /api/v1/orders - size 가 허용 범위를 벗어나면 400 을 반환한다") {
                 mockMvc
                     .get("/api/v1/orders") {
-                        header("X-User-Id", "1")
+                        header(ApiHeaders.USER_ID, "1")
                         param("size", "101")
                     }.andExpect {
                         status { isBadRequest() }
