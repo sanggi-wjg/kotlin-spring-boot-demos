@@ -4,7 +4,9 @@ import com.raynor.demo.boiler.controller.order.dto.CreateOrderRequestDto
 import com.raynor.demo.boiler.controller.order.dto.OrderResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
 import com.raynor.demo.boiler.domain.order.OrderStatus
+import com.raynor.demo.boiler.service.order.OrderFacadeService
 import com.raynor.demo.boiler.service.order.OrderService
+import com.raynor.demo.boiler.service.order.model.CreateOrderRequest
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import com.raynor.demo.boiler.shared.idempotency.Idempotent
 import jakarta.validation.constraints.Max
@@ -17,11 +19,13 @@ import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 
 @RestController
 @RequestMapping("/api/v1/orders")
 class OrderController(
     private val orderService: OrderService,
+    private val orderFacadeService: OrderFacadeService,
 ) {
     @GetMapping("")
     fun getOrders(
@@ -48,7 +52,19 @@ class OrderController(
         @RequestHeader(ApiHeaders.IDEMPOTENCY_KEY) idempotencyKey: String,
         @RequestHeader(ApiHeaders.USER_ID) userId: Int,
         @RequestBody request: CreateOrderRequestDto,
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("주문 생성 완료")
+    ): ResponseEntity<OrderResponseDto> {
+        val request = CreateOrderRequest(
+            request.items.map { item -> CreateOrderRequest.Item(item.productId, item.quantity) }
+                .sortedBy { it.productId },
+            request.couponId,
+        )
+        return orderFacadeService.createOrder(
+            userId,
+            request,
+        ).let { order ->
+            ResponseEntity.created(URI.create("/api/v1/orders/${order.id}")).body(
+                OrderResponseDto.fromModel(order),
+            )
+        }
     }
 }

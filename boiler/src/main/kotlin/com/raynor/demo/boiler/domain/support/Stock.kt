@@ -1,6 +1,7 @@
 package com.raynor.demo.boiler.domain.support
 
 import com.raynor.demo.boiler.domain.product.StockStatus
+import com.raynor.demo.boiler.shared.exception.InsufficientStockException
 import jakarta.persistence.Column
 import jakarta.persistence.Embeddable
 
@@ -39,7 +40,9 @@ open class Stock(
 
     fun decrease(amount: Long): Stock {
         require(amount >= 0) { "decrease amount must be greater than or equal to zero" }
-        check(quantity >= amount) { "stock is not enough. current=$quantity, requested=$amount" }
+        if (quantity < amount) {
+            throw InsufficientStockException(current = quantity, requested = amount)
+        }
 
         return Stock(quantity - amount)
     }

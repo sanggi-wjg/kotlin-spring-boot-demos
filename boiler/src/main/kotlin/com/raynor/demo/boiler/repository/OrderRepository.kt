@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface OrderRepository :
     JpaRepository<Order, Long>,
-    OrderQueryDslRepository
+    OrderQueryDslRepository {
+    fun findTopByOrderByIdDesc(): Order?
+}
 
 interface OrderQueryDslRepository {
     fun findAllByUserAndCursor(

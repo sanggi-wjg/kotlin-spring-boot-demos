@@ -13,7 +13,15 @@ class TestContainersConfig {
     @ServiceConnection
     fun mysqlContainer(): MySQLContainer =
         MySQLContainer("mysql:8.0")
-            .withCommand("--default-time-zone=+00:00")
+            .withCommand(
+                "--default-time-zone=+00:00",
+                "--character-set-server=utf8mb4",
+                "--collation-server=utf8mb4_0900_ai_ci",
+                "--transaction-isolation=REPEATABLE-READ",
+                "--general_log=1",
+                "--slow_query_log=1",
+                "--long_query_time=2",
+            )
             .withReuse(true)
 
     @Bean

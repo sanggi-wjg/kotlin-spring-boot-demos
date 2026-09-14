@@ -1,6 +1,6 @@
-package com.raynor.demo.boiler.controller.order.dto
+package com.raynor.demo.boiler.service.order.model
 
-data class CreateOrderRequestDto(
+data class CreateOrderRequest(
     val items: List<Item>,
     val couponId: Int?,
 ) {

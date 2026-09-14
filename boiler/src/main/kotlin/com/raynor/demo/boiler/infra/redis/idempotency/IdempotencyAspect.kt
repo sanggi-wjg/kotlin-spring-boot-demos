@@ -14,13 +14,14 @@ import org.redisson.api.RedissonClient
 import org.redisson.client.codec.StringCodec
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.RequestBody
 import tools.jackson.databind.ObjectMapper
 import java.security.MessageDigest
 import java.time.Duration
-import java.util.*
+import java.util.HexFormat
 
 @Aspect
 @Component
@@ -58,7 +59,7 @@ class IdempotencyAspect(
             val response = joinPoint.proceed() as ResponseEntity<*>
             val completeRecord = record.complete(
                 response.statusCode.value(),
-                response.body?.toString(),
+                objectMapper.writeValueAsString(response.body),
             )
             bucket.set(objectMapper.writeValueAsString(completeRecord), Duration.ofSeconds(idempotent.ttlSeconds))
             response
@@ -85,7 +86,9 @@ class IdempotencyAspect(
             }
 
             IdempotencyStatus.COMPLETED -> {
-                ResponseEntity.status(record.statusCode!!).body(record.responseBody)
+                ResponseEntity.status(record.statusCode!!)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(record.responseBody)
             }
         }
     }

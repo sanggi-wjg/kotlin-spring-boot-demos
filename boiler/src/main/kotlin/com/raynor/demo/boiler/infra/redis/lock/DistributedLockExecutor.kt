@@ -17,30 +17,42 @@ class DistributedLockExecutor(
         waitTime: Long,
         timeUnit: TimeUnit = TimeUnit.SECONDS,
         action: () -> T,
+    ): T = execute(listOf(key), waitTime, timeUnit, action)
+
+    fun <T> execute(
+        keys: List<String>,
+        waitTime: Long,
+        timeUnit: TimeUnit = TimeUnit.SECONDS,
+        action: () -> T,
     ): T {
-        val lockKey = "lock:$key"
-        val lock = redissonClient.getLock(lockKey)
+        val lockKeys = keys.distinct().map { "lock:$it" }
+        val lockName = lockKeys.joinToString(",")
+        val lock = if (lockKeys.size == 1) {
+            redissonClient.getLock(lockKeys.single())
+        } else {
+            redissonClient.getMultiLock(*lockKeys.map { redissonClient.getLock(it) }.toTypedArray())
+        }
 
         val acquired = try {
             lock.tryLock(waitTime, timeUnit)
         } catch (exception: InterruptedException) {
             Thread.currentThread().interrupt()
-            throw DistributedLockAcquisitionException("분산락 대기 중 인터럽트 발생: $lockKey", exception)
+            throw DistributedLockAcquisitionException("분산락 대기 중 인터럽트 발생: $lockName", exception)
         }
 
         if (!acquired) {
-            throw DistributedLockAcquisitionException("분산락 획득 실패: $lockKey")
+            throw DistributedLockAcquisitionException("분산락 획득 실패: $lockName")
         }
 
         try {
-            log.debug("분산락 획득: $lockKey")
+            log.info("분산락 획득: {}", lockName)
             return action()
         } finally {
             try {
                 lock.unlock()
-                log.debug("분산락 해제: $lockKey")
+                log.info("분산락 해제: {}", lockName)
             } catch (exception: IllegalMonitorStateException) {
-                log.warn("분산락 소유권 이미 해제: $lockKey")
+                log.warn("분산락 소유권 이미 해제: {}", lockName)
             }
         }
     }
