@@ -1,7 +1,10 @@
 package com.raynor.demo.boiler.support
 
 import com.ninjasquad.springmockk.MockkBean
+import com.raynor.demo.boiler.controller.order.OrderController
 import com.raynor.demo.boiler.controller.product.ProductController
+import com.raynor.demo.boiler.service.order.OrderFacadeService
+import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.FunSpec
@@ -14,6 +17,7 @@ import org.springframework.context.annotation.Import
 @WebMvcTest(
     value = [
         ProductController::class,
+        OrderController::class,
     ],
 )
 @Import()
@@ -36,4 +40,10 @@ abstract class ControllerTestContext(
     ) {
     @MockkBean
     private lateinit var productService: ProductService
+
+    @MockkBean
+    private lateinit var orderService: OrderService
+
+    @MockkBean
+    private lateinit var orderFacadeService: OrderFacadeService
 }

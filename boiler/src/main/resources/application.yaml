@@ -21,3 +21,9 @@ spring:
       username: boiler
       password: boiler1234
       maximum-pool-size: 10
+
+  data:
+    redis:
+      host: localhost
+      port: 6501
+      database: 0

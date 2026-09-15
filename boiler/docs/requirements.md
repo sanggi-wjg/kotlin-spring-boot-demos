@@ -99,7 +99,7 @@ N4. 장애 격리
 
 - 언어/프레임워크: Kotlin 2.x, Spring Boot 3.4, JPA
 - DB: MySQL 8.x (docker compose로 기동)
-- Redis: 선택. 락 전략 프로퍼티가 `distributed`가 아니면 Redis 빈을 등록하지 않아 Redis 없이도 애플리케이션이 뜬다 (`@ConditionalOnProperty`)
+- Redis: 분산 락 구현에 사용한다
 - 외부 결제: 실제 PG 연동 없이 mock 어댑터. 성공/실패/지연/응답 미수신을 시뮬레이션할 수 있게 만든다
 - 인증: 범위 밖 (C2)
 - 프론트엔드 없음. API만 제공한다

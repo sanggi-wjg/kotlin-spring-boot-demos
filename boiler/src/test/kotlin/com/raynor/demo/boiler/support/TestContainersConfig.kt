@@ -11,10 +11,23 @@ import org.testcontainers.mysql.MySQLContainer
 class TestContainersConfig {
     @Bean
     @ServiceConnection
-    fun mysqlContainer(): MySQLContainer = MySQLContainer("mysql:8.0").withCommand("--default-time-zone=+00:00")
+    fun mysqlContainer(): MySQLContainer =
+        MySQLContainer("mysql:8.0")
+            .withCommand(
+                "--default-time-zone=+00:00",
+                "--character-set-server=utf8mb4",
+                "--collation-server=utf8mb4_0900_ai_ci",
+                "--transaction-isolation=REPEATABLE-READ",
+                "--general_log=1",
+                "--slow_query_log=1",
+                "--long_query_time=2",
+            )
+            .withReuse(true)
 
     @Bean
-    fun redisContainer(): RedisContainer = RedisContainer("redis:latest")
+    fun redisContainer(): RedisContainer =
+        RedisContainer("redis:latest")
+            .withReuse(true)
 
     @Bean
     fun mysqlPropertyRegistrar(container: MySQLContainer): DynamicPropertyRegistrar =
@@ -22,5 +35,12 @@ class TestContainersConfig {
             registry.add("spring.datasource.hikari.jdbc-url", container::getJdbcUrl)
             registry.add("spring.datasource.hikari.username", container::getUsername)
             registry.add("spring.datasource.hikari.password", container::getPassword)
+        }
+
+    @Bean
+    fun redisPropertyRegistrar(container: RedisContainer): DynamicPropertyRegistrar =
+        DynamicPropertyRegistrar { registry ->
+            registry.add("spring.data.redis.host", container::getHost)
+            registry.add("spring.data.redis.port", container::getFirstMappedPort)
         }
 }

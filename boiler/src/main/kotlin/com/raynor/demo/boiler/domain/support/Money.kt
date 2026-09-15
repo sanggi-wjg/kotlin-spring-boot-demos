@@ -12,6 +12,8 @@ open class Money(
     companion object {
         private const val SCALE = 0
         private val ROUNDING_MODE = RoundingMode.DOWN
+
+        val ZERO = Money(BigDecimal.ZERO)
     }
 
     init {
@@ -30,6 +32,20 @@ open class Money(
     override fun hashCode(): Int = amount.stripTrailingZeros().hashCode()
 
     override fun toString(): String = amount.toPlainString()
+
+    operator fun plus(other: Money): Money = Money(amount + other.amount)
+
+    operator fun minus(other: Money): Money = Money(amount - other.amount)
+
+    operator fun times(other: Long): Money = Money(amount * BigDecimal(other.toString()))
+
+    operator fun times(other: Int): Money = Money(amount * BigDecimal(other.toString()))
 }
 
+fun Int.toMoney() = Money(BigDecimal(this.toString()))
+
 fun String.toMoney() = Money(BigDecimal(this))
+
+fun BigDecimal.toMoney() = Money(this)
+
+// fun Iterable<Money>.sumOf(selector: (Money) -> Int): Int = sumOf(selector)

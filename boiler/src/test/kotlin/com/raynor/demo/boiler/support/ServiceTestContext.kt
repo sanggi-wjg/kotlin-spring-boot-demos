@@ -1,14 +1,22 @@
 package com.raynor.demo.boiler.support
 
+import com.ninjasquad.springmockk.MockkSpyBean
 import com.raynor.demo.boiler.config.DatabaseConfig
 import com.raynor.demo.boiler.config.JpaConfig
 import com.raynor.demo.boiler.config.QueryDslConfig
+import com.raynor.demo.boiler.config.ResilienceConfig
+import com.raynor.demo.boiler.infra.payment.FakePaymentClient
+import com.raynor.demo.boiler.infra.redis.config.RedissonConfig
+import com.raynor.demo.boiler.infra.redis.lock.DistributedLockExecutor
+import com.raynor.demo.boiler.service.order.OrderFacadeService
+import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.product.ProductService
 import io.kotest.core.extensions.ApplyExtension
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.mockk.clearAllMocks
 import io.mockk.unmockkAll
+import org.redisson.spring.starter.RedissonAutoConfigurationV4
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration
 import org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
 import org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration
@@ -21,7 +29,10 @@ import org.springframework.context.annotation.Import
 
 @SpringBootTest(
     classes = [
+        DistributedLockExecutor::class,
         ProductService::class,
+        OrderService::class,
+        OrderFacadeService::class,
     ],
 )
 @ImportAutoConfiguration(
@@ -32,6 +43,7 @@ import org.springframework.context.annotation.Import
         HibernateJpaAutoConfiguration::class,
         DataJpaRepositoriesAutoConfiguration::class,
         FlywayAutoConfiguration::class,
+        RedissonAutoConfigurationV4::class,
     ],
 )
 @Import(
@@ -40,6 +52,9 @@ import org.springframework.context.annotation.Import
         DatabaseConfig::class,
         JpaConfig::class,
         QueryDslConfig::class,
+        RedissonConfig::class,
+        ResilienceConfig::class,
+        FakePaymentClient::class,
     ],
 )
 @ApplyExtension(SpringExtension::class)
@@ -57,4 +72,7 @@ abstract class ServiceTestContext(
 
             body()
         },
-    )
+    ) {
+    @MockkSpyBean
+    private lateinit var orderService: OrderService
+}

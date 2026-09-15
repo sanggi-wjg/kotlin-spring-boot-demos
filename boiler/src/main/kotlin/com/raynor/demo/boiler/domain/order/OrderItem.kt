@@ -17,8 +17,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "order_item")
-open class OrderItem(
-    order: Order,
+open class OrderItem protected constructor(
     product: Product,
     quantity: Long,
     amount: Money,
@@ -32,7 +31,7 @@ open class OrderItem(
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
-    var order: Order = order
+    lateinit var order: Order
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -56,4 +55,18 @@ open class OrderItem(
     )
     var couponDiscountAmount: Money = couponDiscountAmount
         protected set
+
+    internal fun attachTo(order: Order) {
+        this.order = order
+    }
+
+    companion object {
+        fun create(
+            product: Product,
+            quantity: Long,
+        ): OrderItem {
+            val amount = product.price * quantity
+            return OrderItem(product, quantity, amount, Money.ZERO)
+        }
+    }
 }

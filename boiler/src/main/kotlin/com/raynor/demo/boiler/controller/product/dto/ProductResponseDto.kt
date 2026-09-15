@@ -1,5 +1,6 @@
 package com.raynor.demo.boiler.controller.product.dto
 
+import com.raynor.demo.boiler.domain.product.ProductStatus
 import com.raynor.demo.boiler.service.product.model.ProductModel
 import java.math.BigDecimal
 
@@ -8,7 +9,7 @@ data class ProductResponseDto(
     val name: String,
     val price: BigDecimal,
     val stockQuantity: Long,
-    val status: String,
+    val status: ProductStatus,
     val isSoldOut: Boolean,
     val isSale: Boolean,
 ) {

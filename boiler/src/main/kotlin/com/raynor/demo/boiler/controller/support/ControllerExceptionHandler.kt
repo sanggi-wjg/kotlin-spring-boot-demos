@@ -1,5 +1,7 @@
 package com.raynor.demo.boiler.controller.support
 
+import com.raynor.demo.boiler.shared.exception.InsufficientStockException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -96,6 +98,46 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
             )
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .badRequest()
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.BAD_REQUEST.value(),
+                    statusText = HttpStatus.BAD_REQUEST.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .badRequest()
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.BAD_REQUEST.value(),
+                    statusText = HttpStatus.BAD_REQUEST.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    /** 재고 부족 - 요청 자체는 유효하지만 현재 상태와 충돌하므로 409 로 내려준다. */
+    @ExceptionHandler(InsufficientStockException::class)
+    fun handleInsufficientStockException(e: InsufficientStockException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.CONFLICT.value(),
+                    statusText = HttpStatus.CONFLICT.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
     @ExceptionHandler(EntityNotFoundException::class)
     fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity
@@ -104,6 +146,19 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
                 ErrorResponseDto(
                     status = HttpStatus.NOT_FOUND.value(),
                     statusText = HttpStatus.NOT_FOUND.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    @ExceptionHandler(IdempotencyKeyMissingException::class)
+    fun handleIdempotencyKeyMissingException(e: IdempotencyKeyMissingException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.BAD_REQUEST.value(),
+                    statusText = HttpStatus.BAD_REQUEST.reasonPhrase,
                     message = e.message,
                 ),
             )

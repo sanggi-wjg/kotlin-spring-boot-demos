@@ -9,7 +9,7 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         show_sql: true
         default_batch_fetch_size: 50
 
@@ -20,4 +20,10 @@ spring:
       jdbc-url:
       username:
       password:
-      maximum-pool-size: 10
+      maximum-pool-size: 5
+
+  data:
+    redis:
+      host: localhost
+      port:
+      database: 0
