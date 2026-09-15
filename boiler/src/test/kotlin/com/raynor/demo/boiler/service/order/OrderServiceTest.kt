@@ -35,6 +35,17 @@ class OrderServiceTest(
             }
         }
 
+        afterTest {
+            listOf(
+                orderItemRepository,
+                orderRepository,
+                productRepository,
+                userRepository,
+            ).forEach {
+                it.deleteAllInBatch()
+            }
+        }
+
         context("유저 주문 조회") {
 
             test("조회 성공") {

@@ -86,4 +86,39 @@ open class Order(
         orderItems.forEach { it.attachTo(this) }
         this.mutableOrderItems.addAll(orderItems)
     }
+
+    fun isPaid(): Boolean {
+        return this.status == OrderStatus.PAID
+    }
+
+    fun isPaymentFailed(): Boolean {
+        return this.status == OrderStatus.PAYMENT_FAILED
+    }
+
+    fun transitionTo(toStatus: OrderStatus) {
+        when (toStatus) {
+            OrderStatus.PENDING -> {
+                throw IllegalStateException("Order status must not be transition to PENDING")
+            }
+
+            OrderStatus.PAID -> {
+                check(this.status == OrderStatus.PENDING) { "Order status must be PENDING to transition to PAID" }
+            }
+
+            OrderStatus.PAYMENT_FAILED -> {
+                check(this.status == OrderStatus.PENDING) { "Order status must be PENDING to transition to PAYMENT_FAILED" }
+                this.orderItems.forEach { orderItem ->
+                    orderItem.product.increaseStock(orderItem.quantity)
+                }
+            }
+
+            OrderStatus.CANCELED -> {
+                check(this.status == OrderStatus.PAID) { "Order status must be PAID to transition to CANCELED" }
+                this.orderItems.forEach { orderItem ->
+                    orderItem.product.increaseStock(orderItem.quantity)
+                }
+            }
+        }
+        this.status = toStatus
+    }
 }

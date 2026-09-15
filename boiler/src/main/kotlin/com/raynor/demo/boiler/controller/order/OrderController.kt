@@ -2,11 +2,14 @@ package com.raynor.demo.boiler.controller.order
 
 import com.raynor.demo.boiler.controller.order.dto.CreateOrderRequestDto
 import com.raynor.demo.boiler.controller.order.dto.OrderResponseDto
+import com.raynor.demo.boiler.controller.order.dto.OrderWebhookRequestDto
+import com.raynor.demo.boiler.controller.order.dto.OrderWebhookResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
 import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.service.order.OrderFacadeService
 import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.order.model.CreateOrderRequest
+import com.raynor.demo.boiler.service.order.model.OrderWebhookRequest
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import com.raynor.demo.boiler.shared.idempotency.Idempotent
 import jakarta.validation.constraints.Max
@@ -24,8 +27,8 @@ import java.net.URI
 @RestController
 @RequestMapping("/api/v1/orders")
 class OrderController(
-    private val orderService: OrderService,
     private val orderFacadeService: OrderFacadeService,
+    private val orderService: OrderService,
 ) {
     @GetMapping("")
     fun getOrders(
@@ -65,6 +68,20 @@ class OrderController(
             ResponseEntity.created(URI.create("/api/v1/orders/${order.id}")).body(
                 OrderResponseDto.fromModel(order),
             )
+        }
+    }
+
+    @PostMapping("/payments/webhook")
+    fun handleOrderWebhook(
+        @RequestBody request: OrderWebhookRequestDto,
+    ): ResponseEntity<OrderWebhookResponseDto> {
+        // 구현의 단순함을 위해서 payload를 payment_key 등이 아니라 order_id로 단순화 하여 진행
+        // ip나 signature 등은 검증 했다고 가정
+        val request = OrderWebhookRequest(request.orderId, request.status)
+        return orderFacadeService.handleOrderWebhook(
+            request,
+        ).let { result ->
+            ResponseEntity.ok(OrderWebhookResponseDto.fromModel(result))
         }
     }
 }

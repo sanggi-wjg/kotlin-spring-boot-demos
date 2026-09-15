@@ -19,6 +19,10 @@ class ProductServiceTest(
                 productRepository.deleteAllInBatch()
             }
 
+            afterTest {
+                productRepository.deleteAllInBatch()
+            }
+
             context("상품 목록 조회") {
 
                 fun createProductFixtures(): List<Product> {

@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory
 import com.raynor.demo.boiler.domain.order.Order
 import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.domain.order.QOrder
+import jakarta.persistence.LockModeType
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface OrderRepository :
@@ -19,6 +20,8 @@ interface OrderQueryDslRepository {
         userId: Int,
         orderStatus: List<OrderStatus>?,
     ): List<Order>
+
+    fun findByIdWithLock(id: Long): Order?
 }
 
 class OrderQueryDslRepositoryImpl(
@@ -42,5 +45,15 @@ class OrderQueryDslRepositoryImpl(
             .orderBy(order.id.desc())
             .limit(size)
             .fetch()
+    }
+
+    override fun findByIdWithLock(id: Long): Order? {
+        return jpaQueryFactory
+            .selectFrom(order)
+            .where(
+                order.id.eq(id),
+            )
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .fetchOne()
     }
 }

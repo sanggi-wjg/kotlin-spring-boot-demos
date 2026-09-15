@@ -4,13 +4,16 @@ import com.raynor.demo.boiler.domain.order.Order
 import com.raynor.demo.boiler.domain.order.OrderItemLine
 import com.raynor.demo.boiler.domain.order.OrderStatus
 import com.raynor.demo.boiler.domain.product.ProductStatus
+import com.raynor.demo.boiler.infra.payment.model.PaymentResult
 import com.raynor.demo.boiler.repository.OrderRepository
 import com.raynor.demo.boiler.repository.ProductRepository
 import com.raynor.demo.boiler.repository.UserRepository
 import com.raynor.demo.boiler.service.order.model.CreateOrderRequest
 import com.raynor.demo.boiler.service.order.model.OrderModel
+import com.raynor.demo.boiler.service.order.model.WebhookResult
 import com.raynor.demo.boiler.service.support.CursorSlice
 import jakarta.persistence.EntityNotFoundException
+import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -21,6 +24,8 @@ class OrderService(
     private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
 ) {
+    private val log = LoggerFactory.getLogger(OrderService::class.java)
+
     @Transactional(readOnly = true)
     fun getUserOrders(
         size: Int,
@@ -66,5 +71,20 @@ class OrderService(
 
         val order = Order.pending(user, orderItemLines)
         return orderRepository.save(order).let { order -> OrderModel.fromEntity(order) }
+    }
+
+    @Transactional
+    fun handleOrderWebhook(paymentResult: PaymentResult): WebhookResult {
+        val order = orderRepository.findByIdWithLock(paymentResult.orderId)
+            ?: throw EntityNotFoundException("Order not found. orderId=${paymentResult.orderId}")
+        val orderId = order.id!!
+
+        if (order.status == paymentResult.status) {
+            log.info("Order:{} is already {}", orderId, order.status)
+            return WebhookResult(orderId, order.status, WebhookResult.Result.ALREADY_PROCESSED)
+        }
+
+        order.transitionTo(paymentResult.status)
+        return WebhookResult(orderId, order.status, WebhookResult.Result.PROCESSED)
     }
 }
