@@ -11,5 +11,11 @@ data class OrderModel(
                 id = order.id!!,
             )
         }
+
+        fun empty(): OrderModel {
+            return OrderModel(
+                id = 0,
+            )
+        }
     }
 }

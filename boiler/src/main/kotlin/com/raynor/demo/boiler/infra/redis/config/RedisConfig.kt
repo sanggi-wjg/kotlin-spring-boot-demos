@@ -9,10 +9,9 @@ import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 
 @EnableCaching
-@EnableRedisRepositories(basePackages = ["com.raynor.demo.boiler.repository"])
+// @EnableRedisRepositories(basePackages = ["com.raynor.demo.boiler.infra.redis"])
 @Configuration
 class RedisConfig {
     @Bean
