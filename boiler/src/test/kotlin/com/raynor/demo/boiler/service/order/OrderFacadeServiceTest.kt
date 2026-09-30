@@ -17,7 +17,13 @@ import com.raynor.demo.boiler.support.fixture.UserFixture
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.springframework.data.repository.findByIdOrNull
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.atomic.AtomicInteger
 
 class OrderFacadeServiceTest(
     private val orderFacadeService: OrderFacadeService,
@@ -30,8 +36,9 @@ class OrderFacadeServiceTest(
 ) : ServiceTestContext(
         {
 
-            beforeEach {
+            fun clear() {
                 fakePaymentClient.clear()
+
                 listOf(
                     orderItemRepository,
                     orderRepository,
@@ -40,38 +47,77 @@ class OrderFacadeServiceTest(
                 ).forEach {
                     it.deleteAllInBatch()
                 }
+            }
+
+            beforeEach {
+                clear()
             }
 
             afterTest {
-                fakePaymentClient.clear()
-                listOf(
-                    orderItemRepository,
-                    orderRepository,
-                    productRepository,
-                    userRepository,
-                ).forEach {
-                    it.deleteAllInBatch()
-                }
+                clear()
             }
 
-            test("주문 생성") {
-                // given
-                val userId = 1
-                val request = CreateOrderRequest(
-                    items = listOf(CreateOrderRequest.Item(10, 1)),
-                    couponId = null,
-                )
+            context("주문 생성") {
 
-                val orderModel = OrderModel(id = 999)
+                test("단일") {
+                    // given
+                    val userId = 1
+                    val request = CreateOrderRequest(
+                        items = listOf(CreateOrderRequest.Item(10, 1)),
+                        couponId = null,
+                    )
 
-                // mock
-                every { orderService.createPendingOrder(userId, request) } returns orderModel
+                    val orderModel = OrderModel(id = 999)
 
-                // when
-                val result = orderFacadeService.createOrder(userId, request)
+                    // mock
+                    every { orderService.createPendingOrder(userId, request) } returns orderModel
 
-                // then
-                result shouldBe orderModel
+                    // when
+                    val result = orderFacadeService.createOrder(userId, request)
+
+                    // then
+                    result shouldBe orderModel
+                }
+
+                test("동시성") {
+                    // given
+                    val user = userRepository.save(UserFixture.general())
+                    val product = productRepository.save(ProductFixture.general(stockQuantity = 5L))
+                    val request = CreateOrderRequest(
+                        items = listOf(CreateOrderRequest.Item(product.id!!, 1)),
+                        couponId = null,
+                    )
+
+                    val results = mutableListOf<OrderModel>()
+                    val successCount = AtomicInteger(0)
+                    val failureCount = AtomicInteger(0)
+                    val latch = CountDownLatch(1)
+
+                    // when
+                    coroutineScope {
+                        val jobs = (0 until 10).map {
+                            async(Dispatchers.IO) {
+                                latch.await()
+
+                                runCatching {
+                                    orderFacadeService.createOrder(userId = user.id!!, request = request)
+                                }.onSuccess {
+                                    results.add(it)
+                                    successCount.incrementAndGet()
+                                }.onFailure {
+                                    failureCount.incrementAndGet()
+                                }
+                            }
+                        }
+
+                        latch.countDown()
+                        jobs.awaitAll()
+                    }
+
+                    // then
+                    successCount.get() shouldBe 5
+                    failureCount.get() shouldBe 5
+                }
             }
 
             context("결제 웹훅") {

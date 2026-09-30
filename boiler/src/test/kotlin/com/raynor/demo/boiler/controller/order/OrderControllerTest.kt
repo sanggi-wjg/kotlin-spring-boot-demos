@@ -131,15 +131,13 @@ class OrderControllerTest(
                     } returns OrderModel(id = 1)
 
                     // when
-                    coroutineScope {
-                        mockMvc.post("/api/v1/orders") {
-                            header(ApiHeaders.USER_ID, "1")
-                            header(ApiHeaders.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
-                            contentType = MediaType.APPLICATION_JSON
-                            content = objectMapper.writeValueAsString(requestDto)
-                        }.andExpect {
-                            status { isCreated() }
-                        }
+                    mockMvc.post("/api/v1/orders") {
+                        header(ApiHeaders.USER_ID, "1")
+                        header(ApiHeaders.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(requestDto)
+                    }.andExpect {
+                        status { isCreated() }
                     }
 
                     // then
