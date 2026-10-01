@@ -79,7 +79,7 @@ class OrderFacadeServiceTest(
                     result shouldBe orderModel
                 }
 
-                test("동시성") {
+                test("재고 차감 동시성") {
                     // given
                     val user = userRepository.save(UserFixture.general())
                     val product = productRepository.save(ProductFixture.general(stockQuantity = 5L))
