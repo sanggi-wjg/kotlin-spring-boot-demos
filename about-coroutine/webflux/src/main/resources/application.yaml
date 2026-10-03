@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: about-coroutine-webflux
+
+server:
+  port: 8081
