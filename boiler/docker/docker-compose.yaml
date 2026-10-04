@@ -7,7 +7,7 @@ services:
     ports:
       - "6500:3306"
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_ROOT_PASSWORD=root1234
       - MYSQL_DATABASE=boiler
       - MYSQL_USER=boiler
       - MYSQL_PASSWORD=boiler1234
