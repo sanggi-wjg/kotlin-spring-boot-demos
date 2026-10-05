@@ -59,6 +59,9 @@ class OrderService(
             ids = request.items.map { it.productId },
             status = ProductStatus.ON_SALE,
         )
+        if (products.size != request.items.size) {
+            throw IllegalArgumentException("Invalid product id")
+        }
 
         val orderItemLines = products.map { product ->
             val requestItem = requestItemMap[product.id]

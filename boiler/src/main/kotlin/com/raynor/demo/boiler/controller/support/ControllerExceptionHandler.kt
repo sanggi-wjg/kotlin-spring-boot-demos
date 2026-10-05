@@ -1,6 +1,9 @@
 package com.raynor.demo.boiler.controller.support
 
+import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
+import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
 import com.raynor.demo.boiler.shared.exception.InsufficientStockException
+import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpHeaders
@@ -134,6 +137,54 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
                     status = HttpStatus.CONFLICT.value(),
                     statusText = HttpStatus.CONFLICT.reasonPhrase,
                     message = e.message,
+                ),
+            )
+    }
+
+    /** 쿠폰 발급 불가 (발급 기간 아님, 수량 소진) - 요청 자체는 유효하지만 현재 상태와 충돌하므로 409 로 내려준다. */
+    @ExceptionHandler(NotIssuableCouponException::class)
+    fun handleNotIssuableCouponException(e: NotIssuableCouponException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.CONFLICT.value(),
+                    statusText = HttpStatus.CONFLICT.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    /** 같은 쿠폰 정책 중복 발급 - 1인 1매 정책과 충돌하므로 409 로 내려준다. */
+    @ExceptionHandler(AlreadyIssuedCouponException::class)
+    fun handleAlreadyIssuedCouponException(e: AlreadyIssuedCouponException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.CONFLICT.value(),
+                    statusText = HttpStatus.CONFLICT.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    /**
+     * 분산락 획득 실패 - 요청이 몰려 일시적으로 처리하지 못한 상황이므로 503 으로 내려준다.
+     * 재고 부족 등 재시도해도 결과가 같은 409 와 구분해, 클라이언트가 잠시 후 재시도할 수 있게 한다.
+     * 락 키 등 내부 정보가 담긴 예외 메시지는 로그에만 남긴다.
+     */
+    @ExceptionHandler(DistributedLockAcquisitionException::class)
+    fun handleDistributedLockAcquisitionException(e: DistributedLockAcquisitionException): ResponseEntity<ErrorResponseDto> {
+        logger.warn(e.message)
+        return ResponseEntity
+            .status(HttpStatus.SERVICE_UNAVAILABLE)
+            .header(HttpHeaders.RETRY_AFTER, "1")
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.SERVICE_UNAVAILABLE.value(),
+                    statusText = HttpStatus.SERVICE_UNAVAILABLE.reasonPhrase,
+                    message = "요청이 많아 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.",
                 ),
             )
     }

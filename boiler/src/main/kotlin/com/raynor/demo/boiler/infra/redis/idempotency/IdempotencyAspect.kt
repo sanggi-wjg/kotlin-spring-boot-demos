@@ -116,11 +116,15 @@ class IdempotencyAspect(
         val bodyIndex = signature.method.parameterAnnotations.indexOfFirst { annotations ->
             annotations.any { annotation -> annotation is RequestBody }
         }
-        require(bodyIndex >= 0) { "RequestBody parameter is missing" }
-        val requestBody = joinPoint.args[bodyIndex]
+        // 바디가 없는 API 는 요청 URI 가 Redis 키에 포함되어 요청을 구분하므로 빈 바디로 해시한다
+        val requestBodyBytes = if (bodyIndex >= 0) {
+            objectMapper.writeValueAsBytes(joinPoint.args[bodyIndex])
+        } else {
+            ByteArray(0)
+        }
 
         return MessageDigest.getInstance("SHA-256")
-            .digest(objectMapper.writeValueAsBytes(requestBody))
+            .digest(requestBodyBytes)
             .let { value -> HexFormat.of().formatHex(value) }
     }
 }

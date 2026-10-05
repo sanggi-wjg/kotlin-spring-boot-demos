@@ -12,6 +12,7 @@ spring:
         format_sql: false
         show_sql: true
         default_batch_fetch_size: 50
+        jdbc.time_zone: UTC
 
   datasource:
     hikari:

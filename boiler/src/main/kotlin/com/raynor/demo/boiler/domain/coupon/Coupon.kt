@@ -13,7 +13,7 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Entity
 @Table(
@@ -25,9 +25,7 @@ import java.time.LocalDateTime
 open class Coupon(
     couponScheme: CouponScheme,
     user: User? = null,
-    startedAt: LocalDateTime,
-    expiredAt: LocalDateTime,
-    usedAt: LocalDateTime? = null,
+    usedAt: Instant? = null,
     order: Order? = null,
 ) : BaseEntity() {
     @Id
@@ -47,7 +45,7 @@ open class Coupon(
         protected set
 
     @Column(name = "used_at")
-    var usedAt: LocalDateTime? = usedAt
+    var usedAt: Instant? = usedAt
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)

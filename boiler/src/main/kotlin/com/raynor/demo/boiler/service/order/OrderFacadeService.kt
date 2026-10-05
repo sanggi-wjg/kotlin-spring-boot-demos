@@ -30,10 +30,9 @@ class OrderFacadeService(
         request: CreateOrderRequest,
     ): OrderModel {
         val lockKeys = request.items.map { item -> "product:${item.productId}" }
-        val order = lockExecutor.execute(lockKeys, 10L, action = {
+        return lockExecutor.execute(lockKeys, 10L, action = {
             orderService.createPendingOrder(userId, request)
         })
-        return order
     }
 
     @Retryable(

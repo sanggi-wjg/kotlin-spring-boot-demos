@@ -1,6 +1,7 @@
 CREATE TABLE `coupon_scheme`
 (
     id                  INT            NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name                VARCHAR(64)    NOT NULL COMMENT '이름',
     discount_type       VARCHAR(64)    NOT NULL COMMENT '할인 유형 (AMOUNT, RATE)',
     discount_amount     DECIMAL(15, 0) NULL COMMENT '정액 할인액 (원, AMOUNT 시 필수)',
     discount_rate       DECIMAL(5, 2)  NULL COMMENT '정률 할인률 % (RATE 시 필수, 0.01 ~ 100.00)',

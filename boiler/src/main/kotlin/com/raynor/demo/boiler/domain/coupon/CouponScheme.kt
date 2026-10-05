@@ -2,6 +2,7 @@ package com.raynor.demo.boiler.domain.coupon
 
 import com.raynor.demo.boiler.domain.support.BaseEntity
 import com.raynor.demo.boiler.domain.support.Money
+import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import jakarta.persistence.AttributeOverride
 import jakarta.persistence.Column
 import jakarta.persistence.Embedded
@@ -14,18 +15,20 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 import jakarta.persistence.Version
 import java.math.BigDecimal
-import java.time.LocalDateTime
+import java.time.Instant
+import kotlin.math.max
 
 @Entity
 @Table(name = "coupon_scheme")
 open class CouponScheme(
+    name: String,
     discountType: DiscountType,
     discountAmount: Money? = null,
     discountRate: BigDecimal? = null,
     maxDiscountAmount: Money? = null,
     minOrderAmount: Money = Money(BigDecimal.ZERO),
-    usingStartedAt: LocalDateTime,
-    usingExpiredAt: LocalDateTime,
+    usingStartedAt: Instant,
+    usingExpiredAt: Instant,
     maxIssueCount: Int,
     currentIssueCount: Int = 0,
 ) : BaseEntity() {
@@ -33,6 +36,10 @@ open class CouponScheme(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     var id: Int? = null
+        protected set
+
+    @Column(name = "name", nullable = false, length = 64)
+    var name: String = name
         protected set
 
     @Enumerated(EnumType.STRING)
@@ -64,11 +71,11 @@ open class CouponScheme(
         protected set
 
     @Column(name = "using_started_at", nullable = false)
-    var usingStartedAt: LocalDateTime = usingStartedAt
+    var usingStartedAt: Instant = usingStartedAt
         protected set
 
     @Column(name = "using_expired_at", nullable = false)
-    var usingExpiredAt: LocalDateTime = usingExpiredAt
+    var usingExpiredAt: Instant = usingExpiredAt
         protected set
 
     @Column(name = "max_issue_count", nullable = false)
@@ -83,4 +90,16 @@ open class CouponScheme(
     @Column(name = "version", nullable = false)
     var version: Long = 0
         protected set
+
+    fun isIssuable(): Boolean {
+        val now = Instant.now()
+        return (now in usingStartedAt..<usingExpiredAt) &&
+            (currentIssueCount < maxIssueCount)
+    }
+
+    fun increaseCurrentIssueCount() {
+        if (currentIssueCount >= maxIssueCount) throw NotIssuableCouponException()
+
+        currentIssueCount++
+    }
 }
