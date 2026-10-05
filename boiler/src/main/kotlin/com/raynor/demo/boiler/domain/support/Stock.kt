@@ -33,13 +33,13 @@ open class Stock(
     }
 
     fun increase(amount: Long): Stock {
-        require(amount >= 0) { "increase amount must be greater than or equal to zero" }
+        check(amount >= 0) { "increase amount must be greater than or equal to zero" }
 
         return Stock(quantity + amount)
     }
 
     fun decrease(amount: Long): Stock {
-        require(amount >= 0) { "decrease amount must be greater than or equal to zero" }
+        check(amount >= 0) { "decrease amount must be greater than or equal to zero" }
         if (quantity < amount) {
             throw InsufficientStockException(current = quantity, requested = amount)
         }

@@ -12,6 +12,7 @@ import com.raynor.demo.boiler.service.order.model.CreateOrderRequest
 import com.raynor.demo.boiler.service.order.model.OrderWebhookRequest
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import com.raynor.demo.boiler.shared.idempotency.Idempotent
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.http.ResponseEntity
@@ -54,7 +55,7 @@ class OrderController(
     fun createOrder(
         @RequestHeader(ApiHeaders.IDEMPOTENCY_KEY) idempotencyKey: String,
         @RequestHeader(ApiHeaders.USER_ID) userId: Int,
-        @RequestBody request: CreateOrderRequestDto,
+        @Valid @RequestBody request: CreateOrderRequestDto,
     ): ResponseEntity<OrderResponseDto> {
         val request = CreateOrderRequest(
             request.items.map { item -> CreateOrderRequest.Item(item.productId, item.quantity) }
