@@ -19,7 +19,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import tools.jackson.core.type.TypeReference
 import tools.jackson.databind.ObjectMapper
-import java.util.*
+import java.util.UUID
 
 class OrderControllerTest(
     private val mockMvc: MockMvc,
