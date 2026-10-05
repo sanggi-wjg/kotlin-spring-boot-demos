@@ -5,6 +5,7 @@ import com.raynor.demo.boiler.repository.CouponRepository
 import com.raynor.demo.boiler.repository.CouponSchemeRepository
 import com.raynor.demo.boiler.repository.UserRepository
 import com.raynor.demo.boiler.service.coupon.model.CouponModel
+import com.raynor.demo.boiler.service.support.CursorSlice
 import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
 import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import jakarta.persistence.EntityNotFoundException
@@ -44,5 +45,24 @@ class CouponService(
         ).let {
             CouponModel.fromEntity(it)
         }
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserCoupons(
+        size: Int,
+        cursor: Long?,
+        userId: Int,
+    ): CursorSlice<Long, CouponModel> {
+        val coupons = couponRepository.findAllByUserAndCursor(
+            size = size.toLong() + 1,
+            cursorId = cursor,
+            userId = userId,
+        )
+        val items = coupons.take(size).map { CouponModel.fromEntity(it) }
+        return CursorSlice(
+            hasNext = coupons.size > size,
+            nextCursor = items.lastOrNull()?.id,
+            items = items,
+        )
     }
 }

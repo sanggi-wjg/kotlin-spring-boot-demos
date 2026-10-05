@@ -25,7 +25,7 @@ class CouponController(
             couponSchemeId = couponSchemeId,
             userId = userId,
         ).let { coupon ->
-            ResponseEntity.created(URI.create("/api/v1/coupons/${coupon.id}")).body(
+            ResponseEntity.created(URI.create("/api/v1/users/me/coupons")).body(
                 CouponResponseDto.fromModel(coupon),
             )
         }
