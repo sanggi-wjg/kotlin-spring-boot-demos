@@ -214,11 +214,11 @@ ON DUPLICATE KEY UPDATE name           = new.name,
 
 
 INSERT INTO `coupon_scheme` (id, name, discount_type, discount_amount, discount_rate, max_discount_amount, min_order_amount, using_started_at, using_expired_at, max_issue_count, current_issue_count, version)
-    VALUES (1, '1,000원 할인', 'AMOUNT', 1000, NULL, NULL, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 1000, 0, 0),
-           (2, '10% 할인 (최대 5,000원)', 'RATE', NULL, 10.00, 5000, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 1000, 0, 0),
-           (3, '15% 할인 (3만원 이상)', 'RATE', NULL, 15.00, NULL, 30000, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 1000, 0, 0),
-           (4, '33.33% 할인 (최대 10,000원)', 'RATE', NULL, 33.33, 10000, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 1000, 0, 0),
-           (5, '100% 할인', 'RATE', NULL, 100.00, NULL, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 1000, 0, 0)
+    VALUES (1, '1,000원 할인', 'AMOUNT', 1000, NULL, NULL, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 50, 0, 0),
+           (2, '10% 할인 (최대 5,000원)', 'RATE', NULL, 10.00, 5000, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 50, 0, 0),
+           (3, '15% 할인 (3만원 이상)', 'RATE', NULL, 15.00, NULL, 30000, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 50, 0, 0),
+           (4, '33.33% 할인 (최대 10,000원)', 'RATE', NULL, 33.33, 10000, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 50, 0, 0),
+           (5, '100% 할인', 'RATE', NULL, 100.00, NULL, 0, UTC_TIMESTAMP(6) - INTERVAL 10 DAY, UTC_TIMESTAMP(6) + INTERVAL 10 DAY, 50, 0, 0)
         AS new
 ON DUPLICATE KEY UPDATE name                = new.name,
                         discount_type       = new.discount_type,

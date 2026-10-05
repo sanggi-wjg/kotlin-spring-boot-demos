@@ -18,6 +18,20 @@ export function createOrder(idempotencyKey, items, couponId = null) {
     );
 }
 
+export function issueCoupon(idempotencyKey, couponSchemeId, userId) {
+    return http.post(
+        `${BASE_URL}/api/v1/coupon-schemes/${couponSchemeId}/coupons`,
+        null,
+        {
+            headers: {
+                'Idempotency-Key': idempotencyKey,
+                'X-User-Id': String(userId),
+            },
+            tags: { name: 'issueCoupon' },
+        },
+    );
+}
+
 export function uniqueKey(prefix, seq) {
     return `${prefix}-${Date.now()}-${seq}`;
 }
