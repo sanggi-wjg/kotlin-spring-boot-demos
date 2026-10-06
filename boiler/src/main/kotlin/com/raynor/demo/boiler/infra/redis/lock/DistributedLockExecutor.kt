@@ -1,7 +1,9 @@
 package com.raynor.demo.boiler.infra.redis.lock
 
 import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
+import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
+import org.redisson.client.RedisException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import java.util.concurrent.TimeUnit
@@ -25,13 +27,14 @@ class DistributedLockExecutor(
         timeUnit: TimeUnit = TimeUnit.SECONDS,
         action: () -> T,
     ): T {
-        val lockKeys = keys.distinct().map { "lock:$it" }
+        require(keys.isNotEmpty()) { "분산락 키가 비어 있습니다." }
+
+        val lockKeys = keys.distinct().sorted().map { "lock:$it" }
         val lockName = lockKeys.joinToString(",")
-        val lock = if (lockKeys.size == 1) {
-            redissonClient.getLock(lockKeys.single())
-        } else {
-            redissonClient.getMultiLock(*lockKeys.map { redissonClient.getLock(it) }.toTypedArray())
-        }
+
+        val locks = lockKeys.map { redissonClient.getLock(it) }
+        val lock = locks.singleOrNull()
+            ?: redissonClient.getMultiLock(*locks.toTypedArray())
 
         val acquired = try {
             lock.tryLock(waitTime, timeUnit)
@@ -45,15 +48,23 @@ class DistributedLockExecutor(
         }
 
         try {
-            log.info("분산락 획득: {}", lockName)
+            log.debug("분산락 획득: {}", lockName)
             return action()
         } finally {
-            try {
-                lock.unlock()
-                log.info("분산락 해제: {}", lockName)
-            } catch (exception: IllegalMonitorStateException) {
-                log.warn("분산락 소유권 이미 해제: {}", lockName)
-            }
+            locks.forEach { unlockQuietly(it) }
+        }
+    }
+
+    private fun unlockQuietly(lock: RLock) {
+        try {
+            lock.unlock()
+            log.debug("분산락 해제: {}", lock.name)
+        } catch (exception: IllegalMonitorStateException) {
+            log.error("분산락 소유권 상실, 작업 중 락이 만료됐을 수 있음: {}", lock.name, exception)
+        } catch (exception: RedisException) {
+            log.error("분산락 해제 실패, watchdog 만료 후 자동 해제됨: {}", lock.name, exception)
+        } catch (exception: Exception) {
+            log.error("분산락 해제 실패: {}", lock.name, exception)
         }
     }
 }

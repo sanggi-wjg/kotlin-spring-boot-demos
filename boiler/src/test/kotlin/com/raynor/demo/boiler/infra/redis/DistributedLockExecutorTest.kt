@@ -79,6 +79,7 @@ class DistributedLockExecutorTest(
                     every { mockClient.getLock(any<String>()) } returns mockLock
                     every { mockLock.tryLock(any(), any()) } returns true
                     every { mockLock.unlock() } returns Unit
+                    every { mockLock.name } returns "lock:$key"
 
                     // when
                     executor.execute(listOf(key), 5L, action = { })
@@ -86,6 +87,66 @@ class DistributedLockExecutorTest(
                     // then
                     verify(exactly = 0) { mockClient.getMultiLock(*anyVararg()) }
                     verify(exactly = 1) { mockLock.unlock() }
+                }
+
+                test("여러 키는 정렬된 순서로 MultiLock 을 만들고 개별 락을 각각 해제한다") {
+                    // given
+                    val executor = DistributedLockExecutor(mockClient)
+                    val lockA = mockk<RLock>()
+                    val lockB = mockk<RLock>()
+                    val mockMultiLock = mockk<RLock>()
+
+                    // mock
+                    every { mockClient.getLock("lock:a") } returns lockA
+                    every { mockClient.getLock("lock:b") } returns lockB
+                    every { mockClient.getMultiLock(lockA, lockB) } returns mockMultiLock
+                    every { mockMultiLock.tryLock(any(), any()) } returns true
+                    listOf(lockA, lockB).forEach {
+                        every { it.unlock() } returns Unit
+                        every { it.name } returns "lock"
+                    }
+
+                    // when
+                    executor.execute(listOf("b", "a", "b"), 5L, action = { })
+
+                    // then
+                    verify(exactly = 1) { mockClient.getMultiLock(lockA, lockB) }
+                    verify(exactly = 1) { lockA.unlock() }
+                    verify(exactly = 1) { lockB.unlock() }
+                    verify(exactly = 0) { mockMultiLock.unlock() }
+                }
+
+                test("빈 키 목록은 거부한다") {
+                    shouldThrow<IllegalArgumentException> {
+                        lockExecutor.execute(emptyList(), 5L, action = { })
+                    }
+                }
+            }
+
+            context("락 해제 실패") {
+
+                test("해제 중 예외가 나도 작업 결과를 반환하고 나머지 락도 해제한다") {
+                    // given
+                    val executor = DistributedLockExecutor(mockClient)
+                    val lockA = mockk<RLock>()
+                    val lockB = mockk<RLock>()
+                    val mockMultiLock = mockk<RLock>()
+
+                    // mock
+                    every { mockClient.getLock("lock:a") } returns lockA
+                    every { mockClient.getLock("lock:b") } returns lockB
+                    every { mockClient.getMultiLock(lockA, lockB) } returns mockMultiLock
+                    every { mockMultiLock.tryLock(any(), any()) } returns true
+                    every { lockA.unlock() } throws IllegalMonitorStateException()
+                    every { lockB.unlock() } returns Unit
+                    listOf(lockA, lockB).forEach { every { it.name } returns "lock" }
+
+                    // when
+                    val result = executor.execute(listOf("a", "b"), 5L, action = { "done" })
+
+                    // then
+                    result shouldBe "done"
+                    verify(exactly = 1) { lockB.unlock() }
                 }
 
                 test("여러 키 락 획득 실패") {
