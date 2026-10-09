@@ -27,4 +27,8 @@ open class User(
     @Column(name = "is_admin", nullable = false)
     var isAdmin: Boolean = isAdmin
         protected set
+
+    fun appendName(suffix: String) {
+        this.name += suffix
+    }
 }
