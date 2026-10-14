@@ -4,6 +4,7 @@ import com.raynor.demo.miniioc.beans.DefaultOrderRepository
 import com.raynor.demo.miniioc.beans.DefaultOrderService
 import com.raynor.demo.miniioc.beans.JdbcOrderRepository
 import com.raynor.demo.miniioc.beans.OrderRepository
+import com.raynor.demo.miniioc.beans.OrderService
 import com.raynor.demo.miniioc.exceptions.BeanDefinitionOverrideException
 import com.raynor.demo.miniioc.exceptions.NoSuchBeanDefinitionException
 import com.raynor.demo.miniioc.exceptions.NoUniqueBeanDefinitionException
@@ -92,6 +93,41 @@ class DefaultBeanFactoryTest :
 
                 shouldThrow<NoUniqueBeanDefinitionException> {
                     beanFactory.getBean(OrderRepository::class)
+                }
+            }
+        }
+
+        context("의존성 주입") {
+            test("생성자 인자로 등록된 빈이 주입된다.") {
+                val beanFactory = DefaultBeanFactory(
+                    DefaultOrderService::class,
+                    DefaultOrderRepository::class,
+                )
+
+                val orderService = beanFactory.getBean(DefaultOrderService::class)
+
+                orderService.orderRepository shouldBeSameInstanceAs beanFactory.getBean(OrderRepository::class)
+            }
+
+            test("주입할 빈이 없다면 오류") {
+                val beanFactory = DefaultBeanFactory(
+                    DefaultOrderService::class,
+                )
+
+                shouldThrow<NoSuchBeanDefinitionException> {
+                    beanFactory.getBean(OrderService::class)
+                }
+            }
+
+            test("주입할 빈 후보가 여럿이면 오류") {
+                val beanFactory = DefaultBeanFactory(
+                    DefaultOrderService::class,
+                    DefaultOrderRepository::class,
+                    JdbcOrderRepository::class,
+                )
+
+                shouldThrow<NoUniqueBeanDefinitionException> {
+                    beanFactory.getBean(OrderService::class)
                 }
             }
         }

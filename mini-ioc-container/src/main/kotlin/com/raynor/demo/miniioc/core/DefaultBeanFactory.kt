@@ -5,24 +5,20 @@ import com.raynor.demo.miniioc.exceptions.NoSuchBeanDefinitionException
 import com.raynor.demo.miniioc.exceptions.NoUniqueBeanDefinitionException
 import kotlin.reflect.KClass
 import kotlin.reflect.cast
-import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.isSubclassOf
+import kotlin.reflect.full.primaryConstructor
 
 class DefaultBeanFactory(
     vararg classes: KClass<*>,
 ) : BeanFactory,
     BeanDefinitionRegistry {
 
-    override val beanDefinitionMap: Map<String, KClass<*>> = run {
-        val beanMap = mutableMapOf<String, KClass<*>>()
+    override val beanDefinitionMap: Map<String, KClass<*>> = buildMap {
         classes.forEach { type ->
             val beanName = type.simpleName!!
-            if (beanMap.containsKey(beanName)) {
-                throw BeanDefinitionOverrideException(beanName)
-            }
-            beanMap[beanName] = type
+            if (beanName in this) throw BeanDefinitionOverrideException(beanName)
+            put(beanName, type)
         }
-        beanMap
     }
 
     private val singletonObjects = mutableMapOf<String, Any>()
@@ -41,7 +37,9 @@ class DefaultBeanFactory(
     }
 
     private fun createBean(beanName: String): Any {
-        return beanDefinitionMap.getValue(beanName).createInstance()
+        val constructor = beanDefinitionMap.getValue(beanName).primaryConstructor!!
+        val arguments = constructor.parameters.map { getBean(it.type.classifier as KClass<*>) }
+        return constructor.call(*arguments.toTypedArray())
     }
 
     override fun getBeanNamesForType(type: KClass<*>): Set<String> {
