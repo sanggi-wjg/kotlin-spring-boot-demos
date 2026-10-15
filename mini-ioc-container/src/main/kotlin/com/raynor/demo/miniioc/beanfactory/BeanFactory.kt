@@ -1,4 +1,4 @@
-package com.raynor.demo.miniioc.core
+package com.raynor.demo.miniioc.beanfactory
 
 import kotlin.reflect.KClass
 

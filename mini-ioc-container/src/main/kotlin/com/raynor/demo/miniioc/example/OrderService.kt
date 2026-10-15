@@ -1,4 +1,4 @@
-package com.raynor.demo.miniioc.beans
+package com.raynor.demo.miniioc.example
 
 interface OrderService
 

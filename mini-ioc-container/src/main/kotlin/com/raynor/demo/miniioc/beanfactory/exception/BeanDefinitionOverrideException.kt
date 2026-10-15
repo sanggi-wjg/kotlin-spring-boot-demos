@@ -1,4 +1,4 @@
-package com.raynor.demo.miniioc.exceptions
+package com.raynor.demo.miniioc.beanfactory.exception
 
 class BeanDefinitionOverrideException(
     beanName: String,
