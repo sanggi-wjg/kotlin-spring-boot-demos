@@ -1,17 +1,22 @@
 package com.raynor.demo.boiler.controller.product
 
+import com.raynor.demo.boiler.controller.product.dto.ProductLikeResponseDto
 import com.raynor.demo.boiler.controller.product.dto.ProductRequestDto
 import com.raynor.demo.boiler.controller.product.dto.ProductResponseDto
 import com.raynor.demo.boiler.controller.support.CursorPageResponseDto
 import com.raynor.demo.boiler.service.product.ProductService
+import com.raynor.demo.boiler.shared.http.ApiHeaders
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -57,6 +62,32 @@ class ProductController(
             quantity = productRequestDto.quantity,
         ).let { product ->
             ResponseEntity.ok(ProductResponseDto.fromModel(product))
+        }
+    }
+
+    @PutMapping("/{id}/like")
+    fun likeProduct(
+        @PathVariable("id") productId: Int,
+        @RequestHeader(ApiHeaders.USER_ID, required = true) userId: Int,
+    ): ResponseEntity<ProductLikeResponseDto> {
+        return productService.likeProduct(
+            userId = userId,
+            productId = productId,
+        ).let { productLike ->
+            ResponseEntity.ok(ProductLikeResponseDto.fromModel(productLike))
+        }
+    }
+
+    @DeleteMapping("/{id}/like")
+    fun unlikeProduct(
+        @PathVariable("id") productId: Int,
+        @RequestHeader(ApiHeaders.USER_ID, required = true) userId: Int,
+    ): ResponseEntity<ProductLikeResponseDto> {
+        return productService.unlikeProduct(
+            userId = userId,
+            productId = productId,
+        ).let { productLike ->
+            ResponseEntity.ok(ProductLikeResponseDto.fromModel(productLike))
         }
     }
 }

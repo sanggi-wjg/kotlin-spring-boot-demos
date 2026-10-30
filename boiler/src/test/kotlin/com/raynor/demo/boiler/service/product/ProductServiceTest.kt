@@ -1,26 +1,49 @@
 package com.raynor.demo.boiler.service.product
 
 import com.raynor.demo.boiler.domain.product.Product
+import com.raynor.demo.boiler.domain.product.ProductLike
+import com.raynor.demo.boiler.repository.ProductLikeRepository
 import com.raynor.demo.boiler.repository.ProductRepository
+import com.raynor.demo.boiler.repository.UserRepository
 import com.raynor.demo.boiler.service.product.model.ProductModel
 import com.raynor.demo.boiler.service.support.CursorSlice
 import com.raynor.demo.boiler.support.ServiceTestContext
 import com.raynor.demo.boiler.support.fixture.ProductFixture
+import com.raynor.demo.boiler.support.fixture.UserFixture
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.equals.shouldBeEqual
+import io.kotest.matchers.shouldBe
 import jakarta.persistence.EntityNotFoundException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class ProductServiceTest(
     private val productService: ProductService,
+    private val userRepository: UserRepository,
     private val productRepository: ProductRepository,
+    private val productLikeRepository: ProductLikeRepository,
 ) : ServiceTestContext(
         {
             beforeEach {
-                productRepository.deleteAllInBatch()
+                listOf(
+                    productLikeRepository,
+                    productRepository,
+                    userRepository,
+                ).forEach {
+                    it.deleteAllInBatch()
+                }
             }
 
             afterTest {
-                productRepository.deleteAllInBatch()
+                listOf(
+                    productLikeRepository,
+                    productRepository,
+                    userRepository,
+                ).forEach {
+                    it.deleteAllInBatch()
+                }
             }
 
             context("상품 목록 조회") {
@@ -90,6 +113,51 @@ class ProductServiceTest(
                     shouldThrow<EntityNotFoundException> {
                         productService.getProduct(0)
                     }
+                }
+            }
+
+            context("좋아요") {
+
+                test("좋아용") {
+                    // given
+                    val user = userRepository.save(UserFixture.general())
+                    val product = productRepository.save(ProductFixture.general())
+
+                    // when
+                    coroutineScope {
+                        val jobs = (0 until 5).map {
+                            async(Dispatchers.IO) {
+                                productService.likeProduct(userId = user.id!!, productId = product.id!!)
+                            }
+                        }
+                        jobs.awaitAll()
+                    }
+
+                    // then
+                    productLikeRepository.countByProductId(product.id!!) shouldBe 1
+                }
+            }
+
+            context("좋아요 취소") {
+
+                test("좋아용 취소용") {
+                    // given
+                    val user = userRepository.save(UserFixture.general())
+                    val product = productRepository.save(ProductFixture.general())
+                    productLikeRepository.save(ProductLike(user = user, product = product))
+
+                    // when
+                    coroutineScope {
+                        val jobs = (0 until 5).map {
+                            async(Dispatchers.IO) {
+                                productService.unlikeProduct(userId = user.id!!, productId = product.id!!)
+                            }
+                        }
+                        jobs.awaitAll()
+                    }
+
+                    // then
+                    productLikeRepository.countByProductId(product.id!!) shouldBe 0
                 }
             }
         },
