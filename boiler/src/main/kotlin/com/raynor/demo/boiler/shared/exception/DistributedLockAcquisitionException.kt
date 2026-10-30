@@ -1,4 +1,4 @@
-package com.raynor.demo.boiler.infra.redis.exception
+package com.raynor.demo.boiler.shared.exception
 
 class DistributedLockAcquisitionException(
     message: String,

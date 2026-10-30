@@ -4,6 +4,8 @@ import com.raynor.demo.boiler.infra.redis.idempotency.record.IdempotencyRecord
 import com.raynor.demo.boiler.infra.redis.idempotency.record.IdempotencyStatus
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyReusedException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyRequestInProgressException
 import com.raynor.demo.boiler.shared.idempotency.Idempotent
 import jakarta.servlet.http.HttpServletRequest
 import org.aspectj.lang.ProceedingJoinPoint
@@ -13,7 +15,6 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.StringCodec
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -51,23 +52,29 @@ class IdempotencyAspect(
         )
         if (!acquired) {
             val bucketValue = bucket.get()
-                ?: return ResponseEntity.status(HttpStatus.CONFLICT).body("Idempotency record is unavailable")
+                ?: throw IdempotencyRequestInProgressException("요청 처리 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.")
             return handleDuplicateRequest(requestBodyHash, bucketValue)
         }
 
-        return try {
-            val response = joinPoint.proceed() as ResponseEntity<*>
-            val completeRecord = record.complete(
-                response.statusCode.value(),
-                objectMapper.writeValueAsString(response.body),
-            )
-            bucket.set(objectMapper.writeValueAsString(completeRecord), Duration.ofSeconds(idempotent.ttlSeconds))
-            response
-        } catch (e: Exception) {
-            log.error("Error executing idempotent method", e)
-            bucket.delete()
+        val response = try {
+            joinPoint.proceed() as ResponseEntity<*>
+        } catch (e: Throwable) {
+            log.info("멱등 요청 처리 실패로 멱등 키 삭제: {}", redisKey)
+            runCatching { bucket.delete() }.onFailure { e.addSuppressed(it) }
             throw e
         }
+
+        runCatching {
+            val completeRecord = record.complete(
+                statusCode = response.statusCode.value(),
+                responseBody = objectMapper.writeValueAsString(response.body),
+                responseHeaders = buildMap { response.headers.forEach { key, value -> put(key, value) } },
+            )
+            bucket.set(objectMapper.writeValueAsString(completeRecord), Duration.ofSeconds(idempotent.ttlSeconds))
+        }.onFailure {
+            log.error("멱등 응답 저장 실패, 처리 중 상태로 TTL 까지 유지됨: {}", redisKey, it)
+        }
+        return response
     }
 
     private fun handleDuplicateRequest(
@@ -76,18 +83,20 @@ class IdempotencyAspect(
     ): ResponseEntity<*> {
         val record = objectMapper.readValue(bucketValue, IdempotencyRecord::class.java)
         if (record.requestBodyHash != requestBodyHash) {
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT)
-                .body("${ApiHeaders.IDEMPOTENCY_KEY} was used with a different request body")
+            throw IdempotencyKeyReusedException("${ApiHeaders.IDEMPOTENCY_KEY} 가 다른 요청 본문으로 이미 사용되었습니다.")
         }
 
         return when (record.status) {
             IdempotencyStatus.PROCESSING -> {
-                ResponseEntity.status(HttpStatus.CONFLICT).body("Request is already being processed")
+                throw IdempotencyRequestInProgressException("동일한 요청을 처리하고 있습니다.")
             }
 
             IdempotencyStatus.COMPLETED -> {
                 ResponseEntity.status(record.statusCode!!)
                     .contentType(MediaType.APPLICATION_JSON)
+                    .headers { headers ->
+                        record.responseHeaders?.forEach { (key, value) -> headers.addAll(key, value) }
+                    }
                     .body(record.responseBody)
             }
         }
@@ -97,7 +106,7 @@ class IdempotencyAspect(
         return request.getHeader(ApiHeaders.IDEMPOTENCY_KEY)
             ?.trim()
             ?.takeIf { it.isNotBlank() }
-            ?: throw IdempotencyKeyMissingException("${ApiHeaders.IDEMPOTENCY_KEY} header is missing")
+            ?: throw IdempotencyKeyMissingException("${ApiHeaders.IDEMPOTENCY_KEY} 헤더가 필요합니다.")
     }
 
     private fun getUserId(): String? {

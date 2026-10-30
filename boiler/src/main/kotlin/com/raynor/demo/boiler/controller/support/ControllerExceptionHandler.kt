@@ -1,10 +1,12 @@
 package com.raynor.demo.boiler.controller.support
 
-import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
 import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
+import com.raynor.demo.boiler.shared.exception.DistributedLockAcquisitionException
 import com.raynor.demo.boiler.shared.exception.InsufficientStockException
 import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyReusedException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyRequestInProgressException
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -210,6 +212,35 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
                 ErrorResponseDto(
                     status = HttpStatus.BAD_REQUEST.value(),
                     statusText = HttpStatus.BAD_REQUEST.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    /** 같은 멱등 키 요청이 아직 처리 중 - 앞선 요청이 끝난 뒤 재시도하면 저장된 응답을 받으므로 Retry-After 를 함께 내려준다. */
+    @ExceptionHandler(IdempotencyRequestInProgressException::class)
+    fun handleIdempotencyRequestInProgressException(e: IdempotencyRequestInProgressException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .header(HttpHeaders.RETRY_AFTER, "1")
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.CONFLICT.value(),
+                    statusText = HttpStatus.CONFLICT.reasonPhrase,
+                    message = e.message,
+                ),
+            )
+    }
+
+    /** 멱등 키를 다른 요청 본문에 재사용 - 재시도해도 결과가 같으므로 422 로 내려준다. */
+    @ExceptionHandler(IdempotencyKeyReusedException::class)
+    fun handleIdempotencyKeyReusedException(e: IdempotencyKeyReusedException): ResponseEntity<ErrorResponseDto> {
+        return ResponseEntity
+            .status(HttpStatus.UNPROCESSABLE_CONTENT)
+            .body(
+                ErrorResponseDto(
+                    status = HttpStatus.UNPROCESSABLE_CONTENT.value(),
+                    statusText = HttpStatus.UNPROCESSABLE_CONTENT.reasonPhrase,
                     message = e.message,
                 ),
             )

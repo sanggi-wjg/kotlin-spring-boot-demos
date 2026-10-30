@@ -1,6 +1,6 @@
 package com.raynor.demo.boiler.infra.redis.lock
 
-import com.raynor.demo.boiler.infra.redis.exception.DistributedLockAcquisitionException
+import com.raynor.demo.boiler.shared.exception.DistributedLockAcquisitionException
 import org.redisson.api.RLock
 import org.redisson.api.RedissonClient
 import org.redisson.client.RedisException

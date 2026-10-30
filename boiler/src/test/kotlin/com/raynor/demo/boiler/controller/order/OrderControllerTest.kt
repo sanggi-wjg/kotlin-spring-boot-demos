@@ -9,10 +9,13 @@ import com.raynor.demo.boiler.service.order.OrderService
 import com.raynor.demo.boiler.service.order.model.OrderModel
 import com.raynor.demo.boiler.service.support.CursorSlice
 import com.raynor.demo.boiler.shared.http.ApiHeaders
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyReusedException
+import com.raynor.demo.boiler.shared.idempotency.IdempotencyRequestInProgressException
 import com.raynor.demo.boiler.support.ControllerTestContext
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -122,7 +125,10 @@ class OrderControllerTest(
 
                 test("유저 주문 생성") {
                     // given
-                    val requestDto = CreateOrderRequestDto(items = emptyList(), couponId = null)
+                    val requestDto = CreateOrderRequestDto(
+                        items = listOf(CreateOrderRequestDto.Item(productId = 1, quantity = 1)),
+                        couponId = null,
+                    )
 
                     // mock
                     every {
@@ -140,6 +146,59 @@ class OrderControllerTest(
                     }
 
                     // then
+                }
+
+                test("IdempotencyRequestInProgressException 은 409 와 Retry-After 를 ErrorResponseDto 형식으로 변환한다") {
+                    // given
+                    val requestDto = CreateOrderRequestDto(
+                        items = listOf(CreateOrderRequestDto.Item(productId = 1, quantity = 1)),
+                        couponId = null,
+                    )
+
+                    // mock
+                    every {
+                        orderFacadeService.createOrder(any(), any())
+                    } throws IdempotencyRequestInProgressException("동일한 요청을 처리하고 있습니다.")
+
+                    // when, then
+                    mockMvc.post("/api/v1/orders") {
+                        header(ApiHeaders.USER_ID, "1")
+                        header(ApiHeaders.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(requestDto)
+                    }.andExpect {
+                        status { isConflict() }
+                        header { string(HttpHeaders.RETRY_AFTER, "1") }
+                        content { contentTypeCompatibleWith(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.status") { value(409) }
+                        jsonPath("$.message") { value("동일한 요청을 처리하고 있습니다.") }
+                    }
+                }
+
+                test("IdempotencyKeyReusedException 은 422 를 ErrorResponseDto 형식으로 변환한다") {
+                    // given
+                    val requestDto = CreateOrderRequestDto(
+                        items = listOf(CreateOrderRequestDto.Item(productId = 1, quantity = 1)),
+                        couponId = null,
+                    )
+
+                    // mock
+                    every {
+                        orderFacadeService.createOrder(any(), any())
+                    } throws IdempotencyKeyReusedException("Idempotency-Key 가 다른 요청 본문으로 이미 사용되었습니다.")
+
+                    // when, then
+                    mockMvc.post("/api/v1/orders") {
+                        header(ApiHeaders.USER_ID, "1")
+                        header(ApiHeaders.IDEMPOTENCY_KEY, UUID.randomUUID().toString())
+                        contentType = MediaType.APPLICATION_JSON
+                        content = objectMapper.writeValueAsString(requestDto)
+                    }.andExpect {
+                        status { isUnprocessableContent() }
+                        content { contentTypeCompatibleWith(MediaType.APPLICATION_JSON) }
+                        jsonPath("$.status") { value(422) }
+                        jsonPath("$.message") { value("Idempotency-Key 가 다른 요청 본문으로 이미 사용되었습니다.") }
+                    }
                 }
             }
         },
