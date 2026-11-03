@@ -3,7 +3,7 @@ package com.raynor.demo.boiler.controller.support
 import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
 import com.raynor.demo.boiler.shared.exception.DistributedLockAcquisitionException
 import com.raynor.demo.boiler.shared.exception.InsufficientStockException
-import com.raynor.demo.boiler.shared.exception.LimitReachedCouponSchemeException
+import com.raynor.demo.boiler.shared.exception.LimitReachedCouponException
 import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyMissingException
 import com.raynor.demo.boiler.shared.idempotency.IdempotencyKeyReusedException
@@ -175,8 +175,8 @@ class ControllerExceptionHandler : ResponseEntityExceptionHandler() {
     }
 
     /** 선착순 쿠폰 한도 도달 - 재시도해도 결과가 같으므로 기존 수량 소진(NotIssuableCouponException)과 같이 409 로 내려준다. */
-    @ExceptionHandler(LimitReachedCouponSchemeException::class)
-    fun handleLimitReachedCouponSchemeException(e: LimitReachedCouponSchemeException): ResponseEntity<ErrorResponseDto> {
+    @ExceptionHandler(LimitReachedCouponException::class)
+    fun handleLimitReachedCouponSchemeException(e: LimitReachedCouponException): ResponseEntity<ErrorResponseDto> {
         return ResponseEntity
             .status(HttpStatus.CONFLICT)
             .body(

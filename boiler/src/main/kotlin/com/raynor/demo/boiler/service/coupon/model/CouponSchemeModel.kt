@@ -33,4 +33,7 @@ data class CouponSchemeModel(
             )
         }
     }
+
+    val isIssuable: Boolean
+        get() = Instant.now() in usingStartedAt..<usingExpiredAt
 }

@@ -1,7 +1,7 @@
 package com.raynor.demo.boiler.service.coupon
 
 import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
-import com.raynor.demo.boiler.shared.exception.LimitReachedCouponSchemeException
+import com.raynor.demo.boiler.shared.exception.LimitReachedCouponException
 import org.redisson.api.RScript
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.StringCodec
@@ -47,7 +47,7 @@ class LimitedCouponIssueService(
         when (result) {
             1L -> true
             0L -> throw AlreadyIssuedCouponException()
-            -1L -> throw LimitReachedCouponSchemeException()
+            -1L -> throw LimitReachedCouponException()
             else -> throw IllegalStateException("Unexpected result: $result")
         }
     }

@@ -4,6 +4,7 @@ import com.raynor.demo.boiler.infra.kafka.KafkaProducer
 import com.raynor.demo.boiler.infra.kafka.event.LimitedCouponIssueEvent
 import com.raynor.demo.boiler.infra.redis.lock.DistributedLockExecutor
 import com.raynor.demo.boiler.service.coupon.model.CouponModel
+import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Service
@@ -36,6 +37,10 @@ class CouponFacadeService(
         userId: Int,
     ) {
         val scheme = couponSchemeService.getCouponSchemeById(couponSchemeId)
+        if (!scheme.isIssuable) {
+            throw NotIssuableCouponException()
+        }
+
         limitedCouponIssueService.issueLimitedCoupon(couponSchemeId, userId, scheme.maxIssueCount)
         kafkaProducer.publishLimitedCouponIssueEvent(
             LimitedCouponIssueEvent(couponSchemeId, userId),
