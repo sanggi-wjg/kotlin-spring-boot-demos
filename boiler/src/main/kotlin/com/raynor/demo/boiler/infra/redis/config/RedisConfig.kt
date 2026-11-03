@@ -9,11 +9,30 @@ import org.springframework.data.redis.cache.RedisCacheManager
 import org.springframework.data.redis.connection.RedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer
+import org.springframework.data.redis.serializer.RedisSerializationContext
+import org.springframework.data.redis.serializer.StringRedisSerializer
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import tools.jackson.module.kotlin.KotlinModule
+import java.time.Duration
 
-@EnableCaching
 // @EnableRedisRepositories(basePackages = ["com.raynor.demo.boiler.infra.redis"])
+@EnableCaching
 @Configuration
 class RedisConfig {
+
+    private val cacheValueSerializer by lazy {
+        GenericJacksonJsonRedisSerializer.builder()
+            .customize { it.addModule(KotlinModule.Builder().build()) }
+            .enableDefaultTyping(
+                BasicPolymorphicTypeValidator.builder()
+                    .allowIfSubType("com.raynor.demo.boiler.")
+                    .allowIfSubType("java.")
+                    .build(),
+            )
+            .build()
+    }
+
     @Bean
     fun lettuceConnectionFactory(dataRedisProperties: DataRedisProperties): RedisConnectionFactory {
         return LettuceConnectionFactory(
@@ -26,13 +45,30 @@ class RedisConfig {
 
     @Bean
     fun redisCacheManager(redisConnectionFactory: RedisConnectionFactory): RedisCacheManager {
-        val config = RedisCacheConfiguration.defaultCacheConfig()
+        val config = defaultCacheConfig()
             .entryTtl(CacheTtlFunction())
-            .disableCachingNullValues()
+
+        val cacheConfig = mutableMapOf<String, RedisCacheConfiguration>()
+        cacheConfig[CacheKey.COUPON_SCHEME] = defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(60))
+        cacheConfig[CacheKey.COUPON_SCHEME_LIMIT] = defaultCacheConfig()
+            .entryTtl(Duration.ofMinutes(60))
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .transactionAware()
+            .withInitialCacheConfigurations(cacheConfig)
             .cacheDefaults(config)
             .build()
+    }
+
+    private fun defaultCacheConfig(): RedisCacheConfiguration {
+        return RedisCacheConfiguration.defaultCacheConfig()
+            .disableCachingNullValues()
+            .serializeKeysWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(StringRedisSerializer()),
+            )
+            .serializeValuesWith(
+                RedisSerializationContext.SerializationPair.fromSerializer(cacheValueSerializer),
+            )
     }
 }

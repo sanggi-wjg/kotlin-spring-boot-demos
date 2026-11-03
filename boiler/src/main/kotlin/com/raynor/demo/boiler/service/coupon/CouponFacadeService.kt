@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service
 
 @Service
 class CouponFacadeService(
-    private val couponService: CouponService,
     private val lockExecutor: DistributedLockExecutor,
+    private val couponService: CouponService,
+    private val couponSchemeService: CouponSchemeService,
+    private val limitedCouponIssueService: LimitedCouponIssueService,
 ) {
     @Retryable(
         includes = [ObjectOptimisticLockingFailureException::class],
@@ -24,5 +26,13 @@ class CouponFacadeService(
         return lockExecutor.execute(lockKey, 10L, action = {
             couponService.issueCoupon(couponSchemeId, userId)
         })
+    }
+
+    fun issueLimitedCoupon(
+        couponSchemeId: Int,
+        userId: Int,
+    ) {
+        val scheme = couponSchemeService.getCouponSchemeById(couponSchemeId)
+        limitedCouponIssueService.issueLimitedCoupon(couponSchemeId, userId, scheme.maxIssueCount)
     }
 }

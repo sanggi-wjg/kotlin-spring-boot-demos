@@ -65,4 +65,13 @@ class CouponService(
             items = items,
         )
     }
+
+    @Transactional(readOnly = true)
+    fun isIssuableCoupon(
+        couponSchemeId: Int,
+        userId: Int,
+    ) {
+        val couponScheme = couponSchemeRepository.findByIdAndDeletedAtIsNull(couponSchemeId)
+            ?: throw EntityNotFoundException("잘못된 쿠폰 스킴번호 입니다.")
+    }
 }
