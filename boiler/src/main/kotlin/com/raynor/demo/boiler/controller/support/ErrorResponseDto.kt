@@ -5,6 +5,7 @@ import java.time.Instant
 data class ErrorResponseDto(
     val status: Int,
     val statusText: String,
+    val code: ErrorCode? = null,
     val requestedAt: Instant = Instant.now(),
     val message: String? = null,
     val details: List<ErrorDetail>? = null,

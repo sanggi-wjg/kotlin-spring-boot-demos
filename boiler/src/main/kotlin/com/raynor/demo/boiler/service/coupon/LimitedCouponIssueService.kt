@@ -1,5 +1,7 @@
 package com.raynor.demo.boiler.service.coupon
 
+import com.raynor.demo.boiler.shared.exception.AlreadyIssuedCouponException
+import com.raynor.demo.boiler.shared.exception.LimitReachedCouponSchemeException
 import org.redisson.api.RScript
 import org.redisson.api.RedissonClient
 import org.redisson.client.codec.StringCodec
@@ -42,12 +44,11 @@ class LimitedCouponIssueService(
             limit,
         )
 
-        if (result == 0L) {
-            TODO("이미 발급")
-        } else if (result == -1L) {
-            TODO("쿠폰 한도 초과")
+        when (result) {
+            1L -> true
+            0L -> throw AlreadyIssuedCouponException()
+            -1L -> throw LimitReachedCouponSchemeException()
+            else -> throw IllegalStateException("Unexpected result: $result")
         }
-
-        TODO("발급 produce")
     }
 }

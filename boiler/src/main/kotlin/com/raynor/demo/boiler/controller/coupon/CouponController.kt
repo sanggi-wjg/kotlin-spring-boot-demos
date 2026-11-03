@@ -2,11 +2,10 @@ package com.raynor.demo.boiler.controller.coupon
 
 import com.raynor.demo.boiler.controller.coupon.dto.CouponResponseDto
 import com.raynor.demo.boiler.controller.coupon.dto.CouponSchemeCreateRequestDto
-import com.raynor.demo.boiler.controller.coupon.dto.CouponSchemeLimitResponseDto
 import com.raynor.demo.boiler.controller.coupon.dto.CouponSchemeResponseDto
+import com.raynor.demo.boiler.controller.coupon.dto.IssueLimitedCouponResponseDto
 import com.raynor.demo.boiler.service.coupon.CouponFacadeService
 import com.raynor.demo.boiler.service.coupon.CouponSchemeService
-import com.raynor.demo.boiler.service.coupon.LimitedCouponIssueService
 import com.raynor.demo.boiler.service.coupon.model.CouponSchemeCreateRequest
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import jakarta.validation.Valid
@@ -25,7 +24,6 @@ import java.net.URI
 class CouponController(
     private val couponFacadeService: CouponFacadeService,
     private val couponSchemeService: CouponSchemeService,
-    private val limitedCouponIssueService: LimitedCouponIssueService,
 ) {
     @PostMapping("/coupon-schemes/{couponSchemeId}/coupons")
     fun issueCoupon(
@@ -64,5 +62,14 @@ class CouponController(
                 .created(URI.create("/api/v1/coupon-schemes/${couponScheme.id}"))
                 .body(CouponSchemeResponseDto.fromModel(couponScheme))
         }
+    }
+
+    @PostMapping("/coupon-schemes/{couponSchemeId}/limited-coupons")
+    fun issueLimitedCoupon(
+        @RequestHeader(ApiHeaders.USER_ID) userId: Int,
+        @PathVariable("couponSchemeId") couponSchemeId: Int,
+    ): ResponseEntity<IssueLimitedCouponResponseDto> {
+        couponFacadeService.issueLimitedCoupon(couponSchemeId, userId)
+        return ResponseEntity.accepted().body(IssueLimitedCouponResponseDto(couponSchemeId = couponSchemeId))
     }
 }

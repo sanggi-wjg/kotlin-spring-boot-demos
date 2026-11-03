@@ -16,7 +16,7 @@ class KafkaTopicConfig {
     @Bean
     fun limitedCouponIssueTopic(): NewTopic {
         return TopicBuilder
-            .name("limited-coupon-issue")
+            .name(KafkaTopic.LIMITED_COUPON_ISSUE)
             .replicas(DEFAULT_REPLICAS)
             .partitions(DEFAULT_PARTITIONS)
             .build()

@@ -9,7 +9,6 @@ import com.raynor.demo.boiler.service.coupon.model.CouponSchemeModel
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class CouponSchemeService(
     private val couponSchemeRepository: CouponSchemeRepository,
-    private val redisTemplate: RedisTemplate<String, String>,
 ) {
 
     @Cacheable(value = [CacheKey.COUPON_SCHEME], key = "#couponSchemeId", sync = true)
