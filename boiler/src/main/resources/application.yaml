@@ -29,6 +29,28 @@ spring:
       port: 6501
       database: 0
 
+  kafka:
+    bootstrap-servers: localhost:6502
+    listener:
+      ack-mode: record
+      concurrency: 3
+    producer:
+      acks: all
+      retries: 3
+      compression-type: gzip
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: boiler-consumer
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      properties:
+        spring.deserializer.value.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+
 #logging:
 #  level:
 #    org.springframework: DEBUG

@@ -16,7 +16,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.1'
+          cpus: '0.5'
           memory: 512M
 
   redis:
@@ -29,3 +29,45 @@ services:
         limits:
           cpus: '0.1'
           memory: 256M
+
+  kafka:
+    image: apache/kafka:4.4.0
+    container_name: boiler-kafka
+    ports:
+      - '6502:9094'
+    environment:
+      - KAFKA_NODE_ID=1
+      - KAFKA_PROCESS_ROLES=broker,controller
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=1@localhost:9093
+      - KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      # PLAINTEXT: 컨테이너 네트워크용, EXTERNAL: 호스트(앱)용
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:6502
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_HEAP_OPTS=-Xms256M -Xmx256M
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  kafka-ui:
+    image: kafbat/kafka-ui:latest
+    container_name: boiler-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - '6510:8080'
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=boiler
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M

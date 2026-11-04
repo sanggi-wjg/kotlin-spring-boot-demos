@@ -1,15 +1,21 @@
 package com.raynor.demo.boiler.service.coupon
 
+import com.raynor.demo.boiler.infra.kafka.KafkaProducer
+import com.raynor.demo.boiler.infra.kafka.event.LimitedCouponIssueEvent
 import com.raynor.demo.boiler.infra.redis.lock.DistributedLockExecutor
 import com.raynor.demo.boiler.service.coupon.model.CouponModel
+import com.raynor.demo.boiler.shared.exception.NotIssuableCouponException
 import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.resilience.annotation.Retryable
 import org.springframework.stereotype.Service
 
 @Service
 class CouponFacadeService(
-    private val couponService: CouponService,
     private val lockExecutor: DistributedLockExecutor,
+    private val couponService: CouponService,
+    private val couponSchemeService: CouponSchemeService,
+    private val limitedCouponIssueService: LimitedCouponIssueService,
+    private val kafkaProducer: KafkaProducer,
 ) {
     @Retryable(
         includes = [ObjectOptimisticLockingFailureException::class],
@@ -24,5 +30,20 @@ class CouponFacadeService(
         return lockExecutor.execute(lockKey, 10L, action = {
             couponService.issueCoupon(couponSchemeId, userId)
         })
+    }
+
+    fun issueLimitedCoupon(
+        couponSchemeId: Int,
+        userId: Int,
+    ) {
+        val scheme = couponSchemeService.getCouponSchemeById(couponSchemeId)
+        if (!scheme.isIssuable) {
+            throw NotIssuableCouponException()
+        }
+
+        limitedCouponIssueService.issueLimitedCoupon(couponSchemeId, userId, scheme.maxIssueCount)
+        kafkaProducer.publishLimitedCouponIssueEvent(
+            LimitedCouponIssueEvent(couponSchemeId, userId),
+        )
     }
 }
