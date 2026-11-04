@@ -19,7 +19,6 @@ class CouponSchemeService(
 ) {
 
     @Cacheable(value = [CacheKey.COUPON_SCHEME], key = "#couponSchemeId", sync = true)
-    @Transactional(readOnly = true)
     fun getCouponSchemeById(couponSchemeId: Int): CouponSchemeModel {
         val scheme = couponSchemeRepository.findByIdOrNull(couponSchemeId)
             ?: throw EntityNotFoundException("찾을수 없는 쿠폰 스킴")
