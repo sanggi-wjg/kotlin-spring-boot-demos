@@ -51,8 +51,6 @@ class RedisConfig {
         val cacheConfig = mutableMapOf<String, RedisCacheConfiguration>()
         cacheConfig[CacheKey.COUPON_SCHEME] = defaultCacheConfig()
             .entryTtl(Duration.ofMinutes(60))
-        cacheConfig[CacheKey.COUPON_SCHEME_LIMIT] = defaultCacheConfig()
-            .entryTtl(Duration.ofMinutes(60))
 
         return RedisCacheManager.builder(redisConnectionFactory)
             .transactionAware()

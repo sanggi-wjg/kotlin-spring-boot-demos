@@ -6,7 +6,6 @@ import com.raynor.demo.boiler.controller.coupon.dto.CouponSchemeResponseDto
 import com.raynor.demo.boiler.controller.coupon.dto.IssueLimitedCouponResponseDto
 import com.raynor.demo.boiler.service.coupon.CouponFacadeService
 import com.raynor.demo.boiler.service.coupon.CouponSchemeService
-import com.raynor.demo.boiler.service.coupon.model.CouponSchemeCreateRequest
 import com.raynor.demo.boiler.shared.http.ApiHeaders
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
@@ -56,7 +55,7 @@ class CouponController(
         @Valid @RequestBody request: CouponSchemeCreateRequestDto,
     ): ResponseEntity<CouponSchemeResponseDto> {
         return couponSchemeService.createCouponScheme(
-            request = CouponSchemeCreateRequest.fromDto(request),
+            request = request.toRequest(),
         ).let { couponScheme ->
             ResponseEntity
                 .created(URI.create("/api/v1/coupon-schemes/${couponScheme.id}"))

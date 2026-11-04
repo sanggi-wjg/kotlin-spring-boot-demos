@@ -26,7 +26,7 @@ class CouponConsumer(
         try {
             couponService.issueCoupon(event.couponSchemeId, event.userId)
         } catch (e: AlreadyIssuedCouponException) {
-            log.warn("Coupon already issued for user ${event.userId} and coupon scheme ${event.couponSchemeId}")
+            log.warn("Coupon already issued. userId={}, couponSchemeId={}", event.userId, event.couponSchemeId)
         }
     }
 }

@@ -5,7 +5,7 @@
 ## 명령어
 
 ```bash
-docker compose -f docker/docker-compose.yaml up -d   # MySQL(6500), Redis(6501)
+docker compose -f docker/docker-compose.yaml up -d   # MySQL(6500), Redis(6501), Kafka(6502), kafka-ui(6510)
 ./gradlew bootRun                                     # 앱 실행 (8080)
 ./gradlew test                                        # 테스트 (Testcontainers 사용, Docker 필요)
 ./gradlew ktlintCheck                                 # 린트 (ktlintFormat 으로 자동 수정)
