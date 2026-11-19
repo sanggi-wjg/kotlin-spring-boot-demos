@@ -1,4 +1,4 @@
-package com.raynor.demo.gateway
+package com.raynor.demo.gateway.config
 
 import org.springframework.cloud.gateway.route.RouteLocator
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder
@@ -23,22 +23,20 @@ class RoutingConfig {
     }
 
     @Bean
-    fun gatewayRoutes(builder: RouteLocatorBuilder): RouteLocator {
-        return builder.routes()
+    fun gatewayRoutes(builder: RouteLocatorBuilder): RouteLocator =
+        builder
+            .routes()
             .route(ORDER_SERVICE_ID) { r ->
-                r.path(ORDER_SERVICE_PATH)
+                r
+                    .path(ORDER_SERVICE_PATH)
                     .filters { spec ->
                         spec.addRequestHeader(HEADER_X_GATEWAY_FINGER_PRINT, UUID.randomUUID().toString())
                             .addRequestHeader(HEADER_X_GATEWAY_REQUESTED_AT, Instant.now().toString())
                             .addRequestHeadersIfNotPresent("$HEADER_X_GATEWAY_ID:$ORDER_SERVICE_ID")
                             .addRequestParameter("redirect", "https://google.com")
-                    }
-                    .uri("http://localhost:8081")
-            }
-            .route(TASK_SERVICE_ID) { r ->
+                    }.uri("http://localhost:8081")
+            }.route(TASK_SERVICE_ID) { r ->
                 r.path(TASK_SERVICE_PATH)
                     .uri("http://localhost:8082")
-            }
-            .build()
-    }
+            }.build()
 }
