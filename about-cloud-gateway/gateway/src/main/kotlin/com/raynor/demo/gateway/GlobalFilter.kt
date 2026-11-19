@@ -16,14 +16,14 @@ class CustomGlobalFilter : AbstractGatewayFilterFactory<CustomGlobalFilter.Confi
         val postLog: Boolean = true,
     )
 
-    override fun apply(config: Config?): GatewayFilter {
+    override fun apply(config: Config): GatewayFilter {
         return GatewayFilter { exchange, chain ->
-            if (config?.preLog == true) {
+            if (config.preLog) {
                 exchange.request.also {
                     logger.info("request: ${it.id}, ${it.method}, ${it.uri}, ${it.queryParams}\n${it.headers}")
                 }
             }
-            if (config?.postLog == true) {
+            if (config.postLog) {
                 exchange.response.also {
                     logger.info("response: ${it.statusCode} ${it.isCommitted}\n${it.headers}")
                 }

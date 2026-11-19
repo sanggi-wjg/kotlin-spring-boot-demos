@@ -1,12 +1,12 @@
 import org.springframework.boot.gradle.tasks.bundling.BootJar
 
-extra["springCloudVersion"] = "2024.0.0"
+extra["springCloudVersion"] = "2025.1.4"
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webflux") // Reactive Web
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway") // Gateway
-//    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer") // LoadBalancer
-//    implementation("org.springframework.boot:spring-boot-starter-security") // Security
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
+//    implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
+//    implementation("org.springframework.boot:spring-boot-starter-security")
 }
 
 dependencyManagement {
@@ -15,8 +15,5 @@ dependencyManagement {
     }
 }
 
-val jar: Jar by tasks
-val bootJar: BootJar by tasks
-
-bootJar.enabled = false
-jar.enabled = true
+tasks.named<BootJar>("bootJar") { enabled = false }
+tasks.named<Jar>("jar") { enabled = true }
