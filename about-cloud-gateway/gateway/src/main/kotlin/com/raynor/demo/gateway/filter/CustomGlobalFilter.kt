@@ -26,12 +26,25 @@ class CustomGlobalFilter : GlobalFilter, Ordered {
             .header("X-Gateway-Requested-At", Instant.now().toString())
             .build()
 
-        logger.info("request: ${request.id}, ${request.method}, ${request.uri}, ${request.queryParams}\n${request.headers}")
+        logger.info(
+            ">>> [{}] {} {} | queryParams={} | headers={}",
+            request.id,
+            request.method,
+            request.uri,
+            request.queryParams,
+            request.headers,
+        )
         val mutatedRequest = exchange.mutate().request(request).build()
 
         return chain.filter(mutatedRequest).then(
             Mono.fromRunnable {
-                logger.info("response: ${exchange.response.statusCode} ${exchange.response.isCommitted}\n${exchange.response.headers}")
+                logger.info(
+                    "<<< [{}] {} | committed={} | headers={}",
+                    request.id,
+                    exchange.response.statusCode,
+                    exchange.response.isCommitted,
+                    exchange.response.headers,
+                )
             },
         )
     }

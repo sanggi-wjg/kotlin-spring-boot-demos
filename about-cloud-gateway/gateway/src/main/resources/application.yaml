@@ -2,6 +2,12 @@ server:
   port: 8080
 
 spring:
+  data:
+    redis:
+      host: localhost
+      port: 6501
+      database: 0
+
   cloud:
     gateway:
       server:
@@ -13,6 +19,12 @@ spring:
                 - Host=order.localhost:*
               filters:
                 - AddRequestHeadersIfNotPresent=X-Gateway-Id:order-application
+                - name: RequestRateLimiter # 레이트 리밋은 토큰 버킷 알고리즘을 사용하고 있다
+                  args:
+                    redis-rate-limiter.replenishRate: 10 # 초당 채워지는 토큰
+                    redis-rate-limiter.burstCapacity: 20 # 토큰 버킷 최대 크기
+                    redis-rate-limiter.requestedTokens: 1 # 요청당 소모 토큰 수
+                    key-resolver: "#{@userKeyResolver}"
 
             - id: task-application
               uri: http://localhost:8082
@@ -20,3 +32,10 @@ spring:
                 - Host=task.localhost:*
               filters:
                 - AddRequestHeadersIfNotPresent=X-Gateway-Id:task-application
+
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowed-origins: "*"
+                allowed-methods: "*"
+                allowed-headers: "*"

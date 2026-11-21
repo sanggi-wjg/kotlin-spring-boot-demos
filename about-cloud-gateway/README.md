@@ -7,11 +7,15 @@
 127.0.0.1       task.localhost
 ```
 
-## TODO:
+## TODO
 
 * [ ] 인증
 
-## Ref.
+## Rate-limit
+
+- https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/gatewayfilter-factories/requestratelimiter-factory.html
+
+## Ref
 
 * https://docs.spring.io/spring-cloud-gateway/reference/index.html
 * https://toss.tech/article/slash23-server

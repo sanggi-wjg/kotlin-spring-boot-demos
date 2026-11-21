@@ -21,7 +21,13 @@ class TaskController {
         @RequestParam("redirect", required = false, defaultValue = "") redirect: String,
         @PathVariable taskId: Long,
     ): ResponseEntity<String> {
-        logger.info("GatewayId: $gatewayId / Headers: $headers / OrderId: $taskId / Redirect: $redirect")
+        logger.info(
+            ">>> [{}] taskId={} | redirect={} | headers={}",
+            gatewayId,
+            taskId,
+            redirect,
+            headers,
+        )
         return ResponseEntity.ok("Hello, Task: $taskId")
     }
 }

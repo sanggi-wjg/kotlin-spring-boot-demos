@@ -21,7 +21,13 @@ class OrderController {
         @RequestParam("redirect", required = false, defaultValue = "") redirect: String,
         @PathVariable orderId: Long,
     ): ResponseEntity<String> {
-        logger.info("GatewayFingerPrint: $gatewayFingerprint / Headers: $headers / OrderId: $orderId / Redirect: $redirect")
+        logger.info(
+            ">>> [{}] orderId={} | redirect={} | headers={}",
+            gatewayFingerprint,
+            orderId,
+            redirect,
+            headers,
+        )
         return ResponseEntity.ok("Hello, Order $orderId")
     }
 }
