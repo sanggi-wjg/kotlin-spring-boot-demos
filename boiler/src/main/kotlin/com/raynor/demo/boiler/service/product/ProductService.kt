@@ -56,6 +56,11 @@ class ProductService(
         userId: Int,
         productId: Int,
     ): ProductLikeModel {
+        """
+        select p1_0.id,p1_0.created_at,p1_0.deleted_at,p1_0.name,p1_0.price,p1_0.status,p1_0.stock_quantity,p1_0.updated_at,p1_0.version from product p1_0 where p1_0.id=1 and p1_0.deleted_at is null
+        INSERT IGNORE INTO product_like (product_id, user_id) VALUES (1, 3)
+        select count(pl1_0.id) from product_like pl1_0 where pl1_0.product_id=1
+        """.trimIndent()
         val product = productRepository.findByIdAndDeletedAtIsNull(productId)
             ?: throw EntityNotFoundException("상품을 찾을 수 없습니다. id=$productId")
 
@@ -73,6 +78,11 @@ class ProductService(
         userId: Int,
         productId: Int,
     ): ProductLikeModel {
+        """
+        select p1_0.id,p1_0.created_at,p1_0.deleted_at,p1_0.name,p1_0.price,p1_0.status,p1_0.stock_quantity,p1_0.updated_at,p1_0.version from product p1_0 where p1_0.id=1 and p1_0.deleted_at is null
+        delete pl1_0 from product_like pl1_0 where pl1_0.user_id=3 and pl1_0.product_id=1
+        select count(pl1_0.id) from product_like pl1_0 where pl1_0.product_id=1
+        """.trimIndent()
         val product = productRepository.findByIdAndDeletedAtIsNull(productId)
             ?: throw EntityNotFoundException("상품을 찾을 수 없습니다. id=$productId")
 
