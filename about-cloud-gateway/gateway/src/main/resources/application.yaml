@@ -12,7 +12,6 @@ spring:
               predicates:
                 - Host=order.localhost:*
               filters:
-                - RewritePath=/order/(?<path>.*), /order/$\{path}
                 - AddRequestHeadersIfNotPresent=X-Gateway-Id:order-application
 
             - id: task-application
@@ -20,5 +19,4 @@ spring:
               predicates:
                 - Host=task.localhost:*
               filters:
-                - RewritePath=/task/(?<path>.*), /task/$\{path}
                 - AddRequestHeadersIfNotPresent=X-Gateway-Id:task-application
