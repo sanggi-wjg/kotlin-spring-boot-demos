@@ -1,2 +1,24 @@
 server:
   port: 8080
+
+spring:
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: order-application
+              uri: http://localhost:8081
+              predicates:
+                - Host=order.localhost:*
+              filters:
+                - RewritePath=/order/(?<path>.*), /order/$\{path}
+                - AddRequestHeadersIfNotPresent=X-Gateway-Id:order-application
+
+            - id: task-application
+              uri: http://localhost:8082
+              predicates:
+                - Host=task.localhost:*
+              filters:
+                - RewritePath=/task/(?<path>.*), /task/$\{path}
+                - AddRequestHeadersIfNotPresent=X-Gateway-Id:task-application

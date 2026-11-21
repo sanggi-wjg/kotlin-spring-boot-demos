@@ -10,18 +10,18 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/v1/orders")
 class OrderController {
     private val logger = LoggerFactory.getLogger(this::class.java)
 
-    @GetMapping("/{id}")
+    @GetMapping("/{orderId}")
     fun getOrderById(
         @RequestHeader headers: Map<String, String>,
-        @RequestHeader("X-Gateway-Id", required = false, defaultValue = "") gatewayId: String,
+        @RequestHeader("X-Gateway-Finger-Print", required = false, defaultValue = "") gatewayFingerprint: String,
         @RequestParam("redirect", required = false, defaultValue = "") redirect: String,
-        @PathVariable id: Long,
+        @PathVariable orderId: Long,
     ): ResponseEntity<String> {
-        logger.info("GatewayId: $gatewayId / Headers: $headers / OrderId: $id / Redirect: $redirect")
-        return ResponseEntity.ok("order $id")
+        logger.info("GatewayFingerPrint: $gatewayFingerprint / Headers: $headers / OrderId: $orderId / Redirect: $redirect")
+        return ResponseEntity.ok("Hello, Order $orderId")
     }
 }
