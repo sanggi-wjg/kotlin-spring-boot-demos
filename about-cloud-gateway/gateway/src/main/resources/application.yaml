@@ -24,7 +24,7 @@ spring:
                     redis-rate-limiter.replenishRate: 10 # 초당 채워지는 토큰
                     redis-rate-limiter.burstCapacity: 20 # 토큰 버킷 최대 크기
                     redis-rate-limiter.requestedTokens: 1 # 요청당 소모 토큰 수
-                    key-resolver: "#{@userKeyResolver}"
+                    key-resolver: "#{@userKeyResolver}" # RateLimiterConfig 빈 생성 / "#{@ipKeyResolver}" 사용 가능
 
             - id: task-application
               uri: http://localhost:8082

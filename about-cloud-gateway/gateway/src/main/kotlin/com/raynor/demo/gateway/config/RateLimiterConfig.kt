@@ -9,6 +9,13 @@ import reactor.core.publisher.Mono
 class RateLimiterConfig {
 
     @Bean
+    fun ipKeyResolver(): KeyResolver {
+        return KeyResolver { exchange ->
+            Mono.justOrEmpty(exchange.request.remoteAddress?.address?.hostAddress)
+        }
+    }
+
+    @Bean
     fun userKeyResolver(): KeyResolver {
         return KeyResolver { exchange ->
             Mono.justOrEmpty(exchange.request.remoteAddress?.address?.hostAddress)
