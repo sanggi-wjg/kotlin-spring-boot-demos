@@ -1,0 +1,14 @@
+name: about-gateway
+
+services:
+  redis:
+    image: redis:latest
+    container_name: gateway-redis
+    ports:
+      - '6501:6379'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 256M
+

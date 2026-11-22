@@ -14,6 +14,7 @@ ij_kotlin_name_count_to_use_star_import = 2147483647
 ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
 ij_kotlin_packages_to_use_import_on_demand = unset
 ktlint_standard_chain-method-continuation = disabled
+ktlint_standard_class-signature = disabled
 ktlint_standard_function-expression-body = disabled
 ktlint_standard_multiline-expression-wrapping = disabled
 ktlint_standard_no-empty-first-line-in-class-body = disabled
