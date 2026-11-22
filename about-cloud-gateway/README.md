@@ -13,7 +13,9 @@
 
 ## Rate-limit
 
+- https://spring.io/blog/2021/04/05/api-rate-limiting-with-spring-cloud-gateway
 - https://docs.spring.io/spring-cloud-gateway/reference/spring-cloud-gateway-server-webflux/gatewayfilter-factories/requestratelimiter-factory.html
+
 
 ## Ref
 
